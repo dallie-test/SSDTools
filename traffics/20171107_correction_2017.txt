@@ -1,0 +1,13 @@
+Maand	Correctie
+Nov	1.0057
+Dec	1.0085
+Jan	1.0068
+Feb	1.0066
+Mrt	1.0060
+Apr	1.0059
+Mei	1.0049
+Jun	1.0063
+Jul	1.0084
+Aug	1.0157
+Sep	1.0159
+Okt	1.0146
