@@ -48,9 +48,14 @@ def DENverdeling(df,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     df[hdr_LT][(df[hdr_LT] == 'L') | (df[hdr_LT] == 'A')] = hdr1
     df[hdr_LT][(df[hdr_LT] == 'T') | (df[hdr_LT] == 'D')] =  hdr2
     # use groubpy to aggregate
-#    df_out = df.groupby(['DEN']).agg({hdr_sum:'sum'}).reset_index()
-    df_out              = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    df_out          = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    # swap EM and N rows
+    df_out = df_out.reindex(["D", "E", "N","EM"])
+    
+    
     df_out[hdr3]    = df_out[hdr1]+df_out[hdr2]
+    # swap rows
+    
     df_out.loc['totaal']    = df_out.sum()
     # round to 100 
     df_out = round(df_out,-2)

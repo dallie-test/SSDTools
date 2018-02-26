@@ -5,8 +5,8 @@ pd, np, plt, datetime, pformat,lines,MultipleLocator,FuncFormatter = GP.importGP
 
 gj = 2017
 realisatie      = 'TIS_traffics/gj2017_AD.csv'
-prognose_winter = 'K:/D-CD/SSD/(b) CAP-EC/01 Kernactiviteiten/OP-Declaratie/2017/Evaluatie/evaluatie/GP2017/traffic Winterseizoen .txt'
-prognose_zomer  = 'K:/D-CD/SSD/(b) CAP-EC/01 Kernactiviteiten/OP-Declaratie/2017/Evaluatie/evaluatie/GP2017/traffic Zomerseizoen .txt'
+prognose_winter = 'K:/D-CD/SSD/(b) CAP-EC/01 Kernactiviteiten/OP-Declaratie/2017/Evaluatie/2. daisy_output/GP2017/traffic Winterseizoen .txt'
+prognose_zomer  = 'K:/D-CD/SSD/(b) CAP-EC/01 Kernactiviteiten/OP-Declaratie/2017/Evaluatie/2. daisy_output/GP2017/traffic Zomerseizoen .txt'
 
 output_excel    = 'output/traffic_tabellen.xls'
 
@@ -36,11 +36,11 @@ DEN = pd.concat([DEN_realisatie, DEN_prognose], axis=1)
 del DEN.index.name
 
 #%% summer winter distribution
-prognose_zomer  = int(round(data_prognose_winter['total'].sum(),-2))
-prognose_winter = int(round(data_prognose_zomer['total'].sum(),-2))
+prognose_zomer  = int(round(data_prognose_zomer['total'].sum(),-2))
+prognose_winter = int(round(data_prognose_winter['total'].sum(),-2))
 
 # zomer winter verdeling realisatie
-SW = GP.SWverdeling(data_realisatie,'date_ACT','Sum',gj)
+SW = GP.SWverdeling(data_realisatie_HV,'date_ACT','Sum',gj)
 
 #tabellen samenvoegen
 SW['prognose'] = SW['SW']
@@ -56,10 +56,54 @@ DEN.to_excel(writer,sheet_name='DENverdeling')
 SW.to_excel(writer,sheet_name='Seizoensverdeling')
 writer.save()
 
-
-
-
 #%% plot het baangebruik
+
+traffic = 'traffics/'
+output = 'output/'
+trf_files = [traffic +'traffic 1971-2015 - years_GP2017.txt',
+             traffic +'traffic 1971-2015 - years_GP2017+US0624.txt',
+             traffic +'traffic 2021 - years_GP2017+US0624+weer.txt',
+             traffic +'traffic 2021 - years_GP2017+empirie+weer.txt']
+
+trf_realisatie = traffic + '20171107_Traffic_2017_HV.txt'
+
+labels = ['GP2017', 'GO','GO+meteo','GO+meteo+OO']
+
+#%% DEN     
+GP.plot_baangebruik(trf_files,
+                    labels,
+                    trf_realisatie,
+                    TL='T',
+                    fname=output+'Lden_TO.png')
+
+GP.plot_baangebruik(trf_files,
+                    labels,
+                    trf_realisatie,
+                    TL='L',
+                    fname=output+'Lden_Landing.png')
+
+#%% night
+GP.plot_baangebruik(trf_files,
+                    labels,
+                    trf_realisatie,
+                    TL='T',
+                    DEN='N',
+                    ylim=[0,20000],
+                    dy=2000,
+                    fname=output+'Lnight_TO.png')
+
+GP.plot_baangebruik(trf_files,
+                    labels,
+                    trf_realisatie,
+                    TL='L',
+                    DEN='N',
+                    ylim=[0,20000],
+                    dy=2000,
+                    fname=output+'Lnight_Landing.png')
+
+
+
+
 
 
 
