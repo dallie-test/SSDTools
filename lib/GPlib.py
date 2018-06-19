@@ -23,9 +23,12 @@ def importGP():
     return pd, np, plt, datetime, pformat,lines,MultipleLocator,FuncFormatter
 
 
-def DENverdeling(df,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
-    
+def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     pd, np, plt, datetime, pformat,lines,MultipleLocator,FuncFormatter = importGP()
+    #%% make sure changes in this function do not affect df
+    df = df_in
+    #%% now perform operations
+    
     hdr1 = hdr_multiindex+ ', landingen'
     hdr2 = hdr_multiindex+ ', starts'
     hdr3 = hdr_multiindex+ ', totaal'
@@ -66,9 +69,13 @@ def DENverdeling(df,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     return df_out
 
 
-def SWverdeling(df,hdr_date,hdr_sum,gj):
+def SWverdeling(df_in,hdr_date,hdr_sum,gj):
     #import packages
     pd, np, plt, datetime, pformat,lines,MultipleLocator,FuncFormatter = importGP()
+    #%% make sure changes in this function do not affect df
+    df = df_in
+    
+    #%% now perform operations
     #make summer/winter column
     df[hdr_date] = pd.to_datetime(df[hdr_date])
     df['SW']  =df[hdr_sum]
@@ -370,7 +377,7 @@ def plot_baangebruik(trf_files,
         plt.show()
 
 
-
+#def tabel_baangebruik(trf):
 
 
 
