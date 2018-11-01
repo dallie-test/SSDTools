@@ -21,17 +21,17 @@ from matplotlib import rcParams
 import os
 
 #%% inputs folders
-input_folder1       = '../4.b Output Daisy/Hybride windroos met groot onderhoud/'
+input_folder1       = '../4.b Output Daisy/Hybride windroos/'
 input_folder2       = '../4.b Output Daisy/Hybride windroos/'
 input_folder3       = '../4.b Output Daisy/Hybride windroos met groot onderhoud incl GA grid/'
-winter_scenarios    = ['Winter onverstoord',
-                       'GOH 18C36C winter']
-zomer_scenarios     = ['Zomer onverstoord',
-                       'Zomer onverstoord deel 2',
-                       'GOH 0624',
-                       'GOH 18C36C zomer']
-#winter_scenarios    = ['Winterseizoen']
-#zomer_scenarios     = ['Zomerseizoen']
+#winter_scenarios    = ['Winter onverstoord',
+#                       'GOH 18C36C winter']
+#zomer_scenarios     = ['Zomer onverstoord',
+#                       'Zomer onverstoord deel 2',
+#                       'GOH 0624',
+#                       'GOH 18C36C zomer']
+winter_scenarios    = ['Winterseizoen']
+zomer_scenarios     = ['Zomerseizoen']
 
 output_folder       = 'output/'
 
@@ -287,8 +287,8 @@ cs2 = lg.plotContour(ax,hdr_den,dat_den,58,
                hs['kleuren']['wolkengrijs_1'])
 
 # Legenda
-cs1.collections[0].set_label('48 dB(A)')
-cs2.collections[0].set_label('58 dB(A)')
+cs1.collections[0].set_label('45 dB(A)')
+cs2.collections[0].set_label('48 dB(A)')
 
 legend = ax.legend(title=r'Etmaalperiode $L_{den}$',
                    fontsize = hs['size']['font'],

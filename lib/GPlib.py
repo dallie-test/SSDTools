@@ -832,7 +832,7 @@ def plot_baangebruik(trf_files,
         
     if fname:
         
-        fig.savefig(fname, dpi=dpi)
+        fig.savefig(fname, dpi=dpi, bbox_inches='tight')
         plt.show()
         plt.close(fig)
     else:
