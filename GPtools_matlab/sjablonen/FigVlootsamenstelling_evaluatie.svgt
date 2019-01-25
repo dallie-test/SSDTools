@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg viewBox="0 0 800 440"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+     
+<defs>
+    <marker id="pijl"
+      viewBox="0 0 150 150" refX="6" refY="25" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="50" markerHeight="50"
+      orient="0">
+	  <path style="fill-rule:evenodd;stroke-width:1;stroke:#088A08;fill:#04B404;stroke-opacity:1.0;fill-opacity:1.0"
+			d="m 15,25 c 30,-10 50,-25 50,-25 l -5,15 65,0 0,20 -65,0 5,15 c 0,0 -20,-15 -50,-25 z" />
+	  <circle cx="6" cy="25" r="5"
+			fill="#04B404" stroke="#088A08" stroke-width="1.0" />
+    </marker>
+</defs>
+
+<!-- .................................................................................................... -->     
+<!--     Prognose                                                                                         -->
+<!-- .................................................................................................... -->
+
+<g transform="translate(50 50)">
+
+    <!-- Plot opmaak voor Matlab -->
+	<plot object="plot_area"
+		id="plot1"
+ 		type="rectangle"
+		width="700"
+		height="210"
+		fill_style="fill:#d4dde8;fill-opacity:1.0"
+		frame_style="stroke:#5badd5;stroke-width:0.5"
+	/>
+
+	<plot object="x_axis"
+		id="plot1"
+		type="categories"
+		values="mtow_cat"
+		position="bottom"
+		grid_style="none"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:middle"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="y_axis"
+		id="plot1"
+		type="numeric"
+	    range="0:10:60"
+		position="left"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix="%"
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:end"
+		label_rotation="0"
+		label_offset="-7"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="bar_plot1"
+		id="plot1"
+		type="stacked"
+		values="percentage"
+		fill="#9fb4cf"
+		stroke="#3b6968"
+		style="stroke-width:0.5"
+		bar_width="30"
+		decimals="0"
+		decimal_sign=","
+		label_postfix="%"
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:middle"
+		label_xoffset="-17"
+		label_yoffset="-8"
+	/>
+
+<!-- .................................................................................................... -->     
+<!--     Realisatie                                                                                       -->
+<!-- .................................................................................................... -->     
+ 
+	<plot object="xy_plot1"
+		id="plot1"
+		type="line"
+		x_values=""
+		y_values="percentage2"
+		style="stroke:#ffffff;stroke-opacity:0;stroke-width:2"
+		marker="pijl"
+		decimals="1"
+		decimal_sign=","
+		label_postfix="%"
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:5pt;font-weight:normal;fill:none;text-anchor:end"
+		label_xoffset="39"
+		label_yoffset="2"
+	/>
+	
+	<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	
+		     Hieronder volgt het statische deel van het sjabloon
+	
+	     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+	<!-- Tekst X-as -->
+   <g style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor: middle">
+         <text x="350"  y="240">Maximum startgewicht in tonnen</text>
+   </g>
+	
+    <g transform="translate(0 340)">
+        <g style="font_family:Myriad Pro;font-size:8px;font-weight:bold;fill:#333333;text-anchor:middle">
+             <text x="50"  y="00">Kleine</text>
+             <text x="50"  y="10">zakenjets</text>
+             
+             <text x="150" y="00">Fokker 70</text>
+             <text x="150" y="10">Embraer</text>
+             <text x="150" y="20">ERJ145/RJ135</text>
+             <text x="150" y="30">Bombardier CRJ</text>
+             
+             <text x="250" y="00">Embraer</text>
+             <text x="250" y="10">190/195</text>
+             <text x="250" y="20">Fokker 100</text>
+             <text x="250" y="30">Bae 146</text>
+             <text x="250" y="40">Boeing 737-300</text>
+
+             <text x="350" y="00">Boeing 737</text>
+             <text x="350" y="10">-400, -800, -900</text>
+             <text x="350" y="20">Airbus A318</text>
+             <text x="350" y="30">A319, A320,A321</text>
+             <text x="350" y="40">Boeing 757-200</text>
+
+             <text x="450" y="00">Airbus A330</text>
+             <text x="450" y="10">Boeing 767-300</text>
+			 <text x="450" y="20">Boeing 787</text>
+             
+             <text x="550" y="00">Boeing 777-200</text>
+             <text x="550" y="10">MD-11</text>
+
+             <text x="650" y="00">Boeing 747-</text>
+             <text x="650" y="10">-200, -300, -400</text>
+             <text x="650" y="20">Boeing 777-300</text>
+			 <text x="650" y="30">Airbus A380</text>
+       </g>
+    </g>
+    
+    <!-- Vliegtuigjes -->
+    <g transform="translate(0 230)">
+	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/1. DA20.png"             x="35"  y="30" width="40"  height="40"  preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/2. Fokker 100.png"       x="115" y="40" width="60"  height="60"  preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/3. Embraer 190.png"      x="200" y="10" width="105"  height="105"  preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/4. 737-800 winglets.png" x="310" y="35" width="80"  height="80"  preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/6. B777-200.png"         x="470" y="20" width="170" height="170" preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/5. A330-300.png"         x="385" y="10" width="110" height="110" preserveAspectRatio="xMinYMin meet"/>
+   	    <image class="Vliegtuigje" xlink:href="./Vliegtuigjes/7. B747-400.png"         x="585" y="00" width="140" height="140" preserveAspectRatio="xMinYMin meet"/>
+    </g>
+
+    <!-- Vliegtuigjes - vertikale lijnen -->
+    <g transform="translate(0 210)">
+	    <g  style="stroke:#5badd5;stroke-width:0.5px">
+			<line x1="0"   y1="5"   x2="0"   y2="170"/>
+			<line x1="100" y1="5"   x2="100" y2="170"/>
+			<line x1="200" y1="5"   x2="200" y2="170"/>
+			<line x1="300" y1="45"  x2="300" y2="170"/>
+	
+			<line x1="400" y1="45"  x2="400" y2="65"/>
+			<line x1="400" y1="80"  x2="400" y2="170"/>
+	
+			<line x1="500" y1="5"   x2="500" y2="90"/>
+			<line x1="500" y1="110" x2="500" y2="170"/>
+	
+			<line x1="600" y1="5"   x2="600" y2="65"/>
+	        <line x1="600" y1="85"  x2="600" y2="95"/>
+			<line x1="600" y1="125" x2="600" y2="170"/>
+	
+			<line x1="700" y1="5"   x2="700" y2="65"/>
+			<line x1="700" y1="95"  x2="700" y2="170"/>
+	    </g>
+	</g>
+
+	<!-- Legenda -->
+    <g transform="translate(0, -20)">
+		<rect x="628"  y= "-15" width="15" height="30" style="stroke-width:0.5;stroke:#3b6968;fill:#9fb4cf" />
+		<polyline id="realisatie" points="520,0"  style="stroke:#ffffff;stroke-opacity:0;stroke-width:2;marker:url(#pijl)" />
+		
+        <g style="font-family:Myriad Pro;font-size:10px;font-weight:normal;fill:#333333;text-anchor:left;">
+            <text x="570" y="2">realisatie</text>
+            <text x="650" y="2">prognose</text>
+        </g>
+    </g>
+
+</g>
+</svg>

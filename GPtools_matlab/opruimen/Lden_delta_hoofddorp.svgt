@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg width="140mm" height="140mm"
+     <plot object="viewbox"
+           id="ref" 
+           size="0,0,1400,1400"/>
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<svg <plot object="viewbox" id="plot1" size="22000,50000,8000,8000"/>>	 
+	<!--  Achtergrond: A4 -->
+	<image xlink:href="Schiphol_RD900dpiw.png" x="0" y="0" width="70000" height="99000"/>
+
+	<g transform="scale(1,-1) translate(-80000,-536500)">
+
+		<!-- nominale 48 en 58 dB contour -->
+		<plot object="contour_plot"
+			id="plot1b"
+			type="line"
+			method="matlab"
+			grid="mean"
+			dB="0.2,0.5,1"
+			stroke="0.2,#9400D3,0.2;0.5,#9400D3,0.3,1,#9400D3,0.5"
+			fill="0.2,#9400D3,0.1;0.5,#9400D3,0.2,1,#9400D3,0.5"
+			style="fill:none;stroke-width:20"
+		/>
+      
+      		<!-- nominale 48 en 58 dB contour -->
+		<plot object="contour_plot"
+			id="plot1b"
+			type="line"
+			method="matlab"
+			grid="mean"
+			dB="-0.2,-0.5,-1,-1.5"
+			stroke="-1.5,#009900,0.85;-1,#00FF00,0.85;-0.5,#33FF33,0.85,-0.2,#88FF88,0.85;0,#000000,0.85"
+			fill="-1.5,#009900,0.8;-1,#00FF00,0.6;-0.5,#33FF33,0.4,-0.2,#88FF88,0.2;0,#000000,0.85"
+			style="fill:none;stroke-width:20"
+		/>
+
+		<g transform="scale(1,-1)" style="font-family:Schiphol Frutiger;font-size:400px;font-weight:bold;fill:#000000;text-anchor:start">
+			<text x="112312"  y="-475088">AALSMEER</text>
+			<text x="111494"  y="-476391">AALSMEERDERBRUG</text>
+			<text x="109941"  y="-461621">AARLANDERVEEN</text>
+			<text x="100643"  y="-471939">ABBENES</text>
+			<text x="126556"  y="-476088">ABCOUDE</text>
+			<text x="110692"  y="-508345">AKERSLOOT</text>
+			<text x="117275"  y="-471663">AMSTELHOEK</text>
+			<text x="119736"  y="-480510">AMSTELVEEN</text>
+			<text x="121490"  y="-487040">AMSTERDAM</text>
+			<text x="126652"  y="-480085">AMSTERDAM ZUIDOOST</text>
+			<text x="135274"  y="-475172">ANKEVEEN</text>
+			<text x="112130"  y="-500114">ASSENDELFT</text>
+			<text x="127778"  y="-473206">BAAMBRUGGE</text>
+			<text x="113636"  y="-483521">BADHOEVEDORP</text>
+			<text x="100951"  y="-477857">BEINSDORP</text>
+			<text x="101311"  y="-481742">BENNEBROEK</text>
+			<text x="105432"  y="-500168">BEVERWIJK</text>
+			<text x="111054"  y="-455089">BODEGRAVEN</text>
+			<text x="109929"  y="-486117">BOESINGHELIEDE</text>
+			<text x="128078"  y="-494295">BROEK IN WATERLAND</text>
+			<text x="98454"  y="-470626">BUITENKAAG</text>
+			<text x="106534"  y="-506642">CASTRICUM</text>
+			<text x="103718"  y="-483387">CRUQUIUS</text>
+			<text x="115835"  y="-468225">DE HOEF</text>
+			<text x="114480"  y="-472501">DE KWAKEL</text>
+			<text x="118351"  y="-507775">DE RIJP</text>
+			<text x="113523"  y="-506763">DE WOUDE</text>
+			<text x="125830"  y="-483538">DIEMEN</text>
+			<text x="124600"  y="-482866">DUIVENDRECHT</text>
+			<text x="117355"  y="-508440">GRAFT</text>
+			<text x="118582"  y="-510643">GROOTSCHERMER</text>
+			<text x="103853"  y="-488683">HAARLEM</text>
+			<text x="107507"  y="-489197">HAARLEMMERLIEDE</text>
+			<text x="111876"  y="-488625">HALFWEG NH</text>
+			<text x="107138"  y="-503174">HEEMSKERK</text>
+			<text x="103022"  y="-484479">HEEMSTEDE</text>
+			<text x="100370"  y="-478662">HILLEGOM</text>
+			<text x="107497"  y="-480019">HOOFDDORP</text>
+			<text x="102425"  y="-497032">IJMUIDEN</text>
+			<text x="118415"  y="-502374">JISP</text>
+			<text x="98428"  y="-470097">KAAG</text>
+			<text x="121293"  y="-458247">KAMERIK</text>
+			<text x="88290"  y="-468353">KATWIJK ZH</text>
+			<text x="125114"  y="-462325">KOCKENGEN</text>
+			<text x="115412"  y="-497163">KOOG AAN DE ZAAN</text>
+			<text x="112221"  y="-501940">KROMMENIE</text>
+			<text x="111608"  y="-472452">KUDELSTAART</text>
+			<text x="122803"  y="-493635">LANDSMEER</text>
+			<text x="94030"  y="-463744">LEIDEN</text>
+			<text x="105782"  y="-470999">LEIMUIDEN</text>
+			<text x="105867"  y="-471680">LEIMUIDERBRUG</text>
+			<text x="111894"  y="-485296">LIJNDEN</text>
+			<text x="108022"  y="-509557">LIMMEN</text>
+			<text x="98350"  y="-474757">LISSE</text>
+			<text x="99273"  y="-475038">LISSERBROEK</text>
+			<text x="130120"  y="-469278">LOENEN AAN DE VECHT</text>
+			<text x="128502"  y="-471133">LOENERSLOOT</text>
+			<text x="113884"  y="-504899">MARKENBINNEN</text>
+			<text x="120391"  y="-468667">MIJDRECHT</text>
+			<text x="133264"  y="-482354">MUIDEN</text>
+			<text x="136548"  y="-482075">MUIDERBERG</text>
+			<text x="131636"  y="-474738">NEDERHORST DEN BERG</text>
+			<text x="103431"  y="-475380">NIEUW VENNEP</text>
+			<text x="102269"  y="-468812">NIEUWE WETERING</text>
+			<text x="127288"  y="-467051">NIEUWER TER AA</text>
+			<text x="113261"  y="-462606">NIEUWKOOP</text>
+			<text x="111889"  y="-467984">NIEUWVEEN</text>
+			<text x="130521"  y="-476265">NIGTEVECHT</text>
+			<text x="116748"  y="-464432">NOORDEN</text>
+			<text x="90987"  y="-472850">NOORDWIJK ZH</text>
+			<text x="94127"  y="-475059">NOORDWIJKERHOUT</text>
+			<text x="92375"  y="-466166">OEGSTGEEST</text>
+			<text x="114509"  y="-503391">OOSTKNOLLENDAM</text>
+			<text x="120221"  y="-494869">OOSTZAAN</text>
+			<text x="98880"  y="-467375">OUD ADE</text>
+			<text x="113802"  y="-478165">OUDE MEER</text>
+			<text x="104238"  y="-469824">OUDE WETERING</text>
+			<text x="122809"  y="-478632">OUDERKERK AAN DE AMSTEL</text>
+			<text x="106080"  y="-468107">RIJNSATERWOUDE</text>
+			<text x="90447"  y="-467214">RIJNSBURG</text>
+			<text x="99969"  y="-467706">RIJPWETERING</text>
+			<text x="108952"  y="-475104">RIJSENHOUT</text>
+			<text x="103320"  y="-468466">ROELOFARENDSVEEN</text>
+			<text x="103690"  y="-494450">SANTPOORT-NOORD</text>
+			<text x="95750"  y="-471084">SASSENHEIM</text>
+			<text x="111781"  y="-477046">SCHIPHOL-RIJK</text>
+			<text x="136827"  y="-472935">'S-GRAVELAND</text>
+			<text x="107293"  y="-491904">SPAARNDAM</text>
+			<text x="106678"  y="-492246">SPAARNDAM WEST</text>
+			<text x="117350"  y="-505777">SPIJKERBOOR NH</text>
+			<text x="114712"  y="-506199">STARNMEER</text>
+			<text x="108578"  y="-464302">TER AAR</text>
+			<text x="109186"  y="-505055">UITGEEST</text>
+			<text x="117063"  y="-473098">UITHOORN</text>
+			<text x="104179"  y="-498597">VELSEN-NOORD</text>
+			<text x="105022"  y="-497229">VELSEN-ZUID</text>
+			<text x="105316"  y="-494144">VELSERBROEK</text>
+			<text x="106994"  y="-485180">VIJFHUIZEN</text>
+			<text x="124082"  y="-469763">VINKEVEEN</text>
+			<text x="93443"  y="-470851">VOORHOUT</text>
+			<text x="130488"  y="-471425">VREELAND</text>
+			<text x="113791"  y="-469722">VROUWENAKKER</text>
+			<text x="94284"  y="-467715">WARMOND</text>
+			<text x="125415"  y="-494767">WATERGANG</text>
+			<text x="121625"  y="-470448">WAVERVEEN</text>
+			<text x="131363"  y="-480066">WEESP</text>
+			<text x="114836"  y="-507568">WEST GRAFTDIJK</text>
+			<text x="121940"  y="-509851">WESTBEEMSTER</text>
+			<text x="114233"  y="-503726">WESTKNOLLENDAM</text>
+			<text x="113190"  y="-497563">WESTZAAN</text>
+			<text x="104363"  y="-470698">WETERINGBRUG</text>
+			<text x="119172"  y="-500094">WIJDEWORMER</text>
+			<text x="101082"  y="-500738">WIJK AAN ZEE</text>
+			<text x="121975"  y="-467609">WILNIS</text>
+			<text x="119282"  y="-463068">WOERDENSE VERLAAT</text>
+			<text x="115971"  y="-501373">WORMER</text>
+			<text x="114986"  y="-500456">WORMERVEER</text>
+			<text x="103715"  y="-464779">WOUBRUGGE</text>
+			<text x="117059"  y="-495064">ZAANDAM</text>
+			<text x="115294"  y="-498639">ZAANDIJK</text>
+			<text x="117788"  y="-458300">ZEGVELD</text>
+			<text x="113590"  y="-465964">ZEVENHOVEN</text>
+			<text x="124787"  y="-503151">ZUIDOOSTBEEMSTER</text>
+			<text x="113928"  y="-510929">ZUIDSCHERMER</text>
+			<text x="102518"  y="-480821">ZWAANSHOEK</text>
+			<text x="110804"  y="-488315">ZWANENBURG</text>
+			<text x="104150"  y="-481253">DE FLORIANDE</text>
+		</g>		
+	</g>
+		
+</svg>
+
+<!-- Onderstaande staat op een vaste plaats op de pagina -->
+
+<!-- schaalbalk -->
+<g transform="translate(35,1350)">
+	<plot object="scalebar"
+		id="plot1"
+		range="0:1000:10000"
+		style1="fill:#333333;stroke:#333333;stroke-width:2"
+		style2="fill:none;stroke:#333333;stroke-width:2"
+	    height="10"
+   		label="10 km"
+		label_style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#333333;text-anchor:start;"
+    />
+</g>
+
+<!-- Legenda -->
+<g transform="translate(950,1050)">
+    <!-- kader -->
+	<rect width="428" height="345" x="0" y="0" style="fill:#ffffff;fill-opacity:0.7;stroke:#aaaaaa;stroke-width:1.0" />
+	
+	<!-- contouren -->
+	<rect x="20" y="10" width="120" height="30" style="fill:#88FF88;fill-opacity:0.2;stroke:none"/>
+	<rect x="20" y="10" width="120" height="30" style="fill:#33FF33;fill-opacity:0.4;stroke:none"/>
+	<rect x="20" y="10" width="120" height="30" style="fill:#00FF00;fill-opacity:0.6;stroke:none"/>
+	<rect x="20" y="10" width="120" height="30" style="fill:#009900;fill-opacity:0.8;stroke:none"/>
+	
+	
+	
+	<rect x="20" y="60" width="120" height="30" style="fill:#33FF33;fill-opacity:0.4;stroke:none"/>
+	<rect x="20" y="60" width="120" height="30" style="fill:#00FF00;fill-opacity:0.6;stroke:none"/>
+	
+	<rect x="20" y="110" width="120" height="30" style="fill:#88FF88;fill-opacity:0.2;stroke:none"/>
+   <rect x="20" y="110" width="120" height="30" style="fill:#33FF33;fill-opacity:0.4;stroke:none"/>
+   
+   
+   <rect x="20" y="160" width="120" height="30" style="fill:#88FF88;fill-opacity:0.2;stroke:none"/>
+   
+   <rect x="20" y="210" width="120" height="30" style="fill:#9400D3;fill-opacity:0.1;stroke:none"/>
+   
+   <rect x="20" y="260" width="120" height="30" style="fill:#9400D3;fill-opacity:0.1;stroke:none"/>
+   <rect x="20" y="260" width="120" height="30" style="fill:#9400D3;fill-opacity:0.2;stroke:none"/>
+   
+   <rect x="20" y="310" width="120" height="30" style="fill:#9400D3;fill-opacity:0.1;stroke:none"/>
+   <rect x="20" y="310" width="120" height="30" style="fill:#9400D3;fill-opacity:0.2;stroke:none"/>
+   <rect x="20" y="310" width="120" height="30" style="fill:#9400D3;fill-opacity:0.5;stroke:none"/>
+	
+	
+	
+	
+	
+	
+	<g style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#333333;text-anchor:left;">
+	<text x="160" y="35">1.5 - 2.5 dB(A) afname </text>
+	<text x="160" y="85">1 - 1.5  dB(A) afname</text>
+	<text x="160" y="135">0.5 - 1  dB(A) afname</text>
+	<text x="160" y="185">0.2 - 0.5 dB(A) afname</text>
+	<text x="160" y="235">0.2 - 0.5 dB(A) toename</text>
+	<text x="160" y="285">0.5 - 1 dB(A) toename</text>
+	<text x="160" y="335">1 - 1.5 dB(A) toename</text>
+	</g>
+
+</g>
+
+</svg>

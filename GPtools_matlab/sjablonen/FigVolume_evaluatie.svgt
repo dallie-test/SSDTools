@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg viewBox="0 0 800 400"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<defs>
+    <marker id="dot"
+      viewBox="0 0 10 10" refX="1" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="2" markerHeight="2"
+      orient="0">
+      <circle cx="1" cy="1" r="2"
+        fill="black" stroke="black" stroke-width="1.0"  />
+    </marker>
+
+    <marker id="cirkel"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="5" markerHeight="5"
+      orient="0">
+      <circle cx="5" cy="5" r="4"
+        fill="#c8e0eb" stroke="#5b9397" stroke-width="1.0"  />
+    </marker>
+
+    <marker id="rechthoek"
+      viewBox="0 0 30 5" refX="15" refY="2.5" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="30" markerHeight="5"
+      orient="0">
+      <rect width="30" height="5"
+        fill="#adc5e2" stroke="#3b6968" stroke-width="0.5"  />
+    </marker>
+    
+    <marker id="streepje"
+      viewBox="0 0 10 2" refX="4" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="6" markerHeight="1"
+      orient="0">
+      <rect width="8" height="2"
+        fill="#5b9397" stroke="#5b9397" stroke-width="0.5"  />
+    </marker>
+    
+    <marker id="streepje2"
+      viewBox="0 0 10 2" refX="4" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="10" markerHeight="2"
+      orient="0">
+      <rect width="8" height="2"
+        fill="#5b9397" stroke="#5b9397" stroke-width="0.5"  />
+    </marker>
+
+    <marker id="pijl"
+      viewBox="0 0 150 150" refX="6" refY="25" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="50" markerHeight="50"
+      orient="0">
+	  <path style="fill-rule:evenodd;stroke-width:1;stroke:#088A08;fill:#04B404;stroke-opacity:1.0;fill-opacity:1.0"
+			d="m 15,25 c 30,-10 50,-25 50,-25 l -5,15 65,0 0,20 -65,0 5,15 c 0,0 -20,-15 -50,-25 z" />
+	  <circle cx="6" cy="25" r="5"
+			fill="#04B404" stroke="#088A08" stroke-width="1.0" />
+    </marker>
+</defs>
+
+<!-- .................................................................................................... -->     
+<!--     Prognose                                                                                         -->
+<!-- .................................................................................................... -->
+<g transform="translate(50 50)">
+	
+    <!-- Plot opmaak voor Matlab -->
+	<plot object="plot_area"
+		id="plot1"
+ 		type="rectangle"
+		width="700"
+		height="210"
+		fill_style="fill:#d4dde8;fill-opacity:1.0"
+		frame_style="stroke:#5badd5;stroke-width:0.5"
+	/>
+
+	<plot object="x_axis"
+		id="plot1"
+		type="numeric"
+		range="2000:2018"
+		values=""
+		position="bottom"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator=""
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:middle"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="y_axis"
+		id="plot1"
+		type="numeric"
+	    range="350000:50000:500000"
+		position="left"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:end"
+		label_rotation="0"
+		label_offset="-7"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="xy_plot2"
+		id="plot1"
+		type="normal"
+		x_values="history_year"
+		y_values="history_verkeer"
+		style="stroke:#5b9397;stroke-width:2"
+		marker="cirkel"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="0"
+		label_yoffset="0"
+	/>
+
+	<plot object="xy_plot3"
+		id="plot1"
+		type="hilo"
+		x_values="prognosis_year"
+		y_values="prognosis_verkeer_min"
+		y_values2="prognosis_verkeer_max"
+		style="stroke:#5b9397;stroke-width:1.5"
+		marker="streepje"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="3"
+		label_yoffset="2"
+	/>
+	
+	<plot object="xy_plot4"
+		id="plot1"
+		type="normal"
+		x_values="prognosis_year"
+		y_values="prognosis_verkeer"
+		style="stroke:#ffffff;stroke-opacity:0"
+		marker="streepje2"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="5"
+		label_yoffset="2"
+	/>
+
+
+<!-- .................................................................................................... -->     
+<!--     Realisatie                                                                                       -->
+<!-- .................................................................................................... -->
+	
+	<plot object="xy_plot2"
+		id="plot1"
+		type="normal"
+		x_values="realisation_year"
+		y_values="realisation_verkeer"
+		style="stroke:#ffffff;stroke-opacity:0"
+		marker="pijl"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:5pt;font-weight:normal;fill:none;text-anchor:end"
+		label_xoffset="39"
+		label_yoffset="2"
+	/>
+
+	<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	
+		     Hieronder volgt het statische deel van het sjabloon
+	
+	     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+    <!-- Legenda -->
+    <g transform="translate(500, -20)">
+		<polyline id="prog_minmax"     points="145,-6 145,14" style="stroke:#5b9397;stroke-width:1.5;marker:url(#streepje)" />
+		<polyline id="prog_mean"       points="145,4"         style="stroke:#ffffff;stroke-opacity:0;stroke-width:1.5;marker:url(#streepje2)" />
+		<polyline id="realisatie"      points="15,-2 55,-2"   style="stroke:#5b9397;stroke-width:2;marker:url(#cirkel)" />
+		<polyline id="realisatie 2017" points="15,10"         style="stroke:#ffffff;stroke-opacity:0;stroke-width:2;marker:url(#pijl)" />
+		
+        <g style="font-family:Myriad Pro;font-size:10px;font-weight:normal;fill:#333333;text-anchor:left;">
+            <text x="65" y="0">realisatie</text>
+            <text x="65" y="12">realisatie 2017</text>
+            <text x="155" y="6">prognose</text>
+        </g>
+    </g>
+</g>
+</svg>
+

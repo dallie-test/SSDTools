@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+
+<!-- Let op het rekengebied van de noise heeft niet de verhouding van een A4 --> 
+<svg width="210mm" height="240mm" <plot object="viewbox" id="ref" size="0,0,2100,2393"/>
+
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<!-- Let op het rekengebied van de noise heeft niet de verhouding van een A4 --> 
+<svg <plot object="viewbox" id="plot1" size="4000,16375,61000,69500"/>>
+          
+	<!--  Achtergrond: A4, 300 dpi -->
+	<image xlink:href="Schiphol_RD900dpi.png" x="0" y="0" width="78750" height="111375"/>
+
+	<g transform="scale(1,-1) translate(-80000,-541375)">
+	
+	<!-- Realisatie -->
+	<plot object="contour_plot"
+	    id="plot1"
+		type="delta"
+		grid="delta"
+		dB="-10,-6:0.5:6,10"
+		stroke="none"
+		fill="-99,#00F600,0.9;-6,#00F600,0.9;-0.5,#E9FEC0,0.35;0,#FFFFFF,0.3;0.5,#FFF0C0,0.35;6,#FF6900,0.9;99,#FF6900,0.9"
+		style="fill-rule:evenodd;stroke-width:5"
+	/>
+	
+	<!-- Prognose -->
+	<plot object="contour_plot"
+		id="plot1a"
+		type="hilo"
+		grid="dhi"
+		grid2="dlo"
+		dB="40,48"
+		stroke="40,#cc66ff,0.6;50,#9933ff,0.6"
+		fill="40,#cc66ff,0.6;50,#9933ff,0.6"
+		style="fill-rule:evenodd;stroke-width:50"
+	/>
+
+	<!-- nominale 40 en 48 dB contour -->
+	<plot object="contour_plot"
+		id="plot1b"
+		type="line"
+		grid="mean"
+		dB="40,48"
+		stroke="40,#cc66ff,0.6;50,#9933ff,0.6"
+		fill="none"
+		style="fill:none;stroke-width:150"
+	/>
+	<plot object="contour_plot"
+		id="plot1c"
+		type="line"
+		grid="mean"
+		dB="40,48"
+		stroke="40,#ffffff,1.0;50,#ffffff,1.0"
+		fill="none"
+		style="fill:none;stroke-width:100"
+	/>
+	</g>
+
+</svg>
+
+
+<!-- Onderstaande staat op een vaste plaats op de pagina -->
+
+<!-- Nummertjes: deze staan net buiten beeld. Sleep ze in Inkscape naar de gewenste plek. -->
+
+<g transform="translate(-50,200)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">1</text>
+</g>
+<g transform="translate(-50,250)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">2</text>
+</g>
+<g transform="translate(-50,300)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">3</text>
+</g>
+<g transform="translate(-50,350)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">4</text>
+</g>
+<g transform="translate(-50,400)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">5</text>
+</g>
+<g transform="translate(-50,450)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">6</text>
+</g>
+<g transform="translate(-50,500)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">7</text>
+</g>
+<g transform="translate(-50,550)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">8</text>
+</g>
+<g transform="translate(-50,600)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">9</text>
+</g>
+<g transform="translate(-50,650)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" fill-opacity="0.4" stroke="#000000" stroke-width="2"  />
+	<text  x="0"  y="6pt" style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:middle;">10</text>
+</g>
+
+<!-- schaalbalk -->
+<g transform="translate(25,2330)">
+	<plot object="scalebar"
+		id="plot1"
+		range="0:1000:10000"
+		style1="fill:black;stroke:black;stroke-width:2"
+		style2="fill:none;stroke:black;stroke-width:2"
+	    height="15"
+   		label="10 km"
+		label_style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:start;"
+    />
+</g>
+
+<!-- Legenda -->
+<g transform="translate(1815,1745)">
+    <!-- kader -->
+	<rect width="260" height="600" x="0" y="0" style="fill:#bbbbbb;fill-opacity:0.4;stroke:#dddddd;stroke-width:1.0" />
+
+	<plot object="floodbar"
+		id="plot1"
+		width="75"
+		height="600"
+		range="-6:6"
+		style="stroke-width:0.5"
+		tic_style="stroke:#000000;stroke-width:1.0"
+		labels="-5:1:5"
+		label_style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:start;"
+	/>
+</g>
+
+<g transform="translate(1515,2245)">
+    <!-- kader -->
+	<rect width="275" height="100" x="0" y="0" style="fill:#bbbbbb;fill-opacity:0.4;stroke:#dddddd;stroke-width:1.0" />
+	
+	<!-- contouren -->
+	<rect x="20" y="10" width="120" height="30" style="fill:#e093ff;fill-opacity:0.5;stroke:none"/>
+    <rect x="20" y="60" width="120" height="30" style="fill:#9933ff;fill-opacity:0.5;stroke:none"/>
+		
+	<path style="fill:none;stroke:#ffffff;stroke-width:2.5;stroke-opacity:1"
+		d="M 20,17 q 15 -5 60 8 q 45 13 60 8
+		   M 20,67 q 15 -5 60 8 q 45 13 60 8"
+	/>
+	
+	<g style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#333333;text-anchor:left">
+		<text x="160" y="35">40 dB(A)</text>
+		<text x="160" y="85">48 dB(A)</text>
+	</g>
+
+</g>
+
+</svg>

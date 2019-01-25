@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg viewBox="0 0 800 310"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<defs>
+    <marker id="dot"
+      viewBox="0 0 10 10" refX="1" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="2" markerHeight="2"
+      orient="0">
+      <circle cx="1" cy="1" r="2"
+        fill="black" stroke="black" stroke-width="1.0"  />
+    </marker>
+
+    <marker id="cirkel"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="5" markerHeight="5"
+      orient="0">
+      <circle cx="5" cy="5" r="4"
+        fill="#c8e0eb" stroke="#5b9397" stroke-width="1.0"  />
+    </marker>
+
+    <marker id="rechthoek"
+      viewBox="0 0 30 5" refX="15" refY="2.5" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="30" markerHeight="5"
+      orient="0">
+      <rect width="30" height="5"
+        fill="#adc5e2" stroke="#3b6968" stroke-width="0.5"  />
+    </marker>
+    
+    <marker id="streepje"
+      viewBox="0 0 10 2" refX="4" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="6" markerHeight="1"
+      orient="0">
+      <rect width="8" height="2"
+        fill="#5b9397" stroke="#5b9397" stroke-width="0.5"  />
+    </marker>
+    
+    <marker id="streepje2"
+      viewBox="0 0 10 2" refX="4" refY="1" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="10" markerHeight="2"
+      orient="0">
+      <rect width="8" height="2"
+        fill="red" stroke="red" stroke-width="0.5"  />
+    </marker>
+
+
+</defs>
+     
+<!-- Grafiek -->
+<g transform="translate(50 50)">
+	
+    <!-- Plot opmaak voor Matlab -->
+	<plot object="plot_area"
+		id="plot1"
+ 		type="rectangle"
+		width="700"
+		height="210"
+		fill_style="fill:#d4dde8;fill-opacity:1.0"
+		frame_style="stroke:#5badd5;stroke-width:0.5"
+	/>
+
+	<plot object="x_axis"
+		id="plot1"
+		type="numeric"
+		range="2000:2018"
+		values=""
+		position="bottom"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator=""
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:middle"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="y_axis"
+		id="plot1"
+		type="numeric"
+	    range="0:50000:250000"
+		position="left"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:end"
+		label_rotation="0"
+		label_offset="-7"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="xy_plot1"
+		id="plot1"
+		type="area"
+		x_values="fill_x"
+		y_values="fill_min"
+		y_values2="fill_max"
+		style="stroke:#5b9397;fill:#5b9397;fill-opacity:0.3;stroke-opacity:0.3;stroke-width:0.2"
+		marker="dot"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="0"
+		label_yoffset="0"
+	/>
+	
+	<plot object="xy_plot2"
+		id="plot1"
+		type="normal"
+		x_values="history_x"
+		y_values="history_y"
+		style="stroke:#5b9397;stroke-width:2"
+		marker="cirkel"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="0"
+		label_yoffset="0"
+	/>
+
+	<plot object="xy_plot3"
+		id="plot1"
+		type="hilo"
+		x_values="prognosis_x"
+		y_values="prognosis_min"
+		y_values2="prognosis_max"
+		style="stroke:#5b9397;stroke-width:1.5"
+		marker="streepje"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="3"
+		label_yoffset="2"
+	/>
+	
+	<plot object="xy_plot4"
+		id="plot1"
+		type="normal"
+		x_values="prognosis_x"
+		y_values="prognosis_mean"
+		style="stroke:none;stroke-width:1.5"
+		marker="streepje2"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="5"
+		label_yoffset="2"
+	/>
+
+	<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	
+		     Hieronder volgt het statische deel van het sjabloon
+	
+	     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+
+</g>
+
+</svg>
+

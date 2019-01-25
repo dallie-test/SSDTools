@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg width="210mm" height="297mm"
+     <plot object="viewbox"
+           id="ref"
+           size="0,0,2100,2970"/>
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<svg <plot object="viewbox" id="plot1" size="0,0,78750,111375"/>>
+          
+	<!--  Achtergrond: A4, 300 dpi -->
+	<image xlink:href="Schiphol_RD900dpi.png" x="0" y="0" width="78750" height="111375"/>
+
+	<g transform="scale(1,-1) translate(-80000,-541375)">
+	
+	<!-- Kaartuitsneden -->
+		<g style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:250">
+	 		<rect id="Cluster Aalsmeerbaan"       width="38000" height="53700" x="102500"  y="440000"/>
+			<rect id="Cluster Buitenveldertbaan"  width="44000" height="62200" x="112000"  y="454000"/>
+			<rect id="Cluster Kaagbaan"           width="38000" height="53700" x="82500"   y="449000"/>
+			<rect id="Cluster Polderbaan"         width="38000" height="53700" x="94500"   y="476000"/>
+			<rect id="Cluster Zwanenburgbaan"     width="30000" height="42400" x="105500"  y="468000"/>
+		</g>
+	
+		<g transform="scale(100,-100)" style="font-family:Myriad Pro;font-size:12px;font-weight:normal;fill:#000000;text-anchor:start">
+			<text x="1030" y="-4405">Cluster Aalsmeerbaan</text>
+			<text x="1552" y="-5147" style="text-anchor:end">Cluster Buitenveldertbaan</text>    
+			<text x="830"  y="-4495">Cluster Kaagbaan</text>        
+			<text x="950"  y="-5282">Cluster Polderbaan</text>
+			<text x="1060" y="-5089">Cluster Zwanenburgbaan</text>
+		</g>
+				
+		<!-- Gevulde Lnight contouren -->
+		<plot object="contour_plot"
+			id="plot1"
+			type="flood"
+			method="tape2"
+			grid="mean"
+			dB="38:0.1:40,41:62"
+			stroke="38,#41789B,0.00;39.9,#4093A5,0.0;40,#4093A5,0.50;45,#5DBD52,0.50;50,#B3FF40,0.20;62,#ac3400,0.05"
+			  fill="38,#41789B,0.05;39.9,#4093A5,0.3;40,#4093A5,0.30;45,#5DBD52,0.40;50,#B3FF40,0.50;62,#ac3400,0.50"
+			style="fill-rule:evenodd;stroke-width:5"
+		/>
+					
+	</g>
+
+</svg>
+
+
+<!-- Onderstaande staat op een vaste plaats op de pagina -->
+
+<!--
+<g style="fill:none;stroke:#666666;stroke-width:2>
+	<line x1="0" y1="2820" x2="2100" y2="2820"/>
+</g>
+-->
+
+<!-- schaalbalk -->
+<g transform="translate(100,2750)">
+	<plot object="scalebar"
+		id="plot1"
+		range="0:1000:10000"
+		style1="fill:black;stroke:black;stroke-width:2"
+		style2="fill:none;stroke:black;stroke-width:2"
+	    height="10"
+   		label="10 km"
+		label_style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:start"
+    />
+</g>
+
+<!-- Legenda -->
+<g transform="translate(1690,2165)">
+    <!-- kader -->
+	<rect width="260" height="600" x="0" y="0" style="fill:#ffffff;fill-opacity:0.7;stroke:#aaaaaa;stroke-width:1.0" />
+
+	<plot object="floodbar"
+		id="plot1"
+		width="75"
+		height="600"
+		range="38:62"
+		style="stroke-width:0.5"
+		tic_style="stroke:#000000;stroke-width:1.0"
+		labels="40:5:60"
+		label_style="font-family:Myriad Pro;font-size:20pt;font-weight:normal;fill:#000000;text-anchor:start"
+	/>
+</g>
+
+</svg>

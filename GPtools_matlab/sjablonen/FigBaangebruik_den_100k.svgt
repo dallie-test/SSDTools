@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg viewBox="0 0 800 400"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xml:space="preserve">
+
+<defs>
+    <marker id="rechthoek"
+      viewBox="0 0 30 5" refX="15" refY="2.5" 
+      markerUnits="userSpaceOnUse"
+      markerWidth="30" markerHeight="5"
+      orient="0">
+      <rect width="30" height="5"
+        fill="#da9100" stroke="#4d4d4d" stroke-width="1.0"  />
+    </marker>
+</defs>
+     
+<!-- Grafiek -->
+<g transform="translate(50 50)">
+	
+    <!-- Plot opmaak voor Matlab -->
+	<plot object="plot_area"
+		id="plot1"
+ 		type="rectangle"
+		width="349"
+		height="290"
+		fill_style="fill:#e6edf3;fill-opacity:1.0"
+		frame_style="stroke:#4d4d4d;stroke-width:0.5"
+	/>
+
+	<plot object="x_axis"
+		id="plot1"
+		type="categories"
+		values="T_runway_sort"
+		position="bottom"
+		grid_style="none"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:middle"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="y_axis"
+		id="plot1"
+		type="numeric"
+	    range="0:10000:100000"
+		position="left"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:end"
+		label_rotation="0"
+		label_offset="-7"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="bar_plot1"
+		id="plot1"
+		type="stacked"
+		values="T_den_sort"
+		fill="1,#da9100,1;2,#e4af00,1;3,#f0d373,1;4,#fcf7e6,1"
+		stroke="#4d4d4d"
+		style="stroke-width:0.5"
+		bar_width="20"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="0"
+		label_yoffset="-2"
+	/>
+
+	<g transform="translate(350 0)">
+
+	<plot object="plot_area"
+		id="plot2"
+ 		type="rectangle"
+		width="349"
+		height="290"
+		fill_style="fill:#f8ebc7;fill-opacity:1.0"
+		frame_style="stroke:#4d4d4d;stroke-width:0.5"
+	/>
+	
+	<plot object="x_axis"
+		id="plot2"
+		type="categories"
+		values="L_runway_sort"
+		position="bottom"
+		grid_style="none"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:middle"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="y_axis"
+		id="plot2"
+		type="numeric"
+	    range="0:10000:100000"
+		position="right"
+		grid_style="stroke:#ffffff;stroke-width:1"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:8pt;font-weight:normal;fill:none;text-anchor:start"
+		label_rotation="0"
+		label_offset="12"
+		line_style="stroke:none"
+	/>
+	
+	<plot object="bar_plot1"
+		id="plot2"
+		type="stacked"
+		values="L_den_sort"
+		fill="1,#da9100,1;2,#e4af00,1;3,#f0d373,1;4,#fcf7e6,1"
+		stroke="#4d4d4d"
+		style="stroke-width:0.5"
+		bar_width="20"
+		decimals="0"
+		decimal_sign=","
+		label_postfix=""
+		thousands_seperator="."
+		label_style="font_family:Myriad Pro;font-size:6pt;font-weight:normal;fill:none;text-anchor:start"
+		label_xoffset="0"
+		label_yoffset="-2"
+	/>
+	</g>
+	<!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	
+		     Hieronder volgt het statische deel van het sjabloon
+	
+	     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+	<!-- Scheiding tussen Plot1 en Plot2 -->
+    <line x1= "349.5" y1="0.5" x2="349.5" y2="289.5" style="stroke:#ffffff;stroke-width:2.0"/>
+    
+    <line x1= "348" y1="0"   x2="351" y2="0"   style="stroke:#4d4d4d;stroke-width:0.5"/>
+	<line x1= "348" y1="290" x2="351" y2="290" style="stroke:#4d4d4d;stroke-width:0.5"/>
+	
+	<!-- Tekst onder de grafiek -->
+    <g transform="translate(0, 290)">
+		<g style="stroke:#4d4d4d;stroke-width:0.5">
+			<line x1= "10" y1="22" x2="340" y2="22"/>
+			<line x1="360" y1="22" x2="690" y2="22"/>
+		</g>
+		<g style="font-family:Myriad Pro;font-size:14pt;font-weight:normal;fill:#333333;text-anchor:middle;">
+			<text x="175" y="42">starts</text>
+			<text x="525" y="42">landingen</text>
+		</g>
+	</g>
+	
+	<!-- Legenda -->
+	<g transform="translate(360 -20)">
+        <rect x="130" y="4" width="80" height="10.0" style="fill:#da9100;stroke:#4d4d4d;stroke-width:0.5;"/>
+        <rect x="210" y="4" width="50" height="10.0" style="fill:#e4af00;stroke:#4d4d4d;stroke-width:0.5;"/>
+        <rect x="260" y="4" width="30" height="10.0" style="fill:#f0d373;stroke:#4d4d4d;stroke-width:0.5;"/>
+        <rect x="290" y="4" width="10" height="10.0" style="fill:#fcf7e6;stroke:#4d4d4d;stroke-width:0.5;"/>
+
+        <g style="font-family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:end;">
+            <text x="208" y="0">dag</text>
+            <text x="258" y="0">avond</text>
+            <text x="290" y="0">nacht</text>
+        </g>
+		<g style="font-family:Myriad Pro;font-size:8pt;font-weight:normal;fill:#333333;text-anchor:left;">
+			<text x="302" y="0">vroege</text>
+			<text x="302" y="9">ochtend</text>
+		</g>
+    </g>
+
+</g>
+
+</svg>
+

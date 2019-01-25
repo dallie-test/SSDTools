@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" onload='w = (parent.parent.setNormal ? parent.parent : parent); if(w.setNormal) w.setNormal(); '  class='rsdisplay' id='svgAll' onclick='mapClicked(evt)' onzoom='scaleChanged()' onscroll='scaleChanged()' width='500' height='500' viewBox='84000 -526000 71000 71000'><defs><script type='text/ecmascript'><![CDATA[
+var cur_i = 0;
+
+// Original and pixel size after zoom
+var origPixSize, pixSize;
+
+// Top left corner of SVG in user coordinates
+var ulXCorner, ulYCorner;
+
+function initRouteDisplay()
+{
+   // Get reference to text within text-Element
+   var doc = document.documentElement;
+
+   // Store original pixelsize
+   var viewbox = new String(doc.getAttribute("viewBox"));
+   var viewboxes = viewbox.split(' ');
+
+   ulXCorner = viewboxes[0];
+   ulYCorner = viewboxes[1];
+   origPixSize = viewboxes[2] / doc.getAttribute("width");
+
+   scaleChanged();
+
+   // 'Register' our changeCurrent with the HTML page
+   if(opener && opener.storeSVGCallback)
+      opener.storeSVGCallback(changeCurrent);
+}
+
+function scaleChanged()
+{
+   // Get current zoom and pan values
+   var scale = document.documentElement.currentScale;
+   var trans = document.documentElement.currentTranslate;
+
+   // Reset offset-values and pixSize according to current scale and translate
+   pixSize = origPixSize / scale;
+
+   offsetX = parseFloat(ulXCorner) - trans.x * pixSize;
+   offsetY = parseFloat(ulYCorner) - trans.y * pixSize;
+}
+
+// User clicked on map
+function mapClicked(evt)
+{
+   if(opener)
+   {
+      var new_x = Math.round(offsetX + evt.clientX * pixSize);
+      var new_y = Math.round(-offsetY - evt.clientY * pixSize);
+      pointMoved(cur_i, new_x, new_y);
+
+      x = opener.document.getElementById('x');
+      if(x)
+      {
+         x = x.firstChild;
+         x.value = new_x;
+
+         if(document.getElementById('p_' + cur_i))
+         {
+            document.getElementById('p_' + cur_i).setAttribute('cx', new_x);
+            document.getElementById('t_' + cur_i).setAttribute('x', new_x+350);
+         }
+      }
+      y = opener.document.getElementById('y');
+      if(y)
+      {
+         y = y.firstChild;
+         y.value = new_y;
+
+         if (document.getElementById('p_' + cur_i))
+         {
+            document.getElementById('p_' + cur_i).setAttribute('cy', -new_y);
+            document.getElementById('t_' + cur_i).setAttribute('y', -new_y-200);
+         }
+      }
+   }
+}
+
+// User clicked on red, with a red point active
+function pointMoved(point, x, y)
+{
+   var route = document.getElementById("route").getAttribute("route");
+
+   // Get base url, strip all arguments
+   var url = window.location.href;
+   url = url.substring(0, url.indexOf('=') + 1) +
+         'moveroutepoint.php&id=' + route + "&point=" + point + "&x=" + x + "&y=" + y;
+
+   // Now save new value, and reload route
+   replaceFragment(url, "route");
+}
+
+// Replace route with new calculated route
+function replaceFragment(fileName, where)
+{
+   getURL(fileName, fileLoaded);
+
+   function fileLoaded(data)
+   {
+      if(data.success)
+      {
+         var n1 = document.getElementById(where);
+         var n2 = parseXML(data.content, document);
+         n1.parentNode.replaceChild(n2, n1);
+
+        changeCurrent(cur_i);
+      }
+   }
+}
+
+// Change color of points. Also callback for HTML when
+// point changes, or row added/deleted. A positive
+// value means to change to the point, -1 means:
+// reload and set nothing as current.
+function changeCurrent(i)
+{
+   var c = document.getElementById("p_" + cur_i);
+   if(c)
+     c.setAttribute("class", "signal-green");
+
+   c = document.getElementById("p_" + i);
+   if(c)
+     c.setAttribute("class", "signal-red");
+
+   cur_i = i;
+
+   if(i == -1 || !c)
+   {
+      var route = document.getElementById("route").getAttribute("route");
+      var url = window.location.href;
+      url = url.substring(0, url.indexOf('=') + 1) + 'moveroutepoint.php&id=' + route;
+
+      replaceFragment(url, "route");
+   }
+}
+
+// A green route point has been clicked
+function pointClicked(evt, table, route, id, i)
+{
+   changeCurrent(i);
+
+   // Get base url, strip all arguments
+   var url = window.location.href;
+   url = url.substring(0, url.indexOf('=') + 1) +
+         'routepoints-edit.tpl&p[_id]='+route+'&p[table]='+table+'&p[modifyrow]='+id;
+
+   // Update edit page
+   opener.document.location.href = url;
+
+   // Do not call mapClicked anymore
+   evt.stopPropagation();
+}
+
+// If we have an opener (edit mode), highlight the
+// currently selected route point in red.
+function selectCurrentNode()
+{
+   var ex = 0;
+   var ey = 0;
+
+   if (opener)
+   {
+      x = opener.document.getElementById('x');
+      if(x)
+         ex = x.firstChild.value;
+
+      y = opener.document.getElementById('y');
+      if(y)
+         ey = y.firstChild.value;
+
+      for (var i = 0; i < 10; i++)
+      {
+         var name = 'p_'+i;
+         var c = document.getElementById(name);
+         if (c)
+         {
+            var svg_x = c.getAttribute('cx');
+            var svg_y = -1 * c.getAttribute('cy');
+
+            if ((ex == svg_x) && (ey == svg_y))
+            {
+               cur_i = i;
+               c.setAttribute('class', 'signal-red');
+               break;
+            }
+         }
+         else
+         {
+            cur_i = i;
+            break;
+         }
+      }
+   }
+}
+
+initRouteDisplay();
+selectCurrentNode();
+]]>
+
+</script></defs><defs>
+<filter id='drop'>
+   <feGaussianBlur stdDeviation='300' result='Blur' in='SourceAlpha'/>
+   <feOffset dx='200' dy='-200' result='OffsetBlur' in='Blur'/>
+   <feComposite result='OffsetBlur2' in='OffsetBlur' operator='arithmetic' k2='0.7'/>
+   <feComposite result='OffsetBlurLine' in='OffsetBlur2' in2='SourceGraphic' operator='out'/>
+   <feMerge>
+      <feMergeNode in='OffsetBlurLine'/>
+      <feMergeNode in='SourceGraphic'/>
+   </feMerge>
+</filter>
+
+<filter id='drop2' x='-100%' y='-100%' width='400%' height='400%'>
+   <feGaussianBlur stdDeviation='300' result='Blur' in='SourceAlpha'/>
+   <feOffset dx='200' dy='200' result='OffsetBlur' in='Blur'/>
+   <feComposite result='OffsetBlur2' in='OffsetBlur' operator='arithmetic' k2='0.7'/>
+   <feComposite result='OffsetBlurLine' in='OffsetBlur2' in2='SourceGraphic' operator='out'/>
+   <feMerge>
+      <feMergeNode in='OffsetBlurLine'/>
+      <feMergeNode in='SourceGraphic'/>
+   </feMerge>
+</filter>
+
+<filter id='specular'>
+   <feGaussianBlur stdDeviation='300' result='Blur' in='SourceAlpha'/>
+   <feOffset dx='200' dy='-200' result='OffsetBlur' in='Blur'/>
+   <feSpecularLighting in="Blur" surfaceScale="500" specularConstant="1.5" 
+                          specularExponent="5" lighting-color="#cccccc"  
+                          result="specOut">
+      <fePointLight x="-100000" y="600000" z="100000"/>
+   </feSpecularLighting>
+   <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut"/>
+   <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" 
+                   k1="0" k2="1" k3="1" k4="0" result="litPaint"/>
+   <feComposite result='OffsetBlur2' in='OffsetBlur' operator='arithmetic' k2='0.7'/>
+   <feComposite result='OffsetBlurLine' in='OffsetBlur2' in2='SourceGraphic' operator='out'/>
+   <feMerge>
+      <feMergeNode in='OffsetBlurLine'/>
+      <feMergeNode in='litPaint'/>
+   </feMerge>
+</filter>
+   <style type='text/css'><![CDATA[
+text           {stroke: none}
+
+.transparent   {fill: white}
+
+g.legend       {stroke-width: 150; font-family: 'Tahoma'; font-size: 800 }
+g.contours     {fill-rule: evenodd}
+
+/* areas and lines: bright lines, shadows, bright fill */
+.alines0 {stroke-width: 100}
+.alines0-0  {stroke: rgb(100,117,125); fill: rgb(100,117,125); fill-opacity: 0.20}
+.alines0-1  {stroke: rgb(53,103,123); fill: rgb(53,103,123); fill-opacity: 0.10}
+.alines0-2  {stroke: rgb(78,103,28) ; fill: rgb(78,103,28) ; fill-opacity: 0.10}
+.alines0-3  {stroke: rgb(127,127,18) ; fill: rgb(127,127,18) ; fill-opacity: 0.10}
+.alines0-4  {stroke: rgb(127,74,56); fill: rgb(127,74,56); fill-opacity: 0.10}
+.alines0-5  {stroke: rgb(127,0,0)    ; fill: rgb(127,0,0)    ; fill-opacity: 0.10}
+.alines0-6  {stroke: rgb(94,0,113)  ; fill: rgb(94,0,113)  ; fill-opacity: 0.10}
+
+/* areas and lines: bright lines, shadows, bright fill */
+.alines1 {stroke-width: 200; filter: url(#drop)}
+.alines1-0  {stroke: rgb(199,234,251); fill: rgb(199,234,251); fill-opacity: 0.20}
+.alines1-1  {stroke: rgb(107,207,246); fill: rgb(107,207,246); fill-opacity: 0.10}
+.alines1-2  {stroke: rgb(157,206,56) ; fill: rgb(157,206,56) ; fill-opacity: 0.10}
+.alines1-3  {stroke: rgb(255,255,37) ; fill: rgb(255,255,37) ; fill-opacity: 0.10}
+.alines1-4  {stroke: rgb(255,149,113); fill: rgb(255,149,113); fill-opacity: 0.10}
+.alines1-5  {stroke: rgb(255,0,0)    ; fill: rgb(255,0,0)    ; fill-opacity: 0.10}
+.alines1-6  {stroke: rgb(188,0,226)  ; fill: rgb(188,0,226)  ; fill-opacity: 0.10}
+
+/* alternative: bright lines, shadows, darker fill
+*/
+.alines2 {fill-opacity: 0.08; stroke-width: 200; filter: url(#drop); stroke-dasharray: 500}
+.alines2-0    {stroke: rgb(199,234,251); fill: rgb(100,117,125)}
+.alines2-1    {stroke: rgb(107,207,246); fill: rgb(53,103,123) }
+.alines2-2    {stroke: rgb(157,206,56) ; fill: rgb(80,103,28)  }
+.alines2-3    {stroke: rgb(255,255,37) ; fill: rgb(127,127,18) }
+.alines2-4    {stroke: rgb(255,149,113); fill: rgb(127,125,56) }
+.alines2-5    {stroke: rgb(255,0,0)    ; fill: rgb(127,0,0)    }
+.alines2-6    {stroke: rgb(188,0,226)  ; fill: rgb(94,0,113)   }
+
+/* alternative: bright lines, shadows, darker fill
+*/
+.alines3 {fill-opacity: 0.08; stroke-width: 200; filter: url(#drop); stroke-dasharray: 200}
+.alines3-0    {stroke: rgb(199,234,251); fill: rgb(100,117,125)}
+.alines3-1    {stroke: rgb(107,207,246); fill: rgb(53,103,123) }
+.alines3-2    {stroke: rgb(157,206,56) ; fill: rgb(80,103,28)  }
+.alines3-3    {stroke: rgb(255,255,37) ; fill: rgb(127,127,18) }
+.alines3-4    {stroke: rgb(255,149,113); fill: rgb(127,125,56) }
+.alines3-5    {stroke: rgb(255,0,0)    ; fill: rgb(127,0,0)    }
+.alines3-6    {stroke: rgb(188,0,226)  ; fill: rgb(94,0,113)   }
+
+/* area w/o lines: opaque plastic */
+path.areas1  {fill-opacity: 0.7; stroke: none; filter: url(#specular)}
+.areas1-0     {fill: rgb(199,234,251)}
+.areas1-1     {fill: rgb(107,207,246)}
+.areas1-2     {fill: rgb(157,206,56) }
+.areas1-3     {fill: rgb(255,255,37) }
+.areas1-4     {fill: rgb(255,149,113)}
+.areas1-5     {fill: rgb(255,0,0)    }
+.areas1-6     {fill: rgb(188,0,226)  }
+
+path.areas2  {fill-opacity: 0.5; stroke: none; filter: url(#specular)}
+.areas2-0     {fill: rgb(199,234,251)}
+.areas2-1     {fill: rgb(107,207,246)}
+.areas2-2     {fill: rgb(157,206,56) }
+.areas2-3     {fill: rgb(255,255,37) }
+.areas2-4     {fill: rgb(255,149,113)}
+.areas2-5     {fill: rgb(255,0,0)    }
+.areas2-6     {fill: rgb(188,0,226)  }
+
+path.areas3  {fill-opacity: 0.3; stroke: none; filter: url(#specular)}
+.areas3-0     {fill: rgb(199,234,251)}
+.areas3-1     {fill: rgb(107,207,246)}
+.areas3-2     {fill: rgb(157,206,56) }
+.areas3-3     {fill: rgb(255,255,37) }
+.areas3-4     {fill: rgb(255,149,113)}
+.areas3-5     {fill: rgb(255,0,0)    }
+.areas3-6     {fill: rgb(188,0,226)  }
+
+/* lines w/o areas */
+.lines1      {stroke-width:  50; stroke: black; fill: none}
+.lines1-0    {stroke: rgb(199,234,251)}
+.lines1-1    {stroke: rgb(107,207,246)}
+.lines1-2    {stroke: rgb(157,206,56) }
+.lines1-3    {stroke: rgb(255,255,37) }
+.lines1-4    {stroke: rgb(255,149,113)}
+.lines1-5    {stroke: rgb(255,0,0)    }
+.lines1-6    {stroke: rgb(188,0,226)  }
+
+.lines2      {stroke-width:  50; stroke: black; fill: none; stroke-dasharray: 500}
+.lines2-0    {stroke: rgb(199,234,251)}
+.lines2-1    {stroke: rgb(107,207,246)}
+.lines2-2    {stroke: rgb(157,206,56) }
+.lines2-3    {stroke: rgb(255,255,37) }
+.lines2-4    {stroke: rgb(255,149,113)}
+.lines2-5    {stroke: rgb(255,0,0)    }
+.lines2-6    {stroke: rgb(188,0,226)  }
+
+.lines3      {stroke-width:  50; stroke: black; fill: none; stroke-dasharray: 200}
+.lines3-0    {stroke: rgb(199,234,251)}
+.lines3-1    {stroke: rgb(107,207,246)}
+.lines3-2    {stroke: rgb(157,206,56) }
+.lines3-3    {stroke: rgb(255,255,37) }
+.lines3-4    {stroke: rgb(255,149,113)}
+.lines3-5    {stroke: rgb(255,0,0)    }
+.lines3-6    {stroke: rgb(188,0,226)  }
+
+.signal-red    {filter: url(#drop2); stroke-width: 15; stroke:black; fill: red             }
+.signal-yellow {filter: url(#drop2); stroke-width: 15; stroke:black; fill: yellow          }
+.signal-green  {filter: url(#drop2); stroke-width: 15; stroke:black; fill: rgb(157,206,56) }
+
+/*
+.signal-red    {filter: url(#drop2); stroke-width: 15; stroke:black; fill: rgb(255,64,64)             }
+.signal-yellow {filter: url(#drop2); stroke-width: 15; stroke:black; fill: rgb(255,64,64)          }
+.signal-green  {filter: url(#drop2); stroke-width: 15; stroke:black; fill: rgb(255,64,64) }
+*/
+
+#ep-names   {fill: rgb(128,0,0); font-family: Verdana; font-size: 900px}
+#ep-help    {font-family: Verdana; font-size: 900px}
+
+.runway     {stroke: black; stroke-width: 120; fill:none}
+
+/* Track colors */
+.dir-T      {stroke: rgb(0, 0, 255)}
+.dir-L      {stroke: rgb(255, 0, 0)}
+.dir-C      {stroke: rgb(0, 255, 0)}
+.dir-O      {stroke: rgb(0, 255, 255)}
+.tracks     {stroke-width: 60; fill-opacity: 1; fill: none}
+
+ ]]></style>
+</defs>
+
+<g>
+<image class='map map-Default' xlink:href='Schiphol_30p.png' x='73000' y='-538000' width='94640' height='100800'/>
+</g>
