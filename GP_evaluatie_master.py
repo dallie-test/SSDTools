@@ -1,5 +1,7 @@
 import lib.GPlib as GP
-pd, np, plt, datetime, pformat,lines,MultipleLocator,FuncFormatter = GP.importGP()
+import pandas as pd
+
+
 
 #%% settings
 gj = 2017
