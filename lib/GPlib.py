@@ -9,7 +9,7 @@ import matplotlib.lines as lines
 from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FuncFormatter
 from matplotlib import rcParams
-import datetime
+from datetime import date
 import lib.plotformat as pformat
 import lib.doc29lib as ld
 
@@ -115,9 +115,8 @@ def SWverdeling(df_in,hdr_date,hdr_sum,gj):
     df['SW']  =df[hdr_sum]
     df['SW'] = "zomer"
     
-    season = 'zomer'
-    start = gebruiksjaar(gj,season)
-    df['SW'][df[hdr_date]<start] = 'winter'
+    winter, summer = GebruiksjaarInfo(gj, verbose=False)
+    df['SW'][df[hdr_date]<summer['start']] = 'winter'
     df_out = df.groupby(['SW']).agg({hdr_sum:'sum'}).reset_index()
     # round to 100 
     df_out = round(df_out,-2)
@@ -125,15 +124,40 @@ def SWverdeling(df_in,hdr_date,hdr_sum,gj):
     return df_out
 
 
-def gebruiksjaar(year,season):
-    if (season =='summer') | (season == 'zomer'):
-        #zondag van het laatste weekend van Maart
-        date = datetime.date(year,  3, 31 - (int(float(4 + 5 * year/4)) % 7))
-    else:
-        #zondag van het laatste weekend van oktober
-        date = datetime.date(year, 10, 31 - (int(float(1 + 5 * year/4)) % 7)) 
-    startdate = datetime.datetime.combine(date,datetime.time(0,0))
-    return startdate
+def GebruiksjaarInfo(year, verbose=True):
+    '''Bereken de start- en einddatum en het aantal dagen en weken van de seizoenen in het gebruiksjaar'''
+
+    # Winterseizoen start een jaar eerder op de laatste zondag in oktober
+    Winter_start = 31 - date(year-1, 10, 31).isoweekday()%7
+
+    # Zomerseizoen start de laatste zondag in maart
+    Summer_start = 31 - date(year, 3, 31).isoweekday()%7
+
+    # Zomerseizoen stopt de dag voor het volgende winterseizoen
+    Summer_end = 31 - date(year, 10, 31).isoweekday()%7 - 1
+
+    # Data 
+    winter = {'start': date(year-1, 10, Winter_start),
+                'end': date(year, 3, Summer_start - 1)}
+    summer = {'start': date(year, 3, Summer_start),
+                'end': date(year, 10, Summer_end)} 
+
+    # Dagen en weken in de seizoenen
+    winter['days'] = (winter['end'] - winter['start']).days + 1
+    summer['days'] = (summer['end'] - summer['start']).days + 1
+
+    winter['weeks'] = winter['days'] // 7
+    summer['weeks'] = summer['days'] // 7
+
+    # Uitvoer
+    if verbose:
+      print('season   start       end          days  weeks')
+      print('-------  ----------  ----------  -----  -----')
+      print(f"winter   {winter['start']}  {winter['end']}    {winter['days']}     {winter['weeks']}")
+      print(f"zomer    {summer['start']}  {summer['end']}    {summer['days']}     {summer['weeks']}")
+      print('-------  ----------  ----------  -----  -----')
+      
+    return [winter, summer]
     
 
 def plot_baangebruik_evaluatie(trf_files,

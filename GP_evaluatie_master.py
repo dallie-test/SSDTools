@@ -11,6 +11,9 @@ prognose_zomer  = 'K:/D-CD/SSD/(b) CAP-EC/01 Kernactiviteiten/OP-Declaratie/2017
 
 output_excel    = 'output/traffic_tabellen.xls'
 
+# Gebruiksjaarinfo
+winter, summer = GP.GebruiksjaarInfo(year=gj)
+
 #%% input traffics
 data_realisatie      = pd.read_csv(realisatie)
 data_prognose_winter = pd.read_csv(prognose_winter, sep="\t")

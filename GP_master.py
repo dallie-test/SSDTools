@@ -38,13 +38,18 @@ output_folder       = 'output/'
 
 #%% process inputs
 
+# Gebruiksjaarinfo
+jaar = 2019
+winter, summer = lg.GebruiksjaarInfo(year=jaar)
+
+
 # check if output folder exists:
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 if not os.path.exists(output_folder+ 'figuren/'):
     os.makedirs(output_folder+ 'figuren/')   
-    
+   
 # read winter and zomer traffics
 winter_scenarios    = [input_folder1 + 'traffic '+ s + '.txt' for s in winter_scenarios]
 zomer_scenarios     = [input_folder1 + 'traffic '+ s + '.txt' for s in zomer_scenarios]
