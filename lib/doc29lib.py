@@ -14,7 +14,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib import lines
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 from descartes import PolygonPatch
-from geopandas import GeoDataFrame
+#from geopandas import GeoDataFrame
 
 import lib.plotformat as pformat
 

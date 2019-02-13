@@ -19,7 +19,7 @@ from docx.shared import Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from scipy.misc import imread
 from scipy.interpolate import RectBivariateSpline
-from geopandas import GeoDataFrame
+#from geopandas import GeoDataFrame
 from descartes import PolygonPatch
 
 def DENverdeling_evaluatie(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
@@ -68,7 +68,11 @@ def DENverdeling_evaluatie(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     return df_out
 
 
-def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
+def DENverdeling(df_in,
+                 hdr_time,
+                 hdr_LT,
+                 hdr_multiindex,
+                 hdr_sum=None):
 
     #%% make sure changes in this function do not affect df
     df = df_in
@@ -76,52 +80,73 @@ def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     
     hdr1 = hdr_multiindex+ ', landingen'
     hdr2 = hdr_multiindex+ ', starts'
+    hdr3 = hdr_multiindex+ ', totaal'
     
+    df[hdr_time]    = pd.to_datetime(df[hdr_time])
+    df['DEN']       =   df[hdr_time]
+    df['DEN']       = "D"
     
-    df[hdr_time] = pd.to_datetime(df[hdr_time])
-    df['DEN'] =df[hdr_time]
-    df['DEN'] = "D"
-    # change string to date
-    t1 = pd.to_datetime('22:59:59')
-    t2 = pd.to_datetime('07:00:00')
-    t3 = pd.to_datetime('18:59:59')
-    t4 = pd.to_datetime('23:00:00')
-    t5 = pd.to_datetime('05:59:59')
     # logical indexing
-    df['DEN'][(df[hdr_time]>t1) | (df[hdr_time]<t2)] = "N"
-    df['DEN'][(df[hdr_time]>t3) & (df[hdr_time]<t4)] = "E"
-    df['DEN'][(df[hdr_time]>t5) & (df[hdr_time]<t2)] = "EM"
+    df['DEN'][(df[hdr_time].dt.hour>22) | (df[hdr_time].dt.hour<7)] = "N"
+    df['DEN'][(df[hdr_time].dt.hour>18) & (df[hdr_time].dt.hour<23)] = "E"
+    df['DEN'][(df[hdr_time].dt.hour>5) & (df[hdr_time].dt.hour<7)] = "EM"
+    
     # change LT or AD to starts en landingen
     df[hdr_LT][(df[hdr_LT] == 'L') | (df[hdr_LT] == 'A')] = hdr1
     df[hdr_LT][(df[hdr_LT] == 'T') | (df[hdr_LT] == 'D')] =  hdr2
+
     # use groubpy to aggregate
-    df_out          = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    if hdr_sum:
+        df_out          = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    else:
+        df_out          = pd.pivot_table(df,values=hdr_time,index='DEN',columns=hdr_LT, aggfunc='count') 
+    
     # swap EM and N rows
     df_out = df_out.reindex(["D", "E", "N","EM"])
-        
+    # total columns
+    df_out[hdr3] = df_out[hdr1]+df_out[hdr2]
+    
+    # total row
+    total = df_out.sum(numeric_only=True)
+    df_out = df_out.append(total, ignore_index=True)
+    
     #create group headers
     a = df_out .columns.str.split(', ', expand=True).values
     df_out.columns = pd.MultiIndex.from_tuples([('', x[0]) if pd.isnull(x[1]) else x for x in a])
+    
+    # round
+    df_out = df_out.round()
+    df_out = df_out.set_index([pd.Index(["dag 07-19 uur", 
+                                         "avond 19-23 uur", 
+                                         "nacht 23-06 uur",
+                                         "vroege ochtend 06-07 uur",
+                                         "totaal"])])
+    # round to 100 
+    df_out = round(df_out,-2)
+
     return df_out
 
 
-def SWverdeling(df_in,hdr_date,hdr_sum,gj):
+
+def SWverdeling(df_in,hdr_date,gj):
     #%% make sure changes in this function do not affect df
     df = df_in
     
     #%% now perform operations
     #make summer/winter column
     df[hdr_date] = pd.to_datetime(df[hdr_date])
-    df['SW']  =df[hdr_sum]
+    df['SW']  =df[hdr_date]
     df['SW'] = "zomer"
     
     season = 'zomer'
     start = gebruiksjaar(gj,season)
     df['SW'][df[hdr_date]<start] = 'winter'
-    df_out = df.groupby(['SW']).agg({hdr_sum:'sum'}).reset_index()
+    df_out = df.groupby(['SW']).agg('count')
+    df_out = df_out[hdr_date]
+    
     # round to 100 
     df_out = round(df_out,-2)
-#    df_out.reset_index(['SW'])
+
     return df_out
 
 
@@ -501,50 +526,50 @@ def fig22(DEN_zw,fn,hs):
     
     plt.show()
     
-def fig23(DEN_zw,fn,hs):
-    c1 = hs['kleuren']['schipholblauw']
-    c2 = hs['kleuren']['middagblauw']
-    c3 = hs['kleuren']['wolkengrijs_1']
-    c4 = hs['kleuren']['schemergroen']
-    
-    font = hs['fontname']['grafiek']
-    fontsize = hs['size']['font']
-    
-    r =range(len(DEN_zw))
-    names =DEN_zw.index.tolist()
-    
-    fig1, ax1 = plt.subplots(figsize=(12, 4))
-    ax1.grid(axis='y')
-   
-    
-    ax1.bar(r,
-         DEN_zw, 
-         align='center',
-         color=c1,
-         width= 0.5)
-
-    plt.xticks(r, 
-               names,              
-               fontname = font,
-               fontsize = fontsize)
-    
-    vals = ax1.get_yticks()
-    ax1.set_yticklabels(['{0:.0f}%'.format(x) for x in vals],              
-               fontname = font,
-               fontsize = fontsize)
-     
-    plt.xlabel('Maximum startgewicht in tonnen',               
-               fontname = font,
-               fontsize = fontsize)
- 
-    # get rid of box around grpah
-    for spine in plt.gca().spines.values():
-        spine.set_visible(False) #Indentation updated..
-
-    # save
-    plt.savefig(fn,dpi=300, bbox_inches='tight')
-    
-    plt.show()
+#def fig23(DEN_zw,fn,hs):
+#    c1 = hs['kleuren']['schipholblauw']
+#    c2 = hs['kleuren']['middagblauw']
+#    c3 = hs['kleuren']['wolkengrijs_1']
+#    c4 = hs['kleuren']['schemergroen']
+#    
+#    font = hs['fontname']['grafiek']
+#    fontsize = hs['size']['font']
+#    
+#    r =range(len(DEN_zw))
+#    names =DEN_zw.index.tolist()
+#    
+#    fig1, ax1 = plt.subplots(figsize=(12, 4))
+#    ax1.grid(axis='y')
+#   
+#    
+#    ax1.bar(r,
+#         DEN_zw, 
+#         align='center',
+#         color=c1,
+#         width= 0.5)
+#
+#    plt.xticks(r, 
+#               names,              
+#               fontname = font,
+#               fontsize = fontsize)
+#    
+#    vals = ax1.get_yticks()
+#    ax1.set_yticklabels(['{0:.0f}%'.format(x) for x in vals],              
+#               fontname = font,
+#               fontsize = fontsize)
+#     
+#    plt.xlabel('Maximum startgewicht in tonnen',               
+#               fontname = font,
+#               fontsize = fontsize)
+# 
+#    # get rid of box around grpah
+#    for spine in plt.gca().spines.values():
+#        spine.set_visible(False) #Indentation updated..
+#
+#    # save
+#    plt.savefig(fn,dpi=300, bbox_inches='tight')
+#    
+#    plt.show()
     
 def tab42(tf_pref,baancombinaties):
     tf_pref.loc[tf_pref['d_schedule']==6,'d_den']='EM'
@@ -1016,3 +1041,68 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
     
     return GWC
 
+def fig23(DEN_zw1,label1,fn,hs,
+                   DEN_zw2=None,
+                   label2 =None,
+                   DEN_zw3=None,
+                   label3 =None):
+    c1 = hs['kleuren']['schipholblauw']
+    c2 = hs['kleuren']['middagblauw']
+    c3 = hs['kleuren']['wolkengrijs_1']
+    c4 = hs['kleuren']['schemergroen']
+   
+    font = hs['fontname']['grafiek']
+    fontsize = hs['size']['font']
+   
+    r =range(len(DEN_zw1))
+    names =DEN_zw1.index.tolist()
+   
+    fig1, ax1 = plt.subplots(figsize=(12, 4))
+    ax1.grid(axis='y')
+  
+    
+    ax1.bar([x-0.2 for x in r],
+         DEN_zw1,
+         align='center',
+         color=c1,
+         width= 0.2,
+         label=label1)
+    
+    if DEN_zw2 is not None:
+        ax1.bar(r,
+             DEN_zw2,
+             align='center',
+             color=c2,
+             width= 0.2,
+             label=label2)
+    if DEN_zw3 is not None:
+        ax1.bar([x+0.2 for x in r],
+             DEN_zw3,
+             align='center',
+             color=c3,
+             width= 0.2,
+             label=label3)
+ 
+    plt.xticks(r,
+               names,             
+               fontname = font,
+               fontsize = fontsize)
+   
+    vals = ax1.get_yticks()
+    ax1.set_yticklabels(['{0:.0f}%'.format(x) for x in vals],             
+               fontname = font,
+               fontsize = fontsize)
+    
+    plt.xlabel('Maximum startgewicht in tonnen',              
+               fontname = font,
+               fontsize = fontsize)
+   
+    plt.legend()
+    # get rid of box around grpah
+    for spine in plt.gca().spines.values():
+        spine.set_visible(False) #Indentation updated..
+ 
+    # save
+    plt.savefig(fn,dpi=300, bbox_inches='tight')
+   
+    plt.show()

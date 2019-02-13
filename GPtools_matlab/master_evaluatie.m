@@ -16,17 +16,17 @@ addpath('external\SVG')
 % out_dir        = [pwd '\..\002 results\evaluatie\'];
 
 
-realisatie_dir = [pwd '\..\..\berekeningen\realisatie\'];
-prognose_dir   = [pwd '\..\evaluatie\GP2017 verkeer + US0624\'];
+realisatie_dir = [pwd '\..\input\realisatie\'];
+prognose_dir   = [pwd '\..\input\001 Hybride\'];
 svgt_dir       = [pwd '\sjablonen\'];
-out_dir        = [pwd '\..\results\'];
+out_dir        = [pwd '\..\output\'];
 
 
 %output dir
 mkdir(out_dir);
 
 % Excel output
-xls_output = [out_dir 'GP2017 tabellen.xls'];
+xls_output = [out_dir 'GP2018 tabellen evaluatie matlab.xls'];
 copyfile([svgt_dir 'sjabloon_evaluatie.xls'], xls_output);
 
 %sub-dir voor figuren
@@ -38,7 +38,7 @@ copyfile([svgt_dir 'Schiphol_RD900dpi.png'], out_dir);
 copyfile(which('svg2png.sh'), out_dir);
 copyfile(which('svg2pdf.sh'), out_dir);
 % -----------------------------------------------------------------------
-year = 2017;
+year = 2018;
 seizoensinfo = GPcalc_gebruiksjaar(year);
 
 %% Berekenen gelijkwaardigheidscritera
@@ -80,8 +80,8 @@ sheet = 'gwc';
 GPtab_gelijkwaardigheid(gwc, xls_output, sheet);
 
 %% Converteer NLR-traffic
-NLR_traffic          = [realisatie_dir '20171107_Traffic_2017.txt'];
-NLR_correctie_factor = [realisatie_dir '20171107_correction_2017.txt'];
+NLR_traffic          = [realisatie_dir '20181107_Traffic_2018.txt'];
+NLR_correctie_factor = [realisatie_dir '20181107_Traffic_2018_correction.txt'];
 
 filter.aggregation = {'d_myear' 'seizoen' 'd_den' 'd_schedule:m10' 'd_lt' 'd_runway' 'd_route' 'd_ac_cat' 'd_proc'};
 filter.field  = 'Nature';
@@ -144,17 +144,17 @@ output_file = [out_dir 'Fig_2_2_Vlootsamenstelling_gj2017.svg'];
 GPfig_vlootsamenstelling(traffic, sjabloon, output_file);
 copyfile('Vliegtuigjes', [out_dir 'Vliegtuigjes']);
 
-% %% Etmaalverdeling
-% 
-% % prognose
-% winter_traffic = [prognose_dir ls([prognose_dir 'traffic*winter*.txt'])];
-% zomer_traffic  = [prognose_dir ls([prognose_dir 'traffic*zomer*.txt'])];
-% sheet = 'etmaalverdeling (GP)';
-% GPtab_etmaalverdeling({winter_traffic, zomer_traffic}, 'seizoen', {'winter', 'zomer'}, xls_output, sheet);
-% 
-% % realisatie
-% sheet = 'etmaalverdeling';
-% GPtab_etmaalverdeling(traffic_realisatie, 'seizoen', '', xls_output, sheet);
+%% Etmaalverdeling
+
+% prognose
+winter_traffic = [prognose_dir ls([prognose_dir 'traffic*winter*.txt'])];
+zomer_traffic  = [prognose_dir ls([prognose_dir 'traffic*zomer*.txt'])];
+sheet = 'etmaalverdeling (GP)';
+GPtab_etmaalverdeling({winter_traffic, zomer_traffic}, 'seizoen', {'winter', 'zomer'}, xls_output, sheet);
+
+% realisatie
+sheet = 'etmaalverdeling';
+GPtab_etmaalverdeling(traffic_realisatie, 'seizoen', '', xls_output, sheet);
 
 %% Sectorverdeling
 traffic     = {traffic_prognose , traffic_realisatie};
@@ -272,29 +272,29 @@ plot2svg(Lnight_multigrid, [svgt_dir 'Lnight_evaluatie_delta.svgt'], Lnight_svg)
 % 
 % GPfig_verkeersverdeling(traffic_realisatie, periods , slond_cap, seizoensinfo, sjabloon, output_file, filter);
 
-%% windroos
-
-% polairegrafiek
-KNMIdata = [realisatie_dir 'knmi_2011-2020.txt'];
-sjabloon = [svgt_dir 'FigWindroos.svgt'];
-
-% gebruiksjaar 2017
-dagen = 20131101:20171031;
-output_file = [out_dir 'gj2017 windroos.svg'];
-GPfig_windroos(KNMIdata, dagen, sjabloon, output_file);
-
-% KNMI data sinds 1971
-KNMIdata = [realisatie_dir 'knmi_1971-2020.txt'];
-
-% meteo in de prognose
-jaren = 1971:2015;
-output_file = [out_dir '1971-2012 windroos.svg'];
-GPfig_windroos(KNMIdata, jaren, sjabloon, output_file);
-
-% meteo in de grenswaarde: set07
-jaren = [1973,1974,1982,1984,1987,1989,1993,1994,2003,2004];
-output_file = [out_dir 'set07 windroos.svg'];
-GPfig_windroos(KNMIdata, jaren, sjabloon, output_file);
+% %% windroos
+% 
+% % polairegrafiek
+% KNMIdata = [realisatie_dir 'knmi_2011-2020.txt'];
+% sjabloon = [svgt_dir 'FigWindroos.svgt'];
+% 
+% % gebruiksjaar 2017
+% dagen = 20131101:20171031;
+% output_file = [out_dir 'gj2017 windroos.svg'];
+% GPfig_windroos(KNMIdata, dagen, sjabloon, output_file);
+% 
+% % KNMI data sinds 1971
+% KNMIdata = [realisatie_dir 'knmi_1971-2020.txt'];
+% 
+% % meteo in de prognose
+% jaren = 1971:2015;
+% output_file = [out_dir '1971-2012 windroos.svg'];
+% GPfig_windroos(KNMIdata, jaren, sjabloon, output_file);
+% 
+% % meteo in de grenswaarde: set07
+% jaren = [1973,1974,1982,1984,1987,1989,1993,1994,2003,2004];
+% output_file = [out_dir 'set07 windroos.svg'];
+% GPfig_windroos(KNMIdata, jaren, sjabloon, output_file);
 
 %% Klaar
 toc;
