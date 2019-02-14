@@ -638,6 +638,7 @@ def tab42(tf_pref,baancombinaties):
 def plot_baangebruik(trf_files,
                      labels,
                      huisstijl,
+                     tr_realisatie = None,
                      den=['D', 'E', 'N'],
                      fname=None,
                      n=7,
@@ -751,6 +752,26 @@ def plot_baangebruik(trf_files,
                verticalalignment='center',
                fontname = font)
     
+    # LEGENDA 2 - REALISATIE
+    ax0b = fig.add_axes([-0.05, 0.9, 0.3, 0.1]) 
+    # geen assen
+    ax0b.axis('off')
+    # genormaliseerde asses
+    ax0b.set_xlim(-.5, 0.5)
+    ax0b.set_ylim(0, 1)
+    #plot realisatie
+    ax0b.plot([0,0.2],
+             [0.5,0.5],
+             'k--',
+             zorder=10,
+             linewidth=2)   
+    
+    ax0b.text(0.7, 0.5, 'Realisatie',
+              transform=ax0b.transAxes,
+              horizontalalignment='left',
+              fontsize=fontsize,
+              verticalalignment='center',
+              fontname = font)
     
     # verwerken traffics
     for i, trf_file in enumerate(trf_files):
@@ -852,7 +873,13 @@ def plot_baangebruik(trf_files,
             ax.set_ylim(ylim)
             ax.yaxis.set_major_locator(MultipleLocator(base=dy))
             ax.yaxis.set_major_formatter(FuncFormatter(NumberFormatter))
-     
+    
+#    #plot realisatie
+#    ax1.plot([x-0.4,x+0.4],
+#             [trfn['mean'],trfn['mean']],
+#             'k--',
+#             zorder=10,
+#             linewidth=2)  
 
         
     if fname:
@@ -1106,3 +1133,76 @@ def fig23(DEN_zw1,label1,fn,hs,
     plt.savefig(fn,dpi=300, bbox_inches='tight')
    
     plt.show()
+    
+def procedureverdeling(realisatie,prognose):
+    
+    #%% tabel 2.3
+
+    # realisatie
+    data_realisatie_HV_D = realisatie.loc[realisatie['C_AD']=='realisatie, starts']
+    
+    data_realisatie_HV_D['Procedure'] = data_realisatie_HV_D['C_Klasse']
+    data_realisatie_HV_D['Procedure'] = 'NADP1'
+    data_realisatie_HV_D.loc[data_realisatie_HV_D['C_Klasse']>=600,'Procedure'] = 'NADP2'
+    
+    realisatie_starts_verdeling = data_realisatie_HV_D.groupby(['Procedure'])['Procedure'].count()
+    # format
+    realisatie_starts_verdeling = round(realisatie_starts_verdeling/realisatie_starts_verdeling.sum()*100,1)
+    
+    
+    # prognose
+    data_prognose_mean_D = prognose.loc[prognose['d_lt']=='T']
+    
+    data_prognose_mean_D['Procedure'] = data_prognose_mean_D['d_proc']
+    data_prognose_mean_D['Procedure'] = 'NADP1'
+    data_prognose_mean_D.loc[data_prognose_mean_D['d_proc']>=600,'Procedure'] = 'NADP2'
+    
+    prognose_starts_verdeling = data_prognose_mean_D.groupby(['Procedure'])['total'].sum()
+    
+    # format
+    prognose_starts_verdeling = round(prognose_starts_verdeling/prognose_starts_verdeling.sum()*100,1)
+    
+    # tabel maken
+    d = {'prognose': prognose_starts_verdeling, 'realisatie': realisatie_starts_verdeling}
+    starts = pd.DataFrame(data=d)
+    del starts.index.name
+#    print(starts)
+    
+    
+    #%% tabel 2.4
+    
+    # realisatie
+    data_realisatie_HV_A = realisatie.loc[realisatie['C_AD']=='realisatie, landingen']
+    
+    data_realisatie_HV_A['Procedure'] = data_realisatie_HV_A['C_Klasse'].fillna(0).astype(int) % 10
+    
+    data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==0,'Procedure'] = '2000 [ft]'
+    data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==1,'Procedure'] = '3000 [ft]'
+    data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==9,'Procedure'] = 'CDA'
+    
+    realisatie_landingen_verdeling = data_realisatie_HV_A.groupby(['Procedure'])['Procedure'].count()
+    # format
+    realisatie_landingen_verdeling = round(realisatie_landingen_verdeling/realisatie_landingen_verdeling.sum()*100,1)
+    
+    
+    # prognose
+    data_prognose_mean_A = prognose.loc[prognose['d_lt']=='L']
+    
+    data_prognose_mean_A['Procedure'] = data_prognose_mean_A['d_proc'].fillna(0).astype(int) % 10
+    
+    data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==0,'Procedure'] = '2000 [ft]'
+    data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==1,'Procedure'] = '3000 [ft]'
+    data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==9,'Procedure'] = 'CDA'
+    
+    prognose_landingen_verdeling = data_prognose_mean_A.groupby(['Procedure'])['total'].sum()
+    
+    # format
+    prognose_landingen_verdeling = round(prognose_landingen_verdeling/prognose_landingen_verdeling.sum()*100,1)
+    
+    # tabel maken
+    d = {'prognose': prognose_landingen_verdeling, 'realisatie': realisatie_landingen_verdeling}
+    landingen = pd.DataFrame(data=d)
+    del landingen.index.name
+#    print(landingen)
+    
+    return starts, landingen

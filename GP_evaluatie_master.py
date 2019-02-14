@@ -10,6 +10,8 @@ realisatie      = 'input/realisatie/Vluchten Export 2017-11-01 00_00_00 - 2018-1
 prognose_winter = 'input/001 Hybride/traffic Winterseizoen.txt'
 prognose_zomer  = 'input/001 Hybride/traffic Zomerseizoen.txt'
 prognose_mean   = 'input/001 Hybride/traffic 1971-2016 - mean.txt'
+prognose_years1   = 'input/001 Hybride/traffic 1971-2016 - years.txt'
+prognose_years2   = 'input/001 Hybride Scenario Onderhoud/traffic 1971-2016 - years.txt'
 output_folder   = 'output/'
 history         = 'input/history.xlsx'
 
@@ -79,106 +81,67 @@ SW = pd.DataFrame(data=d)
 del SW.index.name
 print(SW)
 
-#%% figuur 2.2
+##%% figuur 2.2
 data_prognose_mean = pd.read_csv(prognose_mean, sep="\t")
-vvc_pattern     = ['[0]\/[0-9]','[12]\/[0-9]','[3]\/[0-9]','[45]\/[0-9]','[6]\/[0-9]','[7]\/[0-9]','[89]\/[0-9]']
-MTOW            = ['< 6','6 - 40','40 - 60','60 - 160','160 - 230','230 - 300','> 300'] 
+#vvc_pattern     = ['[0]\/[0-9]','[12]\/[0-9]','[3]\/[0-9]','[45]\/[0-9]','[6]\/[0-9]','[7]\/[0-9]','[89]\/[0-9]']
+#MTOW            = ['< 6','6 - 40','40 - 60','60 - 160','160 - 230','230 - 300','> 300'] 
+#
+## prognose
+#for find,replace in zip(vvc_pattern,MTOW): 
+#    data_prognose_mean = data_prognose_mean.replace(to_replace=find,value=replace,regex=True)
+#
+#vloot = data_prognose_mean.groupby(['d_ac_cat'])['total'].sum()
+#vloot = vloot.reindex(MTOW)
+#vloot= vloot/vloot.sum()*100
+#vloot = vloot.fillna(0)
+#
+## realisatie
+#for find,replace in zip(vvc_pattern,MTOW): 
+#    data_realisatie_HV = data_realisatie_HV.replace(to_replace=find,value=replace,regex=True)
+#
+#vloot2 = data_realisatie_HV.groupby(['C_VVC'])['C_actual'].count()
+#vloot2 = vloot2.reindex(MTOW)
+#vloot2 = vloot2/vloot2.sum()*100
+#vloot2 = vloot2.fillna(0)
+#
+## make figure
+#fn = output_folder+ 'figuren/figuur22.png'
+#GP.fig23(vloot,'prognose',fn,hs,
+#         vloot2,
+#         'realisatie')
 
-# prognose
-for find,replace in zip(vvc_pattern,MTOW): 
-    data_prognose_mean = data_prognose_mean.replace(to_replace=find,value=replace,regex=True)
-
-vloot = data_prognose_mean.groupby(['d_ac_cat'])['total'].sum()
-vloot = vloot.reindex(MTOW)
-vloot= vloot/vloot.sum()*100
-vloot = vloot.fillna(0)
-
-# realisatie
-for find,replace in zip(vvc_pattern,MTOW): 
-    data_realisatie_HV = data_realisatie_HV.replace(to_replace=find,value=replace,regex=True)
-
-vloot2 = data_realisatie_HV.groupby(['C_VVC'])['C_actual'].count()
-vloot2 = vloot2.reindex(MTOW)
-vloot2 = vloot2/vloot2.sum()*100
-vloot2 = vloot2.fillna(0)
-
-# make figure
-fn = output_folder+ 'figuren/figuur22.png'
-GP.fig23(vloot,'prognose',fn,hs,
-         vloot2,
-         'realisatie')
-
-#%% tabel 2.3
-
-# realisatie
-data_realisatie_HV_D = data_realisatie_HV.loc[data_realisatie_HV['C_AD']=='realisatie, starts']
-
-data_realisatie_HV_D['Procedure'] = data_realisatie_HV_D['C_Klasse']
-data_realisatie_HV_D['Procedure'] = 'NADP1'
-data_realisatie_HV_D.loc[data_realisatie_HV_D['C_Klasse']>=600,'Procedure'] = 'NADP2'
-
-realisatie_starts_verdeling = data_realisatie_HV_D.groupby(['Procedure'])['Procedure'].count()
-# format
-realisatie_starts_verdeling = round(realisatie_starts_verdeling/realisatie_starts_verdeling.sum()*100,1)
-
-
-# prognose
-data_prognose_mean_D = data_prognose_mean.loc[data_prognose_mean['d_lt']=='T']
-
-data_prognose_mean_D['Procedure'] = data_prognose_mean_D['d_proc']
-data_prognose_mean_D['Procedure'] = 'NADP1'
-data_prognose_mean_D.loc[data_prognose_mean_D['d_proc']>=600,'Procedure'] = 'NADP2'
-
-prognose_starts_verdeling = data_prognose_mean_D.groupby(['Procedure'])['total'].sum()
-
-# format
-prognose_starts_verdeling = round(prognose_starts_verdeling/prognose_starts_verdeling.sum()*100,1)
-
-# tabel maken
-d = {'prognose': prognose_starts_verdeling, 'realisatie': realisatie_starts_verdeling}
-starts = pd.DataFrame(data=d)
-del starts.index.name
+#%% tabel 2.3 en tabel 2.4
+starts, landingen = GP.procedureverdeling(data_realisatie_HV,data_prognose_mean)
 print(starts)
-
-
-#%% tabel 2.4
-
-# realisatie
-data_realisatie_HV_A = data_realisatie_HV.loc[data_realisatie_HV['C_AD']=='realisatie, landingen']
-
-data_realisatie_HV_A['Procedure'] = data_realisatie_HV_A['C_Klasse'].fillna(0).astype(int) % 10
-
-data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==0,'Procedure'] = '2000 [ft]'
-data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==1,'Procedure'] = '3000 [ft]'
-data_realisatie_HV_A.loc[data_realisatie_HV_A['Procedure']==9,'Procedure'] = 'CDA'
-
-realisatie_landingen_verdeling = data_realisatie_HV_A.groupby(['Procedure'])['Procedure'].count()
-# format
-realisatie_landingen_verdeling = round(realisatie_landingen_verdeling/realisatie_landingen_verdeling.sum()*100,1)
-
-
-# prognose
-data_prognose_mean_A = data_prognose_mean.loc[data_prognose_mean['d_lt']=='L']
-
-data_prognose_mean_A['Procedure'] = data_prognose_mean_A['d_proc'].fillna(0).astype(int) % 10
-
-data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==0,'Procedure'] = '2000 [ft]'
-data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==1,'Procedure'] = '3000 [ft]'
-data_prognose_mean_A.loc[data_prognose_mean_A['Procedure']==9,'Procedure'] = 'CDA'
-
-prognose_landingen_verdeling = data_prognose_mean_A.groupby(['Procedure'])['total'].sum()
-
-# format
-prognose_landingen_verdeling = round(prognose_landingen_verdeling/prognose_landingen_verdeling.sum()*100,1)
-
-# tabel maken
-d = {'prognose': prognose_landingen_verdeling, 'realisatie': realisatie_landingen_verdeling}
-landingen = pd.DataFrame(data=d)
-del landingen.index.name
 print(landingen)
 
 #%% figuur 4.1
 
+style='MER'
+labels = ['GP2018','GP2018 excl. GO']
+trf_files = [prognose_years2,
+             prognose_years1]
+fn = 'output/figuren/figuur41.png'
+den=['D', 'E', 'N']
+GP.plot_baangebruik(trf_files,
+                 labels,
+                 hs,
+                 realisatie,
+                 den,
+                 fn)
+
+
+#% FIGUUR 4.4
+fn = 'output/figuren/figuur42.png'
+den=['N']
+GP.plot_baangebruik(trf_files,
+                 labels,
+                 hs,
+                 realisatie,
+                 den,
+                 fn,
+                 ylim=[0,12000],
+                 dy=1000)
 
 #%% figuur 4.2
 
