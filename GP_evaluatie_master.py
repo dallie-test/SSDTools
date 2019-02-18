@@ -1,4 +1,5 @@
 import lib.GPlib as GP
+import lib.doc29lib as doc29
 import pandas as pd
 import lib.huisstijl as lh
 import os
@@ -13,7 +14,9 @@ prognose_mean   = 'input/001 Hybride/traffic 1971-2016 - mean.txt'
 prognose_years1   = 'input/001 Hybride/traffic 1971-2016 - years.txt'
 prognose_years2   = 'input/001 Hybride Scenario Onderhoud/traffic 1971-2016 - years.txt'
 output_folder   = 'output/'
-history         = 'input/history.xlsx'
+history_excel         = 'input/history.xlsx'
+
+
 
 #%% preparation
 hs = lh.getHuisStijl() 
@@ -48,7 +51,7 @@ heli        = ['AS32', 'AS55', 'EC20', 'EC30', 'EC35', 'EC55','EH10','G2CA', 'S7
 data_heli   = data_realisatie_ga[data_realisatie_ga['C_ac_type'].isin(heli)]
 
 #%% figuur 2.1
-history = pd.read_excel(history)
+history = pd.read_excel(history_excel,'realisatie')
 # prognose data 
 prognose_max = 500000
 prog = sum(data_prognose['total'])
@@ -81,34 +84,34 @@ SW = pd.DataFrame(data=d)
 del SW.index.name
 print(SW)
 
-##%% figuur 2.2
+#%% figuur 2.2
 data_prognose_mean = pd.read_csv(prognose_mean, sep="\t")
-#vvc_pattern     = ['[0]\/[0-9]','[12]\/[0-9]','[3]\/[0-9]','[45]\/[0-9]','[6]\/[0-9]','[7]\/[0-9]','[89]\/[0-9]']
-#MTOW            = ['< 6','6 - 40','40 - 60','60 - 160','160 - 230','230 - 300','> 300'] 
-#
-## prognose
-#for find,replace in zip(vvc_pattern,MTOW): 
-#    data_prognose_mean = data_prognose_mean.replace(to_replace=find,value=replace,regex=True)
-#
-#vloot = data_prognose_mean.groupby(['d_ac_cat'])['total'].sum()
-#vloot = vloot.reindex(MTOW)
-#vloot= vloot/vloot.sum()*100
-#vloot = vloot.fillna(0)
-#
-## realisatie
-#for find,replace in zip(vvc_pattern,MTOW): 
-#    data_realisatie_HV = data_realisatie_HV.replace(to_replace=find,value=replace,regex=True)
-#
-#vloot2 = data_realisatie_HV.groupby(['C_VVC'])['C_actual'].count()
-#vloot2 = vloot2.reindex(MTOW)
-#vloot2 = vloot2/vloot2.sum()*100
-#vloot2 = vloot2.fillna(0)
-#
-## make figure
-#fn = output_folder+ 'figuren/figuur22.png'
-#GP.fig23(vloot,'prognose',fn,hs,
-#         vloot2,
-#         'realisatie')
+vvc_pattern     = ['[0]\/[0-9]','[12]\/[0-9]','[3]\/[0-9]','[45]\/[0-9]','[6]\/[0-9]','[7]\/[0-9]','[89]\/[0-9]']
+MTOW            = ['< 6','6 - 40','40 - 60','60 - 160','160 - 230','230 - 300','> 300'] 
+
+# prognose
+for find,replace in zip(vvc_pattern,MTOW): 
+    data_prognose_mean = data_prognose_mean.replace(to_replace=find,value=replace,regex=True)
+
+vloot = data_prognose_mean.groupby(['d_ac_cat'])['total'].sum()
+vloot = vloot.reindex(MTOW)
+vloot= vloot/vloot.sum()*100
+vloot = vloot.fillna(0)
+
+# realisatie
+for find,replace in zip(vvc_pattern,MTOW): 
+    data_realisatie_HV = data_realisatie_HV.replace(to_replace=find,value=replace,regex=True)
+
+vloot2 = data_realisatie_HV.groupby(['C_VVC'])['C_actual'].count()
+vloot2 = vloot2.reindex(MTOW)
+vloot2 = vloot2/vloot2.sum()*100
+vloot2 = vloot2.fillna(0)
+
+# make figure
+fn = output_folder+ 'figuren/figuur22.png'
+GP.fig23(vloot,'prognose',fn,hs,
+         vloot2,
+         'realisatie')
 
 #%% tabel 2.3 en tabel 2.4
 starts, landingen = GP.procedureverdeling(data_realisatie_HV,data_prognose_mean)
@@ -126,7 +129,7 @@ den=['D', 'E', 'N']
 GP.plot_baangebruik(trf_files,
                  labels,
                  hs,
-                 realisatie,
+                 data_realisatie_HV,
                  den,
                  fn)
 
@@ -137,75 +140,62 @@ den=['N']
 GP.plot_baangebruik(trf_files,
                  labels,
                  hs,
-                 realisatie,
+                 data_realisatie_HV,
                  den,
                  fn,
                  ylim=[0,12000],
                  dy=1000)
 
-#%% figuur 4.2
+#
+##%% figuur 5.1 TO DO remake into GP format, currently in MER format
+#
+#realisatie_grid_lden = 'input/realisatie/Result_Lden_EHAM_2018_klein_v2'
+#realisatie_grid_lnight = 'input/realisatie/Result_Lnight_EHAM_2018_klein_v2'
+#prognose_input_folder = 'input/001 Hybride/'
+#
+#prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lden', scale=1.025, mm='empirisch')
+#realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lden, noHeader=False, scale=1)
+#X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
+#X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
+#
+#fn = 'output/figuren/figuur51.png'
+#doc29.verschilplot(X1, Y1, [Z1,Z2],
+#                   fn)
+#
+##%% figuur 5.2
+#prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lnight', scale=1.025, mm='empirisch')
+#realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lnight, noHeader=False, scale=1)
+#X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
+#X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
+#
+#fn = 'output/figuren/figuur52.png'
+#doc29.verschilplot(X1, Y1, [Z1,Z2],
+#                   fn)
 
+#%% figuur 6.1 t/m 6.4
 
+key = ['w58den', 'eh48den','w48n', 'sv40n']
+files = ['figuur61', 'figuur62', 'figuur63', 'figuur64']
+fn = [output_folder + 'figuren/'+ f + '.png' for f in files]
+jaar = 2018
 
-##%% tabelvorm baangebruik
-#
-##PROGNOSE
-## aggregeer etmaalperiode en bereken stats
-#trf_file = 'input/001 Hybride/traffic 1971-2016 - years.txt'
-#trf = pd.read_csv(trf_file, delimiter='\t') 
-#trf = trf.groupby(['d_lt', 'd_runway', 'd_myear'])['total'].sum().reset_index()
-#trf_stats1 = round(trf.groupby(['d_lt', 'd_runway'])['total'].agg(['mean']).reset_index(),-2)
-#        
-##REALISATIE Nacht
-#trf_stats2 = round(data_realisatie_HV.
-#                   query('DEN == "N" | DEN == "EM"').
-#                   groupby(['C_AD', 'C_runway'])['C_actual'].
-#                   agg(['count']).
-#                   reset_index(),-2)
-#
-#trf_stats2['C_AD'][(trf_stats2['C_AD'] == 'realisatie, landingen')] ='L' 
-#trf_stats2['C_AD'][(trf_stats2['C_AD'] == 'realisatie, starts')] ='T' 
-#trf_stats2['C_runway'][(trf_stats2['C_runway'] == '9')] ='09' 
-#trf_stats2['C_runway'][(trf_stats2['C_runway'] == '6')] ='06' 
-#trf_stats2['C_runway'][(trf_stats2['C_runway'] == '4')] ='04'
-#
-##REALISATIE etmaal
-#trf_stats3 = round(data_realisatie_HV.
-#                   groupby(['C_AD', 'C_runway'])['C_actual'].
-#                   agg(['count']).
-#                   reset_index(),-2)
-#
-#trf_stats3['C_AD'][(trf_stats3['C_AD'] == 'realisatie, landingen')] ='L' 
-#trf_stats3['C_AD'][(trf_stats3['C_AD'] == 'realisatie, starts')] ='T' 
-#trf_stats3['C_runway'][(trf_stats3['C_runway'] == '9')] ='09' 
-#trf_stats3['C_runway'][(trf_stats3['C_runway'] == '6')] ='06' 
-#trf_stats3['C_runway'][(trf_stats3['C_runway'] == '4')] ='04'
-#
-##%% merge
-#m = trf_stats1.merge(trf_stats3,left_on=['d_lt', 'd_runway'],right_on=['C_AD', 'C_runway'],how='left')
-#m = m.drop(columns=['C_AD', 'C_runway'])
-#
-##%% merge
-#m = m.merge(trf_stats2,left_on=['d_lt', 'd_runway'],right_on=['C_AD', 'C_runway'],how='left')
-#m = m.drop(columns=['C_AD', 'C_runway'])
-#
-##%% opmaak
-#m = m.rename(columns={'d_lt': 'Landing/Take-off', 
-#                      'd_runway': 'baan', 
-#                      'mean': 'prognose, etmaal', 
-#                      'count_x': 'realisatie, etmaal',
-#                      'count_y': 'realisatie, nacht',})
-#
-#total = m.sum(numeric_only=True)
-#total['Landing/Take-off'] = 'totaal'
-#total['baan'] = 'totaal'
-#m = m.append(total, ignore_index=True)
-#
-#m = m.fillna(value=0)
-#BG = m.set_index(['Landing/Take-off','baan'])
-#print(BG)
-#
+history2 = pd.read_excel(history_excel,'prognose')
+history2 = history2.set_index('jaar')
 
+for k,f in zip(key,fn):
+    # prognose data 
+    prognose = [jaar,
+                history2[k+'_mean'][jaar],
+                history2[k+'_max'][jaar],
+                history2[k+'_min'][jaar]]
+    
+    GP.figHistory(history,prognose,k,f,hs)
+
+#%% tabel 6.1 TO DO
+    
+#%% tabel 6.2 TO DO
+    
+#%% tabel 6.3 TO DO
 
 #%% Print to excel
 writer = pd.ExcelWriter(output_folder + 'tabellen_evaluatie_gj2018.xlsx' )
@@ -214,82 +204,6 @@ SW.to_excel(writer,sheet_name='Seizoensverdeling')
 starts.to_excel(writer,sheet_name='Startprocedures')
 landingen.to_excel(writer,sheet_name='Landingsprocedures')
 writer.save()
-
-
-
-##%% plot het baangebruik
-#traffic = 'traffics/'
-#output = 'output/'
-#trf_files = [traffic +'traffic 1971-2015 - years_GP2017.txt',
-#             traffic +'traffic 1971-2015 - years_GP2017+US0624.txt',
-#             traffic +'traffic 2021 - years_GP2017+US0624+weer.txt',
-#             traffic +'traffic 2021 - years_GP2017+empirie+weer.txt']
-#
-#trf_realisatie = traffic + '20171107_Traffic_2017_HV.txt'
-#
-#labels = ['GP2017', 'GO','GO+meteo','GO+meteo+OO']
-#
-##%% DEN     
-#GP.plot_baangebruik(trf_files,
-#                    labels,
-#                    trf_realisatie,
-#                    TL='T',
-#                    fname=output+'Lden_TO.png')
-#
-#GP.plot_baangebruik(trf_files,
-#                    labels,
-#                    trf_realisatie,
-#                    TL='L',
-#                    fname=output+'Lden_Landing.png')
-#
-##%% night
-#GP.plot_baangebruik(trf_files,
-#                    labels,
-#                    trf_realisatie,
-#                    TL='T',
-#                    DEN='N',
-#                    ylim=[0,20000],
-#                    dy=2000,
-#                    fname=output+'Lnight_TO.png')
-#
-#GP.plot_baangebruik(trf_files,
-#                    labels,
-#                    trf_realisatie,
-#                    TL='L',
-#                    DEN='N',
-#                    ylim=[0,20000],
-#                    dy=2000,
-#                    fname=output+'Lnight_Landing.png')
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-
-
 
 
 

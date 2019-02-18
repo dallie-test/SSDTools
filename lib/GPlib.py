@@ -638,7 +638,7 @@ def tab42(tf_pref,baancombinaties):
 def plot_baangebruik(trf_files,
                      labels,
                      huisstijl,
-                     tr_realisatie = None,
+                     trf_realisatie = None,
                      den=['D', 'E', 'N'],
                      fname=None,
                      n=7,
@@ -773,6 +773,24 @@ def plot_baangebruik(trf_files,
               verticalalignment='center',
               fontname = font)
     
+    #realisatie
+    if den == ['N']:
+        trf_realisatie = trf_realisatie.loc[(trf_realisatie['DEN']=='N') | (trf_realisatie['DEN']=='EM'),:]
+    
+    
+    trf_realisatie = trf_realisatie.groupby(['C_AD','C_runway'])['C_actual'].count().reset_index()
+    trf_realisatie.loc[trf_realisatie['C_AD']=='realisatie, landingen','C_AD'] ='L'
+    trf_realisatie.loc[trf_realisatie['C_AD']=='realisatie, starts','C_AD'] ='T'
+    
+    # sorteer
+    if 'key' not in trf_realisatie.columns:
+        trf_realisatie['key'] = trf_realisatie['C_AD'] + trf_realisatie['C_runway']
+
+
+    
+    # drop runways that are not included in prognosis
+    trf_realisatie=trf_realisatie.dropna()
+    
     # verwerken traffics
     for i, trf_file in enumerate(trf_files):
         
@@ -833,7 +851,18 @@ def plot_baangebruik(trf_files,
                    facecolor=c_marker,
                    linewidth=0.3,
                    zorder=4)
-                     
+            
+
+            # TO DO: volgorde van de realisatie NIET altijd hetzelfde als de prognose
+            trf_r = trf_realisatie.loc[trf_realisatie['C_AD']==lt,:].nlargest(n,'C_actual')
+#            print(trf_r)
+            ax.plot([x-0.4,x+0.4],
+                    [trf_r['C_actual'],trf_r['C_actual']],
+                    'k--',
+                    zorder=10,
+                    linewidth=2)  
+            
+            
             # get rid of box around grpah
             for sp in ax.spines.values():
                 sp.set_visible(False) #Indentation updated..
@@ -874,12 +903,7 @@ def plot_baangebruik(trf_files,
             ax.yaxis.set_major_locator(MultipleLocator(base=dy))
             ax.yaxis.set_major_formatter(FuncFormatter(NumberFormatter))
     
-#    #plot realisatie
-#    ax1.plot([x-0.4,x+0.4],
-#             [trfn['mean'],trfn['mean']],
-#             'k--',
-#             zorder=10,
-#             linewidth=2)  
+
 
         
     if fname:
@@ -941,7 +965,8 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
     prognose_min= prog[2]
     prognose_max= prog[3]
     
-    prognose = realisatie[:][-1:]
+    prognose = realisatie[:][-2:-1]
+    
     prognose = prognose.append({'year': jaar,
                                 key: prognose_mean}, 
                                 ignore_index=True)
@@ -988,12 +1013,12 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
              label = 'prognose')
     
     
-    plt.fill_between(prognose['year'], 
-                     prognose[key]-prognose['min'], 
-                     prognose[key]+prognose['max'], 
-                     color=c4, 
-                     alpha=0.3)
-    
+#    plt.fill_between(prognose['year']-1, 
+#                     prognose[key]-prognose['min'], 
+#                     prognose[key]+prognose['max'], 
+#                     color=c4, 
+#                     alpha=0.3)
+#    
     # set yticks format
     plt.yticks(fontname = font,
                fontsize = fontsize)
