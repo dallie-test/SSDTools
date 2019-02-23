@@ -995,7 +995,7 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
     # Show the plot
     plt.show()
     
-def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
+def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n,de):
     # compute GWC
     # lees woningbestand
     fn = 'lib/wbs2005.h5'
@@ -1005,22 +1005,31 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
     w48n = []
     sv40n = []
     
-    for dat in dat_den:
+    # for figures
+    for dat in dat_den['dat']:
         # interpoleer op de adressenlijst
         db_den, func_den = ld.grid_interpolatie(wbs, hdr_den, dat)
         # tellen
-        w_den, egh  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen']) 
-        print('aantal woningen binnen 48 Lden = '+ str(w_den[1]))
+        w_den, egh  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen'],de) 
         w58den.append(w_den[0])
         egh48den.append(egh[1])
     
-    for dat in dat_n:
+    for dat in dat_n['dat']:
         db_n, func_n = ld.grid_interpolatie(wbs, hdr_n, dat)
-        w_n, sv     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'])
+        w_n, sv     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'],de)
         w48n.append(w_n[0])
         sv40n.append(sv[1])        
     
+    # meteomarge
+    # interpoleer op de adressenlijst
+    db_den, func_den = ld.grid_interpolatie(wbs, hdr_den, dat_den['mm'])
+    # tellen
+    w_den_mm, egh_mm  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen'],de) 
     
+    db_n, func_n = ld.grid_interpolatie(wbs, hdr_n, dat_n['mm'])
+    w_n_mm, sv_mm     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'],de)
+    
+
     
     d = {'Criterium': ['Won 58 dB(A) Lden',
                        'EGH 48 dB(A) Lden',
@@ -1031,12 +1040,15 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
                   sum(w48n)/len(w48n), 
                   sum(sv40n)/len(sv40n)],
          'max': [max(w58den), max(egh48den), max(w48n), max(sv40n)],
-         'min': [min(w58den), min(egh48den), min(w48n), min(sv40n)]}
+         'min': [min(w58den), min(egh48den), min(w48n), min(sv40n)],
+         'meteomarge' : [w_den_mm[0], egh_mm[1], w_n_mm[0], sv_mm[1]]}
     
-    GWC = pd.DataFrame(data=d)
-    GWC['mean'] = GWC['mean'].round(-2)
-    GWC['max'] = GWC['max'].round(-2)
-    GWC['min'] = GWC['min'].round(-2)
+    GWC                 = pd.DataFrame(data=d)
+    GWC['mean']         = GWC['mean'].round(-2)
+    GWC['max']          = GWC['max'].round(-2)
+    GWC['min']          = GWC['min'].round(-2)
+    GWC['meteomarge']   = GWC['meteomarge'].round(-2)
     
+    GWC = GWC.set_index('Criterium')
     return GWC
 

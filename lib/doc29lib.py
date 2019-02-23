@@ -405,11 +405,11 @@ def slaapverstoorden(db, personen,  de='ges2002', dbmax=65):
     return sv
     
     
-def tellen_etmaal(db, woningen, personen, scale=1, bins=[48,58,9999], cumulatief=True):
+def tellen_etmaal(db, woningen, personen, de='ges2002', scale=1, bins=[48,58,9999], cumulatief=True):
     '''Tel het aantal woningen en gehinderen binnen de contourwaarden'''
 
     db = db + 10*np.log10(scale)
-    egh_per_locatie = gehinderden(db, personen)
+    egh_per_locatie = gehinderden(db, personen, de)
 
     w, _ = np.histogram(db, bins=bins, weights=woningen)
     egh, _ = np.histogram(db, bins=bins, weights=egh_per_locatie)
@@ -420,11 +420,11 @@ def tellen_etmaal(db, woningen, personen, scale=1, bins=[48,58,9999], cumulatief
         return w, egh
 
     
-def tellen_nacht(db, woningen, personen, scale=1, bins=[40,48,9999], cumulatief=True):
+def tellen_nacht(db, woningen, personen, de='ges2002', scale=1, bins=[40,48,9999], cumulatief=True):
     '''Tel het aantal woningen en slaapverstoorden binnen de contourwaarden'''
 
     db = db + 10*np.log10(scale)
-    sv_per_locatie = slaapverstoorden(db, personen)
+    sv_per_locatie = slaapverstoorden(db, personen, de)
 
     w, _ = np.histogram(db, bins=bins, weights=woningen)
     sv, _ = np.histogram(db, bins=bins, weights=sv_per_locatie)

@@ -19,14 +19,14 @@
 #BaseDir="../../../prognose_def"                         # directory voor de uitvoer (in sub-directories)
 
 
-BaseURL="http://daisy-1-8-4.frontier.nl/source/"    	# url van Daisy
-Username="Onth2017"                                  		# username
-Password="huD4S9UCP6"                                 	# wachtwoord
+BaseURL="http://daisy-1-8-5.frontier.nl/source/"    	# url van Daisy
+Username="GP2019def"                                  	# username
+Password="_vbFYeVcA8"                                 	# wachtwoord
 #Empirisch
-#Years="1971-2010"                                   	# jaren in de vorm: 1971-2011
+Years="1971-2016"                                   	# jaren in de vorm: 1971-2011
 #Hybride
-Years="2021"                                   	# jaren in de vorm: 1971-2011
-BaseDir="../../../evaluatie"                         	# directory voor de uitvoer (in sub-directories)
+#Years="2021"                                   		# jaren in de vorm: 1971-2011
+BaseDir="../../../input"                         	    # directory voor de uitvoer (in sub-directories)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
