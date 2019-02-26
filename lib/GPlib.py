@@ -1013,12 +1013,12 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
              label = 'prognose')
     
     
-#    plt.fill_between(prognose['year']-1, 
-#                     prognose[key]-prognose['min'], 
-#                     prognose[key]+prognose['max'], 
-#                     color=c4, 
-#                     alpha=0.3)
-#    
+    plt.fill_between(prognose['year'], 
+                     prognose[key]-prognose['min'], 
+                     prognose[key]+prognose['max'], 
+                     color=c4, 
+                     alpha=0.3)
+    
     # set yticks format
     plt.yticks(fontname = font,
                fontsize = fontsize)
