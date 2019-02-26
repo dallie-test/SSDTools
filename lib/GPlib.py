@@ -12,6 +12,7 @@ from matplotlib import rcParams
 from datetime import date
 import lib.plotformat as pformat
 import lib.doc29lib as ld
+import math
 
 
 from docx import Document
@@ -994,6 +995,21 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
     
     # Show the plot
     plt.show()
+
+
+def roundTo(x,n):
+    # define the round function
+    def custom_round(x,n):
+        r = round(x / n) * n
+        return r
+    
+    # apply
+    if isinstance(x,pd.Series) or isinstance(x,pd.DataFrame):
+        out = x.apply(lambda x: custom_round(x, n))
+    else:
+        out = custom_round(x,n)
+        
+    return out
     
 def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n,de):
     # compute GWC
@@ -1044,11 +1060,11 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n,de):
          'meteomarge' : [w_den_mm[0], egh_mm[1], w_n_mm[0], sv_mm[1]]}
     
     GWC                 = pd.DataFrame(data=d)
-    GWC['mean']         = GWC['mean'].round(-2)
-    GWC['max']          = GWC['max'].round(-2)
-    GWC['min']          = GWC['min'].round(-2)
-    GWC['meteomarge']   = GWC['meteomarge'].round(-2)
-    
     GWC = GWC.set_index('Criterium')
+    GWC.loc['Won 58 dB(A) Lden',:]      = roundTo(GWC.loc['Won 58 dB(A) Lden',:],100)
+    GWC.loc['EGH 48 dB(A) Lden',:]      = roundTo(GWC.loc['EGH 48 dB(A) Lden',:],500)
+    GWC.loc['Won 48 dB(A) Lnight',:]    = roundTo(GWC.loc['Won 48 dB(A) Lnight',:],100)
+    GWC.loc['SV 40 dB(A) Lnight',:]     = roundTo(GWC.loc['SV 40 dB(A) Lnight',:],500)
+    
     return GWC
 
