@@ -17,7 +17,6 @@ output_folder   = 'output/'
 history_excel         = 'input/history.xlsx'
 
 
-
 #%% preparation
 hs = lh.getHuisStijl() 
 
@@ -146,31 +145,31 @@ GP.plot_baangebruik(trf_files,
                  ylim=[0,12000],
                  dy=1000)
 
-#
-##%% figuur 5.1 TO DO remake into GP format, currently in MER format
-#
-#realisatie_grid_lden = 'input/realisatie/Result_Lden_EHAM_2018_klein_v2'
-#realisatie_grid_lnight = 'input/realisatie/Result_Lnight_EHAM_2018_klein_v2'
-#prognose_input_folder = 'input/001 Hybride/'
-#
-#prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lden', scale=1.025, mm='empirisch')
-#realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lden, noHeader=False, scale=1)
-#X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
-#X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
-#
-#fn = 'output/figuren/figuur51.png'
-#doc29.verschilplot(X1, Y1, [Z1,Z2],
-#                   fn)
-#
-##%% figuur 5.2
-#prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lnight', scale=1.025, mm='empirisch')
-#realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lnight, noHeader=False, scale=1)
-#X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
-#X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
-#
-#fn = 'output/figuren/figuur52.png'
-#doc29.verschilplot(X1, Y1, [Z1,Z2],
-#                   fn)
+
+#%% figuur 5.1 TO DO remake into GP format, currently in MER format
+
+realisatie_grid_lden = 'input/realisatie/Result_Lden_EHAM_2018_klein'
+realisatie_grid_lnight = 'input/realisatie/Result_Lnight_EHAM_2018_klein'
+prognose_input_folder = 'input/001 Hybride/'
+
+prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lden', scale=1.025, mm='empirisch')
+realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lden, noHeader=False, scale=1)
+X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
+X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
+
+fn = 'output/figuren/figuur51.png'
+doc29.verschilplot(X1, Y1, [Z1,Z2],
+                   fn)
+
+#%% figuur 5.2
+prognose_grid = doc29.gridimport(prognose_input_folder, 'GP2018 - Lnight', scale=1.025, mm='empirisch')
+realisatie_hdr,realisatie_dat= doc29.read_envira(realisatie_grid_lnight, noHeader=False, scale=1)
+X1, Y1, Z1 = doc29.verfijn(realisatie_hdr, realisatie_dat, func=None, k=20)
+X2, Y2, Z2 = doc29.verfijn(prognose_grid[0], prognose_grid[1]['mean'], func=None, k=20)
+
+fn = 'output/figuren/figuur52.png'
+doc29.verschilplot(X1, Y1, [Z1,Z2],
+                   fn)
 
 #%% figuur 6.1 t/m 6.4
 
