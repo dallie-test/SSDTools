@@ -22,11 +22,66 @@ from scipy.interpolate import RectBivariateSpline
 from geopandas import GeoDataFrame
 from descartes import PolygonPatch
 
+#%% MERGED FUNCTIONS
+
+def roundTo(x,n):
+    '''Rounds to nearest value n. Takes floats,  integers dataframes and series'''
+    # define the round function
+    def custom_round(x,n):
+        r = round(x / n) * n
+        return r
+    
+    # apply
+    if isinstance(x,pd.Series) or isinstance(x,pd.DataFrame):
+        out = x.apply(lambda x: custom_round(x, n))
+    else:
+        out = custom_round(x,n)
+        
+    return out
+    
+def GebruiksjaarInfo(year, verbose=True):
+    '''Bereken de start- en einddatum en het aantal dagen en weken van de seizoenen in het gebruiksjaar'''
+
+    # Winterseizoen start een jaar eerder op de laatste zondag in oktober
+    Winter_start = 31 - date(year-1, 10, 31).isoweekday()%7
+
+    # Zomerseizoen start de laatste zondag in maart
+    Summer_start = 31 - date(year, 3, 31).isoweekday()%7
+
+    # Zomerseizoen stopt de dag voor het volgende winterseizoen
+    Summer_end = 31 - date(year, 10, 31).isoweekday()%7 - 1
+
+    # Data 
+    winter = {'start': date(year-1, 10, Winter_start),
+                'end': date(year, 3, Summer_start - 1)}
+    summer = {'start': date(year, 3, Summer_start),
+                'end': date(year, 10, Summer_end)} 
+
+    # Dagen en weken in de seizoenen
+    winter['days'] = (winter['end'] - winter['start']).days + 1
+    summer['days'] = (summer['end'] - summer['start']).days + 1
+
+    winter['weeks'] = winter['days'] // 7
+    summer['weeks'] = summer['days'] // 7
+
+    # Uitvoer
+    if verbose:
+      print('season   start       end          days  weeks')
+      print('-------  ----------  ----------  -----  -----')
+      print(f"winter   {winter['start']}  {winter['end']}    {winter['days']}     {winter['weeks']}")
+      print(f"zomer    {summer['start']}  {summer['end']}    {summer['days']}     {summer['weeks']}")
+      print('-------  ----------  ----------  -----  -----')
+      
+    return [winter, summer]
+
+
+#%% TO DO
+
 def DENverdeling_evaluatie(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
 
-    #%% make sure changes in this function do not affect df
+    #% make sure changes in this function do not affect df
     df = df_in
-    #%% now perform operations
+    #% now perform operations
     
     hdr1 = hdr_multiindex+ ', landingen'
     hdr2 = hdr_multiindex+ ', starts'
@@ -70,9 +125,9 @@ def DENverdeling_evaluatie(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
 
 def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
 
-    #%% make sure changes in this function do not affect df
+    #% make sure changes in this function do not affect df
     df = df_in
-    #%% now perform operations
+    #% now perform operations
     
     hdr1 = hdr_multiindex+ ', landingen'
     hdr2 = hdr_multiindex+ ', starts'
@@ -106,10 +161,10 @@ def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
 
 
 def SWverdeling(df_in,hdr_date,hdr_sum,gj):
-    #%% make sure changes in this function do not affect df
+    #% make sure changes in this function do not affect df
     df = df_in
     
-    #%% now perform operations
+    #% now perform operations
     #make summer/winter column
     df[hdr_date] = pd.to_datetime(df[hdr_date])
     df['SW']  =df[hdr_sum]
@@ -122,44 +177,7 @@ def SWverdeling(df_in,hdr_date,hdr_sum,gj):
     df_out = round(df_out,-2)
 #    df_out.reset_index(['SW'])
     return df_out
-
-
-def GebruiksjaarInfo(year, verbose=True):
-    '''Bereken de start- en einddatum en het aantal dagen en weken van de seizoenen in het gebruiksjaar'''
-
-    # Winterseizoen start een jaar eerder op de laatste zondag in oktober
-    Winter_start = 31 - date(year-1, 10, 31).isoweekday()%7
-
-    # Zomerseizoen start de laatste zondag in maart
-    Summer_start = 31 - date(year, 3, 31).isoweekday()%7
-
-    # Zomerseizoen stopt de dag voor het volgende winterseizoen
-    Summer_end = 31 - date(year, 10, 31).isoweekday()%7 - 1
-
-    # Data 
-    winter = {'start': date(year-1, 10, Winter_start),
-                'end': date(year, 3, Summer_start - 1)}
-    summer = {'start': date(year, 3, Summer_start),
-                'end': date(year, 10, Summer_end)} 
-
-    # Dagen en weken in de seizoenen
-    winter['days'] = (winter['end'] - winter['start']).days + 1
-    summer['days'] = (summer['end'] - summer['start']).days + 1
-
-    winter['weeks'] = winter['days'] // 7
-    summer['weeks'] = summer['days'] // 7
-
-    # Uitvoer
-    if verbose:
-      print('season   start       end          days  weeks')
-      print('-------  ----------  ----------  -----  -----')
-      print(f"winter   {winter['start']}  {winter['end']}    {winter['days']}     {winter['weeks']}")
-      print(f"zomer    {summer['start']}  {summer['end']}    {summer['days']}     {summer['weeks']}")
-      print('-------  ----------  ----------  -----  -----')
-      
-    return [winter, summer]
     
-
 def plot_baangebruik_evaluatie(trf_files,
                      labels,
                      TL,
@@ -928,7 +946,7 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
     if ylim is None:
         ylim = [0,max([prognose_max,max(realisatie[key])])+1000]   
     
-    #%% plot
+    #% plot
     
     fig1, ax1 = plt.subplots(figsize=(12, 4))
     
@@ -995,7 +1013,8 @@ def figHistory(history,prog,key,fn,hs,ylim=None):
     # Show the plot
     plt.show()
     
-def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
+
+def compGWC(hdr_den,hdr_n,dat_den,dat_n,de):
     # compute GWC
     # lees woningbestand
     fn = 'lib/wbs2005.h5'
@@ -1005,22 +1024,31 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
     w48n = []
     sv40n = []
     
-    for dat in dat_den:
+    # for figures
+    for dat in dat_den['dat']:
         # interpoleer op de adressenlijst
         db_den, func_den = ld.grid_interpolatie(wbs, hdr_den, dat)
         # tellen
-        w_den, egh  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen']) 
-        print('aantal woningen binnen 48 Lden = '+ str(w_den[1]))
+        w_den, egh  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen'],de) 
         w58den.append(w_den[0])
         egh48den.append(egh[1])
     
-    for dat in dat_n:
+    for dat in dat_n['dat']:
         db_n, func_n = ld.grid_interpolatie(wbs, hdr_n, dat)
-        w_n, sv     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'])
+        w_n, sv     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'],de)
         w48n.append(w_n[0])
         sv40n.append(sv[1])        
     
+    # meteomarge
+    # interpoleer op de adressenlijst
+    db_den, func_den = ld.grid_interpolatie(wbs, hdr_den, dat_den['mm'])
+    # tellen
+    w_den_mm, egh_mm  = ld.tellen_etmaal(db_den, wbs['woningen'], wbs['personen'],de) 
     
+    db_n, func_n = ld.grid_interpolatie(wbs, hdr_n, dat_n['mm'])
+    w_n_mm, sv_mm     = ld.tellen_nacht(db_n,  wbs['woningen'], wbs['personen'],de)
+    
+
     
     d = {'Criterium': ['Won 58 dB(A) Lden',
                        'EGH 48 dB(A) Lden',
@@ -1031,12 +1059,14 @@ def compGWCforGP(hdr_den,hdr_n,dat_den,dat_n):
                   sum(w48n)/len(w48n), 
                   sum(sv40n)/len(sv40n)],
          'max': [max(w58den), max(egh48den), max(w48n), max(sv40n)],
-         'min': [min(w58den), min(egh48den), min(w48n), min(sv40n)]}
+         'min': [min(w58den), min(egh48den), min(w48n), min(sv40n)],
+         'meteomarge' : [w_den_mm[0], egh_mm[1], w_n_mm[0], sv_mm[1]]}
     
-    GWC = pd.DataFrame(data=d)
-    GWC['mean'] = GWC['mean'].round(-2)
-    GWC['max'] = GWC['max'].round(-2)
-    GWC['min'] = GWC['min'].round(-2)
+    GWC                 = pd.DataFrame(data=d)
+    GWC = GWC.set_index('Criterium')
+    GWC.loc['Won 58 dB(A) Lden',:]      = roundTo(GWC.loc['Won 58 dB(A) Lden',:],100)
+    GWC.loc['EGH 48 dB(A) Lden',:]      = roundTo(GWC.loc['EGH 48 dB(A) Lden',:],500)
+    GWC.loc['Won 48 dB(A) Lnight',:]    = roundTo(GWC.loc['Won 48 dB(A) Lnight',:],100)
+    GWC.loc['SV 40 dB(A) Lnight',:]     = roundTo(GWC.loc['SV 40 dB(A) Lnight',:],500)
     
     return GWC
-
