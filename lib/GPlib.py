@@ -69,7 +69,11 @@ def DENverdeling_evaluatie(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     return df_out
 
 
-def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
+def DENverdeling(df_in,
+                 hdr_time,
+                 hdr_LT,
+                 hdr_multiindex,
+                 hdr_sum=None):
 
     #%% make sure changes in this function do not affect df
     df = df_in
@@ -77,33 +81,52 @@ def DENverdeling(df_in,hdr_time,hdr_sum,hdr_LT,hdr_multiindex):
     
     hdr1 = hdr_multiindex+ ', landingen'
     hdr2 = hdr_multiindex+ ', starts'
+    hdr3 = hdr_multiindex+ ', totaal'
     
+    df[hdr_time]    = pd.to_datetime(df[hdr_time])
+    df['DEN']       =   df[hdr_time]
+    df['DEN']       = "D"
     
-    df[hdr_time] = pd.to_datetime(df[hdr_time])
-    df['DEN'] =df[hdr_time]
-    df['DEN'] = "D"
-    # change string to date
-    t1 = pd.to_datetime('22:59:59')
-    t2 = pd.to_datetime('07:00:00')
-    t3 = pd.to_datetime('18:59:59')
-    t4 = pd.to_datetime('23:00:00')
-    t5 = pd.to_datetime('05:59:59')
     # logical indexing
-    df['DEN'][(df[hdr_time]>t1) | (df[hdr_time]<t2)] = "N"
-    df['DEN'][(df[hdr_time]>t3) & (df[hdr_time]<t4)] = "E"
-    df['DEN'][(df[hdr_time]>t5) & (df[hdr_time]<t2)] = "EM"
+    df['DEN'][(df[hdr_time].dt.hour>22) | (df[hdr_time].dt.hour<7)] = "N"
+    df['DEN'][(df[hdr_time].dt.hour>18) & (df[hdr_time].dt.hour<23)] = "E"
+    df['DEN'][(df[hdr_time].dt.hour>5) & (df[hdr_time].dt.hour<7)] = "EM"
+    
     # change LT or AD to starts en landingen
     df[hdr_LT][(df[hdr_LT] == 'L') | (df[hdr_LT] == 'A')] = hdr1
     df[hdr_LT][(df[hdr_LT] == 'T') | (df[hdr_LT] == 'D')] =  hdr2
+
     # use groubpy to aggregate
-    df_out          = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    if hdr_sum:
+        df_out          = pd.pivot_table(df,values=hdr_sum,index='DEN',columns=hdr_LT, aggfunc=np.sum) 
+    else:
+        df_out          = pd.pivot_table(df,values=hdr_time,index='DEN',columns=hdr_LT, aggfunc='count') 
+    
     # swap EM and N rows
     df_out = df_out.reindex(["D", "E", "N","EM"])
-        
+    # total columns
+    df_out[hdr3] = df_out[hdr1]+df_out[hdr2]
+    
+    # total row
+    total = df_out.sum(numeric_only=True)
+    df_out = df_out.append(total, ignore_index=True)
+    
     #create group headers
     a = df_out .columns.str.split(', ', expand=True).values
     df_out.columns = pd.MultiIndex.from_tuples([('', x[0]) if pd.isnull(x[1]) else x for x in a])
+    
+    # round
+    df_out = df_out.round()
+    df_out = df_out.set_index([pd.Index(["dag 07-19 uur", 
+                                         "avond 19-23 uur", 
+                                         "nacht 23-06 uur",
+                                         "vroege ochtend 06-07 uur",
+                                         "totaal"])])
+    # round to 100 
+    df_out = round(df_out,-2)
+
     return df_out
+
 
 
 def SWverdeling(df_in,hdr_date,hdr_sum,gj):
