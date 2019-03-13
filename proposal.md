@@ -43,41 +43,37 @@ Om de repository functioneel te maken zullen de verschillende functies uit de be
 
 We starten dit werkpakket met een inventarisatie van de beschikbaarheid van de verschillende functies in de drie bestaande libraries. Daarna identificeren we de verschillende varianten van elk functie in de bestaande libraries. Per functie wordt er samen met de opdrachtgever bepaald welke variant er beschikbaar moet worden gemaakt en welke niet. In het geval van het omschrijven van Matlab code naar Python code zal de functionaliteit van de Python implementatie worden geverifieerd met de oude Matlab code.
 
-De nieuwe Python code zal vervolgens worden opgesplitst per type functionaliteit: _collect_store_, _process_ en _visualize_. _collect_store_ omvat alle methodes om data op te halen en weg te schrijven, _process_ omvat alle methodes om data te verwerken en _visualize_ omvat alle methodes om data te visualiseren.
+Naast de inventarisatie van de functies vindt er ook een inventarisatie van de type data plaats. Naar aanleiding van deze geidentificeerde data types worden er Python objecten gemaakt. De hierbovengenoemde functies worden vervolgens als methodes aan de relevante objecten gekoppeld.
+
+De nieuwe Python code zal vervolgens worden opgesplitst per type object: Traffic, Grid, Meteo en WBS. Elke object bevat de benodigde methodes om data op te halen en weg te schrijven, om data te verwerken en om data te visualiseren.
 
 Het eindresultaat van werkpakket 2 is een Git repository met daarin een functionele Python package.
 
 Ten opzichte van werkpakket 1 bevat het eindresultaat van werkpakket 2 de volgende nieuwe onderdelen:
 
-- `gptools/collect_store.py` - bestand met hierin de verschillende functies en objecten om de data op te halen en weg te schrijven. 
-- `gptools/process.py` - bestand met hierin de verschillende functies en objecten om de data te verwerken. 
-- `gptools/visualize.py` - bestand met hierin de verschillende functies en objecten om de data te visualiseren.
-- `tests/test_collect.py` - bestand met tests voor `gptools/collect.py`.
-- `tests/test_process.py` - bestand met tests voor `gptools/process.py`.
-- `tests/test_visualize.py` - bestand met tests voor `gptools/visualize.py`.
+- `gptools/traffic.py` - bestand met hierin de verschillende functies en objecten m.b.t. traffic data. 
+- `gptools/grid.py` - bestand met hierin de verschillende functies en objecten m.b.t. noise grids.
+- `gptools/meteo.py` - bestand met hierin de verschillende functies en objecten m.b.t. meteorologische data.
+- `gptools/wbs.py` - bestand met hierin de verschillende functies en objecten m.b.t. de woningbestanden.
+- `gptools/branding.py` - bestand met hierin de verschillende functies en objecten m.b.t. de huisstijl van Schiphol.
+- `tests/test_traffic.py` - bestand met tests voor `gptools/traffic.py`.
+- `tests/test_grid.py` - bestand met tests voor `gptools/grid.py`.
+- `tests/test_meteo.py` - bestand met tests voor `gptools/meteo.py`.
+- `tests/test_wbs.py` - bestand met tests voor `gptools/wbs.py`.
+- `tests/test_branding.py` - bestand met tests voor `gptools/branding.py`.
 - `readme.md` - bestand met hierin een beschrijving van de repository, een handleiding voor het gebruik van de repository en richtlijnen voor het maken van een nieuwe gebruiksprognose.
 
 ### Werkpakket 3: Data ophalen uit Casper en Daisy middels een API
 
-Op dit moment moet de data uit Casper en Daisy worden opgehaald middels meerdere Bash scripts. Om het gebruiksgemak en de leesbaarheid van de code te verhogen, en daarmee de kans op fouten te verminderen, is het wenselijk om deze Bash scripts te vervangen door API calls vanuit Python.
+_Komt te vervallen i.v.m. het niet ter beschikking stellen van een API door de leverancier van Casper en Daisy. Wordt vervangen door additionele werkzaamheden in werkpakket 2._
 
-We starten dit werkpakket met een inventarisatie van de verschillende data die vanuit Casper en Daisy moet komen om de gebruiksprognose te maken. Vervolgens wordt er gekeken hoe deze data nu vanuit de Bash scripts wordt opgehaald en hoe deze Bash scripts kunnen worden omgeschreven naar Python. Mocht er data uit Daisy en Casper moeten worden gehaald waar nog geen Bash script voor is, dan kan er worden gekeken of de API wel beschikbaar is. Zo ja, dan kan er alsnog een methode in Python worden gecreëerd om deze data op te halen. Zo niet, dan kan er in overleg met de opdrachtgever en de leverancier van Casper en Daisy een nieuwe API worden ontwikkeld voor deze data.
+### Werkpakket 4: Scheiden van GPtools en de rapportages gebruiksprognose en evaluatie gebruiksprognose.
 
-Het eindresultaat van werkpakket 3 is een update van de verschillende functies en objecten in `gptools/`.
+De werkzaamheden uit de vorige werkpakketen leiden tot een Python package met daarin de verschillende methodes die nodig zijn om een gebruiksprognose te maken en te evalueren. Dit werkpakket omvat de werkzaamheden om een nieuwe repository te maken voor het aanmaken van nieuwe gebruiksprognoses en een methode om deze intern te publiceren. Daarnaast bevat dit werkpakket ook de werkzaamheden om tot een repository te komen waarin oude gebruiksprognoses kunnen worden geevalueerd.
 
-Ten opzichte van werkpakket 2 bevat het eindresultaat van werkpakket 3 de volgende nieuwe onderdelen:
+We starten dit werkpakket met het bekijken van de stappen die in het verleden zijn gevolgd om een nieuwe gebruiksprognose te maken. Op basis hiervan wordt het proces opnieuw samengevoegd in één repository voor het aanmaken van nieuwe gebruiksprognoses. Dezelfde methode kan ook worden gebruikt om het evaluatieproces van gebruiksprognoses in kaart te brengen en vervolgens te implementeren in een repository. Een belangrijk onderdeel van het eindresultaat is de bijbehorende documentatie, zodat de procedure ook in de toekomst door anderen te volgen en te gebruiken is.     
 
-- `gptools/collect_casper.py` - bestand met hierin de verschillende functies en objecten om data uit Casper en Daisy te halen.
-- `tests/test_collect_casper.py` - bestand met hierin de tests voor `gptools/collect_casper.py`.
-- `config.py` - bestand met hierin de verschillende configuratie- en inloggegevens om verbinding te maken met Casper en Daisy. 
-
-### Werkpakket 4: Scheiden van aanmaken gebruiksprognose en evaluatie gebruiksprognose.
-
-De werkzaamheden uit de vorige werkpakketen leiden tot een Python package met daarin de verschillende methodes die nodig zijn om een gebruiksprognose te maken en te evalueren. Dit werkpakket omvat de werkzaamheden om een script te maken voor het aanmaken van nieuwe gebruiksprognoses en een methode om deze intern te publiceren. Daarnaast bevat dit werkpakket ook de werkzaamheden om tot een script te komen dat in staat is om oude gebruiksprognoses te evalueren.
-
-We starten dit werkpakket met het bekijken van de stappen die in het verleden zijn gevolgd om een nieuwe gebruiksprognose te maken. Op basis hiervan wordt het proces opnieuw samengevoegd in één script voor het aanmaken van nieuwe gebruiksprognoses. Dezelfde methode kan ook worden gebruikt om het evaluatieproces van gebruiksprognoses in kaart te brengen en vervolgens te implementeren in een script. Een belangrijk onderdeel van het eindresultaat is de bijbehorende documentatie, zodat de procedure ook in de toekomst door anderen te volgen en te gebruiken is.     
-
-Het eindresultaat is een update van de verschillende bestanden in `gptools`.
+Het eindresultaat is een nieuwe repository dat gebruik maakt van `gptools`.
 
 Ten opzichte van werkpakket 3 bevat het eindresultaat van werkpakket 4 de volgende nieuwe onderdelen:
 
@@ -90,8 +86,8 @@ Ten opzichte van werkpakket 3 bevat het eindresultaat van werkpakket 4 de volgen
 |Werkpakket|Startdatum|Bijeenkomst|
 |---|---|---|
 |1|4 maart 2019|12 maart 2019|
-|2|4 maart 2019|12 maart 2019|
-|3|25 maart 2019|26 maart 2019 en/of 2 april 2019|
+|2|4 maart 2019|12 maart 2019, 26 maart 2019 en/of 2 april 2019|
+|3|-|-|
 |4|8 april 2019|9 april 2019 en/of 16 april 2019|
 
 ## Uitgangspunten
