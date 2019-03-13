@@ -16,7 +16,8 @@ class Grid(object):
 
         :param str path:
         """
-        pass
+
+        return cls()
 
     @classmethod
     def from_envira_files(cls, paths):
@@ -24,7 +25,8 @@ class Grid(object):
 
         :param list(str) paths:
         """
-        pass
+
+        return cls()
 
     def to_envira(self, path):
         """
