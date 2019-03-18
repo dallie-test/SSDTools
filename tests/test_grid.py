@@ -1,5 +1,5 @@
 import os
-
+import numpy as np
 from gptools.grid import Grid
 
 
@@ -36,7 +36,14 @@ def test_to_envira():
     # Export the grid to the new file
     grid.to_envira(new_file_path)
 
-    pass
+    # Create a grid object from the new data file
+    grid_new = Grid.from_envira_file(new_file_path)
+
+    # Test if the headers of the files are the same
+    assert grid_new.info == grid.info
+
+    # Check if the data is still correct
+    np.testing.assert_equal(grid_new.data, grid.data)
 
 
 def abs_path(rel_path):
