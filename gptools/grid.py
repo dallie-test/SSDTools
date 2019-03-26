@@ -1,6 +1,6 @@
-import glob
 import io
 import os
+import re
 import textwrap
 
 import numpy as np
@@ -27,6 +27,22 @@ class Grid(object):
         todo: Create a format specification for the grid information.
 
         """
+
+        if isinstance(data, list) and isinstance(info, list):
+            if len(data) != len(info):
+                raise IndexError('Provided data list and info list should have the same length.')
+
+            # Set the elements to check
+            data_shape = data[0].shape
+            info_dict = info[0]
+
+            # Check all the shapes and info dicts
+            for i, d in enumerate(data):
+                if data_shape != d.shape:
+                    raise ValueError('All data in the provided data list should have the same shape.')
+                if info_dict != info[i]:
+                    raise ValueError('All info in the provided info list should be the same')
+
         if data is not None:
             self.data = data
         if info is not None:
@@ -56,7 +72,7 @@ class Grid(object):
         """
 
         # Get the envira files
-        file_paths = glob.glob(os.path.join(path, pattern))
+        file_paths = [os.path.join(path, f) for f in os.listdir(path) if re.search(pattern, f)]
 
         # Create info and data lists
         cls_info = []
