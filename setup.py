@@ -41,7 +41,7 @@ setup(
     license='None',
     packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
     include_package_data=True,
-    install_requires=['pandas', 'numpy'],
+    install_requires=['pandas', 'numpy', 'xlrd', 'tables'],
     zip_safe=False,
     project_urls={
         'Source': 'https://github.com/schiphol-Hub/GPTools/',
