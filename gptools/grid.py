@@ -1,4 +1,6 @@
+import glob
 import io
+import os
 import textwrap
 
 import numpy as np
@@ -18,8 +20,12 @@ class Grid(object):
     def __init__(self, data=None, info=None):
         """
 
-        :param np.ndarray data: grid data
-        :param dict info: grid information
+        :param list(np.ndarray)|np.ndarray data: grid data, is two-dimensional for single contour grids and
+        three-dimensional for multi-contour grids.
+        :param list(dict)|dict info: grid information
+
+        todo: Create a format specification for the grid information.
+
         """
         if data is not None:
             self.data = data
@@ -41,14 +47,29 @@ class Grid(object):
         return cls(data=data, info=info)
 
     @classmethod
-    def from_envira_files(cls, paths):
+    def from_envira_files(cls, path, pattern='*.dat'):
         """
         Create a Grid object from multiple envira files.
 
-        :param list(str) paths:
+        :param str pattern:
+        :param str path:
         """
 
-        return cls()
+        # Get the envira files
+        file_paths = glob.glob(os.path.join(path, pattern))
+
+        # Create info and data lists
+        cls_info = []
+        cls_data = []
+
+        # Read the envira files
+        for file_path in file_paths:
+            info, data = read_envira(file_path)
+            cls_info.append(info)
+            cls_data.append(data)
+
+        # Add the data to a Grid object
+        return cls(data=cls_data, info=cls_info)
 
     def to_envira(self, path):
         """
