@@ -2,7 +2,7 @@ import os
 import re
 
 import numpy as np
-from gptools.grid import Grid
+from gptools.grid import Grid, read_envira
 
 
 def test_read_envira():
@@ -57,6 +57,70 @@ def test_read_enviras_inconsistent_data():
 
         # Check if the file names are correct
         assert file_paths == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2016r.dat']
+
+
+def test_read_enviras_inconsistent_input():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/')
+
+    # Set the pattern
+    pattern = r'GP2018 - Lnight y201[67].dat'
+
+    # Get the envira files
+    file_names = [f for f in os.listdir(file_paths) if re.search(pattern, f)]
+
+    # Create info and data lists
+    cls_info = []
+    cls_data = []
+
+    # Read the envira files
+    for file_name in file_names:
+        info, data = read_envira(os.path.join(file_paths, file_name))
+        cls_info.append(info)
+        cls_data.append(data)
+
+    try:
+        # Add the data to a Grid object
+        grid = Grid(data=cls_data, info=[cls_info[0]])
+
+        # If the test reaches this point, the method is not working properly
+        assert False
+    except IndexError:
+
+        # Check if the file names are correct
+        assert file_names == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2017.dat']
+
+
+def test_read_enviras_inconsistent_list_size():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/')
+
+    # Set the pattern
+    pattern = r'GP2018 - Lnight y201[67].dat'
+
+    # Get the envira files
+    file_names = [f for f in os.listdir(file_paths) if re.search(pattern, f)]
+
+    # Create info and data lists
+    cls_info = []
+    cls_data = []
+
+    # Read the envira files
+    for file_name in file_names:
+        info, data = read_envira(os.path.join(file_paths, file_name))
+        cls_info.append(info)
+        cls_data.append(data)
+
+    try:
+        # Add the data to a Grid object
+        grid = Grid(data=cls_data, info=cls_info[0])
+
+        # If the test reaches this point, the method is not working properly
+        assert False
+    except TypeError:
+
+        # Check if the file names are correct
+        assert file_names == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2017.dat']
 
 
 def test_read_consistent_enviras():
