@@ -79,6 +79,114 @@ class Grid(object):
 
         return write_envira(path, self.info, self.data)
 
+    def gelijkwaardigheid(self):
+        """
+        todo: Translate gelijkwaardigheid
+        todo: Add the functionality of GPtools_matlab/lib/GPcalc_gelijkwaardigheid.m here
+        """
+        pass
+
+    def inpasbaarvolume(self):
+        """
+        todo: Translate inpasbaarvolume
+        todo: Add GPtools_matlab/lib/GPcalc_inpasbaarvolume.m here
+        """
+        pass
+
+    def contourpunten(self):
+        """
+        todo: Translate contourpunten
+        todo: Add GPtools_matlab/lib/ContourPunten.m here
+        """
+        pass
+
+    def hg(self):
+        """
+        todo: Translate hoeveelheid geluid
+        todo: Add GPtools_matlab/lib/GPcalc_hg_grid.m here
+        """
+        pass
+
+    def nieuw_meteotoeslaggrid(self):
+        """
+        todo: Translate nieuw meteotoeslag
+        todo: Add GPtools_matlab/lib/GPcalc_nieuw_meteotoeslaggrid.m here
+        """
+        pass
+
+    def gridstats(self):
+        """
+        todo: Add doc29lib.gridstats here
+        """
+        pass
+
+    def interpolate_func(self):
+        """
+        todo: Add doc29lib.interpolate_func here
+        """
+        pass
+
+    def grid_interpolatie(self):
+        """
+        todo: Add doc29lib.grid_interpolatie here
+        """
+        pass
+
+    def verfijn(self):
+        """
+        todo: Translate verfijn
+        todo: Add doc29lib.verfijn here
+        """
+        pass
+
+    def regrid(self):
+        """
+        todo: Add doc29lib.regrid here
+        """
+        pass
+
+    def gehinderden(self):
+        """
+        todo: Translate gehinderden
+        todo: Add doc29lib.gehinderden here
+        """
+        pass
+
+    def slaapverstoorden(self):
+        """
+        todo: Translate slaapverstoorden
+        todo: Add doc29lib.slaapverstoorden here
+        """
+        pass
+
+    def tellen_etmaal(self):
+        """
+        todo: Translate tellen etmaal
+        todo: Add doc29lib.tellen_etmaal here
+        """
+        pass
+
+    def tellen_nacht(self):
+        """
+        todo: Translate tellen nacht
+        todo: Add doc29lib.tellen_nacht here
+        """
+        pass
+
+    def schaal_per_etmaalperiode(self):
+        """
+        todo: Translate schaal per etmaalperiode
+        todo: Add doc29lib.schaal_per_etmaalperiode here
+        """
+        pass
+
+    def relatief_norm_etmaal(self):
+        """
+        todo: Translate relatief norm etmaal
+        todo: Add doc29lib.relatief_norm_etmaal here
+        """
+        pass
+
 
 def hdr_val(string, type):
     """
