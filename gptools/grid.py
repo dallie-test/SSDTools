@@ -28,25 +28,12 @@ class Grid(object):
 
         """
 
-        if isinstance(data, list) and isinstance(info, list):
-            if len(data) != len(info):
-                raise IndexError('Provided data list and info list should have the same length.')
-
-            # Set the elements to check
-            data_shape = data[0].shape
-            info_dict = info[0]
-
-            # Check all the shapes and info dicts
-            for i, d in enumerate(data):
-                if data_shape != d.shape:
-                    raise ValueError('All data in the provided data list should have the same shape.')
-                if info_dict != info[i]:
-                    raise ValueError('All info in the provided info list should be the same')
-
         if data is not None:
             self.data = data
         if info is not None:
             self.info = info
+
+        self.validate()
 
     @classmethod
     def from_envira_file(cls, path):
@@ -86,6 +73,32 @@ class Grid(object):
 
         # Add the data to a Grid object
         return cls(data=cls_data, info=cls_info)
+
+    def validate(self):
+        """
+        Validate if the object's data and info are consistent with each other.
+        Only checks if multigrids are consistent among each other.
+
+        """
+        if isinstance(self.data, list) and isinstance(self.info, list):
+
+            # Check if the lists are equal
+            if len(self.data) != len(self.info):
+                raise IndexError('Provided data list and info list should have the same length.')
+
+            # Set the elements to check
+            data_shape = self.data[0].shape
+            info_dict = self.info[0]
+
+            # Check all the shapes and info dicts
+            for i, d in enumerate(self.data):
+                if data_shape != d.shape:
+                    raise ValueError('All data in the provided data list should have the same shape.')
+                if info_dict != self.info[i]:
+                    raise ValueError('All info in the provided info list should be the same')
+
+        elif isinstance(self.data, list) or isinstance(self.info, list):
+            raise TypeError('Supplied data and info for a multigrid should both be lists.')
 
     def to_envira(self, path):
         """
