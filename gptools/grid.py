@@ -131,10 +131,19 @@ class Grid(object):
 
     def hg(self):
         """
-        todo: Translate hoeveelheid geluid
-        todo: Add GPtools_matlab/lib/GPcalc_hg_grid.m here
+        Calculate the Hoeveelheid Geluid (HG).
+
+        todo: Add support for multigrid.
         """
-        pass
+
+        if isinstance(self.data, list):
+            raise TypeError('Hoeveelheid Geluid (HG) cannot be calculated for a multi-contour grid.')
+
+        # Conversion to "Hindersom" without scaling
+        hs = 10 ** (self.data / 10.)
+
+        # Return total noise level (HG)
+        return 10. * np.log10(sum(hs) / np.array(hs.shape).prod())
 
     def nieuw_meteotoeslaggrid(self):
         """
@@ -155,7 +164,7 @@ class Grid(object):
         """
         pass
 
-    def grid_interpolatie(self):
+    def grid_interpolation(self):
         """
         todo: Add doc29lib.grid_interpolatie here
         """
