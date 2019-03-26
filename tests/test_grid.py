@@ -15,7 +15,7 @@ def test_read_envira():
 
 def test_read_enviras():
     # Get the path to the Envira files
-    file_paths = abs_path('data/*.dat')
+    file_paths = abs_path('data/')
 
     # Create a grid object from the data file
     grid = Grid.from_envira_files(file_paths)
