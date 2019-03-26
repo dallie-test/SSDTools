@@ -1,4 +1,6 @@
 import os
+import re
+
 import numpy as np
 from gptools.grid import Grid
 
@@ -13,14 +15,63 @@ def test_read_envira():
     pass
 
 
-def test_read_enviras():
+def test_read_enviras_inconsistent_info():
     # Get the path to the Envira files
     file_paths = abs_path('data/')
 
-    # Create a grid object from the data file
-    grid = Grid.from_envira_files(file_paths)
+    # Set the pattern
+    pattern = r'GP2018 - Lnight y2016h?.dat'
 
-    pass
+    try:
+        # Create a grid object from the data file
+        grid = Grid.from_envira_files(file_paths, pattern)
+
+        # If the test reaches this point, the method is not working properly
+        assert False
+    except ValueError:
+
+        # Get the envira files
+        file_paths = [f for f in os.listdir(file_paths) if re.search(pattern, f)]
+
+        # Check if the file names are correct
+        assert file_paths == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2016h.dat']
+
+
+def test_read_enviras_inconsistent_data():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/')
+
+    # Set the pattern
+    pattern = r'GP2018 - Lnight y2016r?.dat'
+
+    try:
+        # Create a grid object from the data file
+        grid = Grid.from_envira_files(file_paths, pattern)
+
+        # If the test reaches this point, the method is not working properly
+        assert False
+    except ValueError:
+
+        # Get the envira files
+        file_paths = [f for f in os.listdir(file_paths) if re.search(pattern, f)]
+
+        # Check if the file names are correct
+        assert file_paths == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2016r.dat']
+
+
+def test_read_consistent_enviras():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/')
+
+    # Set the pattern
+    pattern = r'GP2018 - Lnight y201[67].dat'
+
+    # Create a grid object from the data file
+    grid = Grid.from_envira_files(file_paths, pattern)
+
+    # Check if the data is stored correctly
+    assert isinstance(grid.data, list) and len(grid.data) == 2
+    assert isinstance(grid.info, list) and len(grid.data) == 2
 
 
 def test_to_envira():
