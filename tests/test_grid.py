@@ -10,7 +10,7 @@ def test_read_envira():
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 
     # Create a grid object from the data file
-    grid = Grid.from_envira_file(file_path)
+    grid = Grid.read_envira(file_path)
 
     pass
 
@@ -24,7 +24,7 @@ def test_read_enviras_inconsistent_info():
 
     try:
         # Create a grid object from the data file
-        grid = Grid.from_envira_files(file_paths, pattern)
+        grid = Grid.read_enviras(file_paths, pattern)
 
         # If the test reaches this point, the method is not working properly
         assert False
@@ -46,7 +46,7 @@ def test_read_enviras_inconsistent_data():
 
     try:
         # Create a grid object from the data file
-        grid = Grid.from_envira_files(file_paths, pattern)
+        grid = Grid.read_enviras(file_paths, pattern)
 
         # If the test reaches this point, the method is not working properly
         assert False
@@ -123,7 +123,7 @@ def test_read_enviras_inconsistent_list_size():
         assert file_names == ['GP2018 - Lnight y2016.dat', 'GP2018 - Lnight y2017.dat']
 
 
-def test_read_consistent_enviras():
+def test_read_enviras_consistent():
     # Get the path to the Envira files
     file_paths = abs_path('data/')
 
@@ -131,7 +131,7 @@ def test_read_consistent_enviras():
     pattern = r'GP2018 - Lnight y201[67].dat'
 
     # Create a grid object from the data file
-    grid = Grid.from_envira_files(file_paths, pattern)
+    grid = Grid.read_enviras(file_paths, pattern)
 
     # Check if the data is stored correctly
     assert isinstance(grid.data, list) and len(grid.data) == 2
@@ -143,7 +143,7 @@ def test_to_envira():
     original_file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 
     # Create a grid object from the data file
-    grid = Grid.from_envira_file(original_file_path)
+    grid = Grid.read_envira(original_file_path)
 
     # Set the path to the new Envira file
     new_file_path = abs_path('data/envira-test.dat')
@@ -152,7 +152,7 @@ def test_to_envira():
     grid.to_envira(new_file_path)
 
     # Create a grid object from the new data file
-    grid_new = Grid.from_envira_file(new_file_path)
+    grid_new = Grid.read_envira(new_file_path)
 
     # Test if the headers of the files are the same
     assert grid_new.info == grid.info

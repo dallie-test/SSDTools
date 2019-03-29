@@ -36,7 +36,7 @@ class Grid(object):
         self.validate()
 
     @classmethod
-    def from_envira_file(cls, path):
+    def read_envira(cls, path):
         """
         Create a Grid object from an envira file.
 
@@ -50,7 +50,7 @@ class Grid(object):
         return cls(data=data, info=info)
 
     @classmethod
-    def from_envira_files(cls, path, pattern='*.dat'):
+    def read_enviras(cls, path, pattern='*.dat'):
         """
         Create a Grid object from multiple envira files.
 
