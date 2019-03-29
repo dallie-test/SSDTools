@@ -4,6 +4,7 @@ import re
 import textwrap
 
 import numpy as np
+import pandas as pd
 
 
 def extract_year_from_file_name(file_name):
@@ -79,7 +80,7 @@ class Grid(object):
         if unit is not None:
             self.unit = unit
 
-        self.validate()
+        self.validate(exclude=['datum', 'tijd', 'nvlb'])
 
     @classmethod
     def read_envira(cls, path):
@@ -137,12 +138,16 @@ class Grid(object):
         # Add the data to a Grid object
         return cls(data=cls_data, info=cls_info, unit=unit, years=cls_years)
 
-    def validate(self):
+    def validate(self, exclude=None):
         """
         Validate if the object's data and info are consistent with each other.
         Only checks if multigrids are consistent among each other.
 
         """
+
+        # Create an empty list if exclude is not provided
+        exclude = [] if exclude is None else exclude
+
         if isinstance(self.data, list) and isinstance(self.info, list):
 
             # Check if the lists are equal
@@ -150,15 +155,13 @@ class Grid(object):
                 raise IndexError('Provided data list and info list should have the same length.')
 
             # Set the elements to check
-            data_shape = self.data[0].shape
-            info_dict = self.info[0]
+            data = np.array(self.data[0])
 
-            # Check all the shapes and info dicts
-            for i, d in enumerate(self.data):
-                if data_shape != d.shape:
-                    raise ValueError('All data in the provided data list should have the same shape.')
-                if info_dict != self.info[i]:
-                    raise ValueError('All info in the provided info list should be the same')
+            # Put all the info in a data frame for easy checking
+            info = pd.DataFrame(self.info)
+
+            if not info.duplicated(subset=info.columns[~info.columns.isin(exclude)], keep=False).all():
+                raise ValueError('All info in the provided info list should be the same')
 
         elif isinstance(self.data, list) or isinstance(self.info, list):
             raise TypeError('Supplied data and info for a multigrid should both be lists.')
@@ -206,7 +209,7 @@ class Grid(object):
         hs = 10 ** (self.data / 10.)
 
         # Return total noise level (HG)
-        return 10. * np.log10(sum(hs) / np.array(hs.shape).prod())
+        return 10. * np.log10(hs.sum() / np.array(hs.shape).prod())
 
     def meteotoeslag_from_method(self, method):
         """
@@ -231,12 +234,12 @@ class Grid(object):
         """
 
         # Get the selected years from the provided years of the grid
-        selected_years = np.array([i in years for i in self.years])
+        selected_years = np.isin(self.years, years)
 
         # There should be 32 years to include
-        if selected_years.shape[0] != 32:
+        if selected_years.sum() != 32:
             raise LookupError(
-                'Expected 32 years for the meteorological surcharge but found {} years'.format(selected_years.shape[0]))
+                'Expected 32 years for the meteorological surcharge but found {} years'.format(selected_years.sum()))
 
         # Get the noise levels for all years
         data = np.array(self.data)

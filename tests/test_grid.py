@@ -242,25 +242,25 @@ def test_meteotoeslag_years_hybride_lnight():
 @raises(KeyError)
 def test_meteotoeslag_years_empirical_lnight():
     # Determine the years to include for empirical Lnight
-    actual = meteotoeslag_years('empirical', 'Lnight')
+    meteotoeslag_years('empirical', 'Lnight')
 
 
 @raises(KeyError)
 def test_meteotoeslag_years_hybrid_lnight():
     # Determine the years to include for hybrid Lnight
-    actual = meteotoeslag_years('hybrid', 'Lnight')
+    meteotoeslag_years('hybrid', 'Lnight')
 
 
 @raises(KeyError)
 def test_meteotoeslag_years_hybride_lnight_lowercase():
     # Determine the years to include for hybrid lnight
-    actual = meteotoeslag_years('hybride', 'lnight')
+    meteotoeslag_years('hybride', 'lnight')
 
 
 @raises(KeyError)
 def test_meteotoeslag_years_hybride_lnight_uppercase():
     # Determine the years to include for hybrid LNIGHT
-    actual = meteotoeslag_years('hybride', 'LNIGHT')
+    meteotoeslag_years('hybride', 'LNIGHT')
 
 
 def test_meteotoeslag_from_method():
@@ -273,10 +273,16 @@ def test_meteotoeslag_from_method():
     # Create a grid object from the data file
     grid = Grid.read_enviras(file_paths, pattern)
 
-    # Check if the data is stored correctly
-    assert False
+    # Calculate the meteotoeslag
+    meteotoeslag, meteo_years = grid.meteotoeslag_from_method('hybride')
+
+    # Check if the data is processed correctly
+    assert meteo_years.shape == (32,)
+    assert grid.data[0].shape == meteotoeslag.shape
+    assert np.all(grid.data[0] <= meteotoeslag)
 
 
+@raises(LookupError)
 def test_meteotoeslag_from_years():
     # Get the path to the Envira files
     file_paths = abs_path('data/MINIMER2015')
@@ -287,8 +293,65 @@ def test_meteotoeslag_from_years():
     # Create a grid object from the data file
     grid = Grid.read_enviras(file_paths, pattern)
 
-    # Check if the data is stored correctly
-    assert False
+    # Calculate the meteotoeslag
+    grid.meteotoeslag_from_years([1981, 1984, 1993, 1994, 1996, 2000, 2002, 2010])
+
+
+@raises(LookupError)
+def test_meteotoeslag_from_years_nonexistent():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # Calculate the meteotoeslag
+    grid.meteotoeslag_from_years(np.ones((32,), dtype=int))
+
+
+@raises(LookupError)
+def test_meteotoeslag_from_years_doubles():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # Calculate the meteotoeslag
+    grid.meteotoeslag_from_years(np.ones((32,), dtype=int) * 1981)
+
+
+def test_hg():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Calculate the Hoeveelheid Geluid
+    hg = grid.hg()
+
+    assert isinstance(hg, float)
+
+
+def test_hg_multigrid():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # Calculate the Hoeveelheid Geluid
+    grid.hg()
 
 
 def test_extract_year_from_file_name_y1234():
