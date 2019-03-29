@@ -6,6 +6,48 @@ import textwrap
 import numpy as np
 
 
+def extract_year_from_file_name(file_name):
+    """
+    The default method to obtain the year from a provided file name.
+
+    :param str file_name: The name of the file.
+    :rtype int|None
+    """
+
+    # Extract the matches
+    matches = re.findall(r'y\d{4}', file_name)
+
+    # Check if there are any matches
+    if len(matches) < 1:
+        return None
+
+    # Take the first match and extract the year
+    return int(matches[0][1:])
+
+
+def meteotoeslag_years(method, unit):
+    """
+    Determine the years to include in the meteotoeslag based on the provided method.
+
+    :param str method: The method for selecting the meteorological representative years, which is either 'empirisch'
+     or 'hybride'.
+    :param str unit: The noise level unit, which is either 'Lden' or 'Lnight'.
+    :return: the years to include in the meteotoeslag.
+    :rtype np.ndarray
+    """
+
+    # Set the exceptional years for each method and unit combination
+    exceptional_years = {
+        ('empirisch', 'Lden'): [1972, 1976, 1981, 1990, 1994, 1996, 2000, 2003],
+        ('empirisch', 'Lnight'): [1973, 1979, 1985, 1989, 1994, 1995, 1996, 2002],
+        ('hybride', 'Lden'): [1981, 1984, 1993, 1994, 1996, 2000, 2002, 2010],
+        ('hybride', 'Lnight'): [1973, 1976, 1980, 1987, 1994, 1995, 1996, 2010]
+    }
+
+    # Exclude the years from the default range of 1971-2011 based on the method and unit
+    return np.setdiff1d(np.arange(1971, 2011), exceptional_years[(method, unit)])
+
+
 class Grid(object):
     """
     A Grid object contains the data and methods related to noise grids.
@@ -17,7 +59,7 @@ class Grid(object):
     Multi-contour grids are use to indicate the certainty ranges of the noise levels for a given traffic scenario.
     """
 
-    def __init__(self, data=None, info=None):
+    def __init__(self, data=None, info=None, years=None, unit=None):
         """
 
         :param list(np.ndarray)|np.ndarray data: grid data, is two-dimensional for single contour grids and
@@ -32,6 +74,10 @@ class Grid(object):
             self.data = data
         if info is not None:
             self.info = info
+        if years is not None:
+            self.years = years
+        if unit is not None:
+            self.unit = unit
 
         self.validate()
 
@@ -40,22 +86,28 @@ class Grid(object):
         """
         Create a Grid object from an envira file.
 
-        :param str path:
+        :param str path: The path to the envira file.
+        :rtype Grid
         """
 
         # Read the envira file
         info, data = read_envira(path)
 
+        # Extract the unit from the envira file
+        unit = info['eenheid']
+
         # Return the object
-        return cls(data=data, info=info)
+        return cls(data=data, info=info, unit=unit)
 
     @classmethod
-    def read_enviras(cls, path, pattern='*.dat'):
+    def read_enviras(cls, path, pattern='*.dat', year_extractor=extract_year_from_file_name):
         """
         Create a Grid object from multiple envira files.
 
-        :param str pattern:
-        :param str path:
+        :param str path: The path to the envira files.
+        :param str pattern: The pattern used to match the envira files.
+        :param function year_extractor: The method used to extract the year from the file name.
+        :rtype Grid
         """
 
         # Get the envira files
@@ -64,15 +116,26 @@ class Grid(object):
         # Create info and data lists
         cls_info = []
         cls_data = []
+        cls_years = []
 
         # Read the envira files
         for file_path in file_paths:
+            # Extract the data and header from the file
             info, data = read_envira(file_path)
+
+            # Extract the year from the file path
+            year = year_extractor(file_path)
+
+            # Put the extracted data in the lists
             cls_info.append(info)
             cls_data.append(data)
+            cls_years.append(year)
+
+        # Extract the unit from the first envira file
+        unit = cls_info[0]['eenheid']
 
         # Add the data to a Grid object
-        return cls(data=cls_data, info=cls_info)
+        return cls(data=cls_data, info=cls_info, unit=unit, years=cls_years)
 
     def validate(self):
         """
@@ -145,12 +208,44 @@ class Grid(object):
         # Return total noise level (HG)
         return 10. * np.log10(sum(hs) / np.array(hs.shape).prod())
 
-    def nieuw_meteotoeslaggrid(self):
+    def meteotoeslag_from_method(self, method):
         """
-        todo: Translate nieuw meteotoeslag
-        todo: Add GPtools_matlab/lib/GPcalc_nieuw_meteotoeslaggrid.m here
+        Calculate the meteotoeslag based on the provided method.
+
+        :param str method: The method for selecting the meteorological representative years, which is either 'empirisch'
+         or 'hybride'.
+        :return the max-grid and the included meteorological years.
+        :rtype tuple(np.ndarray, np.ndarray)
         """
-        pass
+
+        return self.meteotoeslag_from_years(meteotoeslag_years(method, self.unit))
+
+    def meteotoeslag_from_years(self, years):
+        """
+        Determine the meteotoeslag excluding the extraordinary meteorological years.
+        Meteotoeslag is a surcharge for meteorological conditions and is a max-grid based on the provided grids
+
+        :param list|np.ndarray years: the years to include in the meteotoeslag, should include
+        :return the max-grid and the included meteorological years.
+        :rtype tuple(np.ndarray, np.ndarray)
+        """
+
+        # Get the selected years from the provided years of the grid
+        selected_years = np.array([i in years for i in self.years])
+
+        # There should be 32 years to include
+        if selected_years.shape[0] != 32:
+            raise LookupError(
+                'Expected 32 years for the meteorological surcharge but found {} years'.format(selected_years.shape[0]))
+
+        # Get the noise levels for all years
+        data = np.array(self.data)
+
+        # Select the maximum noise levels based on the selected years
+        meteorological_surcharge = np.amax(data[selected_years, :, :], axis=0)
+
+        # Return the grid with meteorological surcharge and the included years
+        return meteorological_surcharge, years
 
     def gridstats(self):
         """
