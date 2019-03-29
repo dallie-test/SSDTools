@@ -4,7 +4,7 @@ import re
 import numpy as np
 from nose.tools import raises
 
-from gptools.grid import Grid, read_envira, meteotoeslag_years
+from gptools.grid import Grid, read_envira, meteotoeslag_years, extract_year_from_file_name
 
 
 def test_read_envira():
@@ -289,6 +289,23 @@ def test_meteotoeslag_from_years():
 
     # Check if the data is stored correctly
     assert False
+
+
+def test_extract_year_from_file_name_y1234():
+    assert 1234 == extract_year_from_file_name('y1234')
+
+
+def test_extract_year_from_file_name_1234():
+    assert extract_year_from_file_name('1234') is None
+
+
+def test_extract_year_from_file_name_y12345():
+    assert 1234 == extract_year_from_file_name('Test for y12345.dat')
+
+
+@raises(TypeError)
+def test_extract_year_from_file_name_int_1234():
+    assert 1234 == extract_year_from_file_name(1234)
 
 
 def abs_path(rel_path):
