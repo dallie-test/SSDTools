@@ -355,6 +355,71 @@ def test_hg_multigrid():
     grid.hg()
 
 
+def test_scale():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Copy the data
+    d = grid.data.copy()
+
+    # Calculate the meteotoeslag
+    grid.scale(2.)
+
+    np.testing.assert_equal(grid.data, d + 10 * np.log10(2))
+
+
+def test_scale_multigrid():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # Calculate the meteotoeslag
+    meteotoeslag, meteo_years = grid.meteotoeslag_from_method('hybride')
+
+    # Calculate the meteotoeslag
+    grid.scale(2.)
+
+    # Calculate the meteotoeslag
+    scaled_meteotoeslag, scaled_meteo_years = grid.meteotoeslag_from_method('hybride')
+
+    assert np.all(meteo_years == scaled_meteo_years)
+    np.testing.assert_equal(scaled_meteotoeslag, meteotoeslag + 10 * np.log10(2))
+
+
+def test_scale_multigrid_int():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # Calculate the meteotoeslag
+    meteotoeslag, meteo_years = grid.meteotoeslag_from_method('hybride')
+
+    # Calculate the meteotoeslag
+    grid.scale(2)
+
+    # Calculate the meteotoeslag
+    grid.scale(2.)
+
+    # Calculate the meteotoeslag
+    scaled_meteotoeslag, scaled_meteo_years = grid.meteotoeslag_from_method('hybride')
+
+    assert np.all(meteo_years == scaled_meteo_years)
+    np.testing.assert_equal(scaled_meteotoeslag, meteotoeslag + 10 * np.log10(4))
+
+
 def test_extract_year_from_file_name_y1234():
     assert 1234 == extract_year_from_file_name('y1234')
 

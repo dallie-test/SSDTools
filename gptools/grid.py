@@ -174,6 +174,18 @@ class Grid(object):
 
         return write_envira(path, self.info, self.data)
 
+    def scale(self, factor):
+        """
+        Apply a scaling factor to the data.
+
+        :param float|int factor: the factor to be applied.
+        """
+
+        if isinstance(self.data, list):
+            self.data = [d + 10 * np.log10(factor) for d in self.data]
+        else:
+            self.data += 10 * np.log10(factor)
+
     def gelijkwaardigheid(self):
         """
         todo: Translate gelijkwaardigheid
@@ -332,7 +344,7 @@ def hdr_val(string, type):
     return type(val)
 
 
-def read_envira(grid, return_header=True, scale=1):
+def read_envira(grid):
     """
     Read NLR grid-file and return header and noise data
 
@@ -380,21 +392,13 @@ def read_envira(grid, return_header=True, scale=1):
         # Extract the noise data from the remaining lines
         dat = np.flipud(np.fromfile(data, sep=" ").reshape(header['ny'], header['nx']))
 
-    # Apply the scaling factor
-    dat = dat + 10 * np.log10(scale)
-
-    if return_header:
-        return header, dat
-    return dat
+    return header, dat
 
 
-def write_envira(filename, hdr, dat, scale=1):
+def write_envira(filename, hdr, dat):
     """
     Write NLR grid-file with header and noise data
     """
-
-    # Apply the scaling factor
-    dat = dat + 10 * np.log10(scale)
 
     with open(filename, 'w') as f:
         # Write the header
