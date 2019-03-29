@@ -80,37 +80,41 @@ def runway_usage(traffic, period):
 def start_summer_season(year):
     """
     Determine the start of the summer season, which is the last Sunday of the month March.
-    Valid between 1900 and 2099.
+    Valid between 1996 and 2099.
     source: http://delphiforfun.org/Programs/Math_Topics/DSTCalc.htm
 
     :param int year: the calendar year of the season
     :return the start date of the summer season
     :rtype datetime.date
     """
-    if year > 2099 or year < 1900:
-        raise ValueError('This method is only valid for years between 1900 and 2099.')
-    return datetime.date(year, 3, 31 - np.round((4 + 5 * year / 4), 0) % 7)
+    if year > 2099 or year < 1996:
+        raise ValueError('This method is only valid for years between 1996 and 2099.')
+    return datetime.date(year, 3, 31 - int(round(4 + 5 * year / 4.) % 7))
 
 
 def start_winter_season(year):
     """
     Determine the start of the summer season, which is the last Sunday of the month October.
-    Valid between 1900 and 2099.
+    Valid between 1996 and 2099.
     source: http://delphiforfun.org/Programs/Math_Topics/DSTCalc.htm
 
     :param int year: the calendar year of the season
     :return the start date of the summer season
     :rtype datetime.date
     """
-    if year > 2099 or year < 1900:
-        raise ValueError('This method is only valid for years between 1900 and 2099.')
-    return datetime.date(year, 10, 31 - np.round((1 + 5 * year / 4), 0) % 7)
+    if year > 2099 or year < 1996:
+        raise ValueError('This method is only valid for years between 1996 and 2099.')
+    return datetime.date(year, 10, 31 - int(round(1 + 5 * year / 4.) % 7))
 
 
 def get_year_of_use(year):
     """
-    Determine start- and end date, number of days in the year of use
+    Determine start- and end date, number of days in the year of use.
+    Valid between 1997 and 2099.
     """
+
+    if year > 2099 or year < 1997:
+        raise ValueError('This method is only valid for years between 1997 and 2099')
 
     # Create a dictionary for the information
     year_info = {
