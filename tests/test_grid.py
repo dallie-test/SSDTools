@@ -340,6 +340,7 @@ def test_hg():
     assert isinstance(hg, float)
 
 
+@raises(TypeError)
 def test_hg_multigrid():
     # Get the path to the Envira files
     file_paths = abs_path('data/MINIMER2015')
