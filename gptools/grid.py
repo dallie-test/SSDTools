@@ -3,6 +3,7 @@ import io
 import os
 import re
 import textwrap
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -328,23 +329,6 @@ class Grid(object):
         # Return the bi-cubic spline interpolation function
         return RectBivariateSpline(y, x, z)
 
-    def interpolation_from_wbs(self, wbs):
-        """
-        Determine the noise levels on each address in the WBS based on a bi-cubic spline interpolation function.
-
-        :return noise levels for each address
-        :rtype np.ndarray
-        """
-
-        if isinstance(self.data, list):
-            raise TypeError('Grid interpolation can only be performed on single grids.')
-
-        # Get the interpolation function
-        interpolation = self.interpolation_function()
-
-        # Return the interpolated noise levels for each wbs location
-        return interpolation(wbs.data['y'], wbs.data['x'], grid=False)
-
     def refine(self, factor):
         """
         Refine the grid with a bi-cubic spline interpolation.
@@ -377,12 +361,63 @@ class Grid(object):
 
         return self
 
-    def gehinderden(self):
+    def interpolation_from_wbs(self, wbs):
         """
-        todo: Translate gehinderden
-        todo: Add doc29lib.gehinderden here
+        Determine the noise levels on each address in the WBS based on a bi-cubic spline interpolation function.
+
+        :return noise levels for each address
+        :rtype np.ndarray
         """
-        pass
+
+        if isinstance(self.data, list):
+            raise TypeError('Grid interpolation can only be performed on single grids.')
+
+        # Get the interpolation function
+        interpolation = self.interpolation_function()
+
+        # Return the interpolated noise levels for each wbs location
+        return interpolation(wbs.data['y'], wbs.data['x'], grid=False)
+
+    def gehinderden_from_wbs(self, wbs, de='doc29', max_db=None):
+        """
+        Calculate the number of disturbed people (gehinderden) for the WBS locations. This particular method is only
+        valid for Lden grids.
+
+        Two dose-effect relationships are supported:
+        1) doc29: the newest relationship, to be used for calculations with ECAC Doc. 29
+        2) ges2002: an older dose-effect relationship.
+
+        This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
+        ges2002 it is customary to apply a cut-off at 65dB(A).
+
+        :param WBS wbs: the woningbestand.
+        :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
+        :param float max_db: the cut-off noise level.
+        :return:
+        """
+
+        if self.unit != "Lden":
+            raise TypeError(
+                'Cannot calculate gehinderden based on an {} grid, an Lden grid should be used.'.format(self.unit))
+
+        # Calculate the noise levels for the WBS
+        db = self.interpolation_from_wbs(wbs)
+
+        # Apply a cut-off at max_db if provided
+        if max_db is not None:
+            db[db > max_db] = max_db
+
+        # Apply the dose-effect relationship
+        if de == 'ges2002':
+            return wbs.data['personen'] * 1 / (1 / np.exp(-8.1101 + 0.1333 * db) + 1)
+        elif de == 'doc29':
+            if max_db is not None:
+                warn('You have set max_db to {} dB(A) while using the doc29 dose-effect relationship. However, for ' +
+                     'doc29 it is not common to use a cut-off.'.format(max_db), UserWarning)
+            return wbs.data['personen'].values * (1 - 1 / (1 + np.exp(-7.7130 + 0.1260 * db)))
+
+        raise ValueError(
+            'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
 
     def slaapverstoorden(self):
         """
