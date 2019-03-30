@@ -328,7 +328,7 @@ class Grid(object):
         # Return the bi-cubic spline interpolation function
         return RectBivariateSpline(y, x, z)
 
-    def interpolation(self, wbs):
+    def interpolation_from_wbs(self, wbs):
         """
         Determine the noise levels on each address in the WBS based on a bi-cubic spline interpolation function.
 
@@ -343,7 +343,7 @@ class Grid(object):
         interpolation = self.interpolation_function()
 
         # Return the interpolated noise levels for each wbs location
-        return interpolation(wbs['y'], wbs['x'], grid=False)
+        return interpolation(wbs.data['y'], wbs.data['x'], grid=False)
 
     def refine(self, factor):
         """

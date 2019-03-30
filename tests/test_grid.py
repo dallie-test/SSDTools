@@ -5,6 +5,7 @@ import numpy as np
 from nose.tools import raises
 
 from gptools.grid import Grid, read_envira, meteotoeslag_years, extract_year_from_file_name
+from gptools.wbs import WBS
 
 
 def test_read_envira():
@@ -447,14 +448,23 @@ def test_interpolation_function():
     assert False
 
 
-def test_interpolation():
+def test_interpolation_from_wbs():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
 
+    # Get the path to the WBS file
+    file_path = abs_path('data/wbs2005.h5')
+
+    # Create a wbs object from the data file
+    wbs = WBS.read_file(file_path)
+
     # todo: Implement a proper test for the calculation of the interpolation function
+
+    # Interpolate the grid from WBS
+    noise = grid.interpolation_from_wbs(wbs)
 
     assert False
 
