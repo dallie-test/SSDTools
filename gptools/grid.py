@@ -262,11 +262,36 @@ class Grid(object):
         # Return the grid with meteorological surcharge and the included years
         return meteorological_surcharge, years
 
-    def gridstats(self):
+    def statistics(self):
         """
-        todo: Add doc29lib.gridstats here
+        Determine the average, standard deviation and the confidence interval for a multigrid.
+
+        :return collection of statistics for the current data.
+        :rtype dict(nd.array)
         """
-        pass
+
+        if not isinstance(self.data, list):
+            raise TypeError('Gridstats can only be used on multigrids.')
+
+        # Conver the data to a multidimensional array
+        data = np.array(self.data)
+
+        # Extract the statistics for each point in the grid
+        mean = 10 * np.log10(np.mean(10 ** (data / 10.), axis=0))
+        standard_deviation = np.std(self.data, axis=0)
+
+        # Calculate the 99.5% confidence interval
+        z = 2.5758
+        upper_bound_confidence_interval = mean + z * standard_deviation
+        lower_bound_confidence_interval = mean - z * standard_deviation
+
+        return {
+            'mean': mean,
+            'std': standard_deviation,
+            'dhi': upper_bound_confidence_interval,
+            'dlo': lower_bound_confidence_interval,
+            'dat': data
+        }
 
     def interpolate_func(self):
         """
