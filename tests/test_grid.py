@@ -435,7 +435,19 @@ def test_statistics_multigrid():
     assert False
 
 
-def test_interpolation_function_grid():
+def test_interpolation_function():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # todo: Implement a proper test for the calculation of the interpolation function
+
+    assert False
+
+
+def test_interpolation():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 

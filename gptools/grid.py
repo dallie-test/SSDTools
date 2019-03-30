@@ -315,11 +315,22 @@ class Grid(object):
         # Return the bi-cubic spline interpolation function
         return RectBivariateSpline(y, x, z)
 
-    def grid_interpolation(self):
+    def interpolation(self, wbs):
         """
-        todo: Add doc29lib.grid_interpolatie here
+        Determine the noise levels on each address in the WBS based on a bi-cubic spline interpolation function.
+
+        :return noise levels for each address
+        :rtype np.ndarray
         """
-        pass
+
+        if isinstance(self.data, list):
+            raise TypeError('Grid interpolation can only be performed on single grids.')
+
+        # Get the interpolation function
+        interpolation = self.interpolation_function()
+
+        # Return the interpolated noise levels for each wbs location
+        return interpolation(wbs['y'], wbs['x'], grid=False)
 
     def verfijn(self):
         """
