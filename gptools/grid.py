@@ -419,12 +419,46 @@ class Grid(object):
         raise ValueError(
             'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
 
-    def slaapverstoorden(self):
+    def slaapverstoorden_from_wbs(self, wbs, de='doc29', max_db=None):
         """
-        todo: Translate slaapverstoorden
-        todo: Add doc29lib.slaapverstoorden here
+        Calculate the number of slaapverstoorden for the WBS locations. This particular method is only valid for Lnight
+        grids.
+
+        Two dose-effect relationships are supported:
+        1) doc29: the newest relationship, to be used for calculations with ECAC Doc. 29
+        2) ges2002: an older dose-effect relationship.
+
+        This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
+        ges2002 it is customary to apply a cut-off at 57dB(A).
+
+        :param WBS wbs: the woningbestand.
+        :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
+        :param float max_db: the cut-off noise level.
+        :return:
         """
-        pass
+
+        if self.unit != "Lnight":
+            raise TypeError(
+                'Cannot calculate gehinderden based on an {} grid, an Lnight grid should be used.'.format(self.unit))
+
+        # Calculate the noise levels for the WBS
+        db = self.interpolation_from_wbs(wbs)
+
+        # Apply a cut-off at max_db if provided
+        if max_db is not None:
+            db[db > max_db] = max_db
+
+        # Apply the dose-effect relationship
+        if de == 'ges2002':
+            return wbs.data['personen'] * 1 / (1 / np.exp(-6.642 + 0.1046 * db) + 1)
+        elif de == 'doc29':
+            if max_db is not None:
+                warn('You have set max_db to {} dB(A) while using the doc29 dose-effect relationship. However, for ' +
+                     'doc29 it is not common to use a cut-off.'.format(max_db), UserWarning)
+            return wbs.data['personen'].values * (1 - 1 / (1 + np.exp(-6.2952 + 0.0960 * db)))
+
+        raise ValueError(
+            'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
 
     def tellen_etmaal(self):
         """
