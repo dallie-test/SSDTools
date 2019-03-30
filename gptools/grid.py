@@ -5,6 +5,7 @@ import textwrap
 
 import numpy as np
 import pandas as pd
+from scipy.interpolate import RectBivariateSpline
 
 
 def extract_year_from_file_name(file_name):
@@ -271,7 +272,7 @@ class Grid(object):
         """
 
         if not isinstance(self.data, list):
-            raise TypeError('Gridstats can only be used on multigrids.')
+            raise TypeError('Statistics can only be extracted from multigrids')
 
         # Conver the data to a multidimensional array
         data = np.array(self.data)
@@ -293,11 +294,26 @@ class Grid(object):
             'dat': data
         }
 
-    def interpolate_func(self):
+    def interpolation_function(self):
         """
-        todo: Add doc29lib.interpolate_func here
+        Determine the bi-cubic spline interpolation function.
+
+        :return the interpolation function.
+        :rtype function
         """
-        pass
+
+        if isinstance(self.data, list):
+            raise TypeError('Interpolation functions can only be created from single grids.')
+
+        # Extract the coordinates of the current grid
+        x = np.linspace(self.info['Xonder'], self.info['Xboven'], num=self.info['nx'])
+        y = np.linspace(self.info['Yonder'], self.info['Yboven'], num=self.info['ny'])
+
+        # Extract the data of the current grid
+        z = self.data
+
+        # Return the bi-cubic spline interpolation function
+        return RectBivariateSpline(y, x, z)
 
     def grid_interpolation(self):
         """
