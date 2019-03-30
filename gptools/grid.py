@@ -169,6 +169,10 @@ class Grid(object):
         elif isinstance(self.data, list) or isinstance(self.info, list):
             raise TypeError('Supplied data and info for a multigrid should both be lists.')
 
+        else:
+            if not (self.shape.y_number, self.shape.x_number) == self.data.shape:
+                raise IndexError('Provided data does not have the same shape as mentioned in the header file.')
+
     def copy(self):
         return copy.deepcopy(self)
 
@@ -495,63 +499,70 @@ def hdr_val(string, type):
     return type(val)
 
 
-def read_envira(grid):
+def read_envira(file_path):
     """
     Read NLR grid-file and return header and noise data
 
     todo: create a dict or specification for the header
     """
 
-    with open(grid, "r") as data:
+    with open(file_path, "r") as file:
         # Create an empty dict for the header
         header = dict()
 
-        header['tekst1'] = data.readline().strip()
-        header['tekst2'] = data.readline().strip()
-        header['tekst3'] = data.readline().strip()
+        header['tekst1'] = file.readline().strip()
+        header['tekst2'] = file.readline().strip()
+        header['tekst3'] = file.readline().strip()
 
-        header['datum'], header['tijd'] = data.readline().split()
+        header['datum'], header['tijd'] = file.readline().split()
 
-        header['eenheid'] = hdr_val(data.readline(), str)
-        header['grondinvloed'] = hdr_val(data.readline(), str)
+        header['eenheid'] = hdr_val(file.readline(), str)
+        header['grondinvloed'] = hdr_val(file.readline(), str)
 
         # skip, following line, because it is not used anymore
         # hdr['tellingen'] = hdr_val(data.readline(), int)
-        data.readline()
+        file.readline()
 
-        header['demping_landing'] = hdr_val(data.readline(), float)
-        header['demping_start'] = hdr_val(data.readline(), float)
-        header['mindba'] = hdr_val(data.readline(), float)
-        header['tijdstap'] = hdr_val(data.readline(), float)
-        header['x_start'] = hdr_val(data.readline(), int)
-        header['x_stop'] = hdr_val(data.readline(), int)
-        header['x_step'] = hdr_val(data.readline(), int)
-        header['x_number'] = hdr_val(data.readline(), int)
-        header['y_start'] = hdr_val(data.readline(), int)
-        header['y_stop'] = hdr_val(data.readline(), int)
-        header['y_step'] = hdr_val(data.readline(), int)
-        header['y_number'] = hdr_val(data.readline(), int)
-        header['nvlb'] = hdr_val(data.readline(), int)
-        header['neff'] = hdr_val(data.readline(), float)
-        header['nlos'] = hdr_val(data.readline(), int)
-        header['nweg'] = hdr_val(data.readline(), int)
+        header['demping_landing'] = hdr_val(file.readline(), float)
+        header['demping_start'] = hdr_val(file.readline(), float)
+        header['mindba'] = hdr_val(file.readline(), float)
+        header['tijdstap'] = hdr_val(file.readline(), float)
+        header['x_start'] = hdr_val(file.readline(), int)
+        header['x_stop'] = hdr_val(file.readline(), int)
+        header['x_step'] = hdr_val(file.readline(), int)
+        header['x_number'] = hdr_val(file.readline(), int)
+        header['y_start'] = hdr_val(file.readline(), int)
+        header['y_stop'] = hdr_val(file.readline(), int)
+        header['y_step'] = hdr_val(file.readline(), int)
+        header['y_number'] = hdr_val(file.readline(), int)
+        header['nvlb'] = hdr_val(file.readline(), int)
+        header['neff'] = hdr_val(file.readline(), float)
+        header['nlos'] = hdr_val(file.readline(), int)
+        header['nweg'] = hdr_val(file.readline(), int)
 
         # Overwrite unreliable values
         header['x_stop'] = header['x_start'] + (header['x_number'] - 1) * header['x_step']
         header['y_stop'] = header['y_start'] + (header['y_number'] - 1) * header['y_step']
 
         # Extract the noise data from the remaining lines
-        dat = np.flipud(np.resize(np.fromfile(data, sep=" "), (header['y_number'], header['x_number'])))
+        data = np.fromfile(file, sep=" ")
 
-    return header, dat
+        # Check if the provided header and data are compatible
+        if data.shape[0] != header['y_number'] * header['x_number']:
+            raise ValueError('The header of the envira file is not consistent with its data.')
+
+        # Reshape the data
+        data = np.flipud(np.resize(data, (header['y_number'], header['x_number'])))
+
+    return header, data
 
 
-def write_envira(filename, hdr, dat):
+def write_envira(file_path, hdr, dat):
     """
     Write NLR grid-file with header and noise data
     """
 
-    with open(filename, 'w') as f:
+    with open(file_path, 'w') as f:
         # Write the header
         f.write('{:s}\n'.format(hdr['tekst1']))
         f.write('{:s}\n'.format(hdr['tekst2']))
