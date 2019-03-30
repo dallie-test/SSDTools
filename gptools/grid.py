@@ -1,3 +1,4 @@
+import copy
 import io
 import os
 import re
@@ -76,6 +77,7 @@ class Grid(object):
             self.data = data
         if info is not None:
             self.info = info
+            self.shape = Shape(info if isinstance(info, dict) else info[0])
         if years is not None:
             self.years = years
         if unit is not None:
@@ -167,12 +169,19 @@ class Grid(object):
         elif isinstance(self.data, list) or isinstance(self.info, list):
             raise TypeError('Supplied data and info for a multigrid should both be lists.')
 
+    def copy(self):
+        return copy.deepcopy(self)
+
     def to_envira(self, path):
         """
 
         :param str path:
         """
 
+        # Update the info with the current shape
+        self.info.update(self.shape.to_dict())
+
+        # Write the data to the selected path
         return write_envira(path, self.info, self.data)
 
     def scale(self, factor):
@@ -306,8 +315,8 @@ class Grid(object):
             raise TypeError('Interpolation functions can only be created from single grids.')
 
         # Extract the coordinates of the current grid
-        x = np.linspace(self.info['Xonder'], self.info['Xboven'], num=self.info['nx'])
-        y = np.linspace(self.info['Yonder'], self.info['Yboven'], num=self.info['ny'])
+        x = self.shape.get_x_coordinates()
+        y = self.shape.get_y_coordinates()
 
         # Extract the data of the current grid
         z = self.data
@@ -332,18 +341,37 @@ class Grid(object):
         # Return the interpolated noise levels for each wbs location
         return interpolation(wbs['y'], wbs['x'], grid=False)
 
-    def verfijn(self):
+    def refine(self, factor):
         """
-        todo: Translate verfijn
-        todo: Add doc29lib.verfijn here
-        """
-        pass
+        Refine the grid with a bi-cubic spline interpolation.
 
-    def regrid(self):
         """
+
+        # Refine the current shape
+        shape = self.shape.copy().refine(factor)
+
+        # Return a reference to this object
+        return self.resize(shape)
+
+    def resize(self, shape):
+        """
+        Reshape the grid based on with a bi-cubic spline interpolation.
+
+        Interpoleer met bi-cubic spline naar een nieuw grid
+
         todo: Add doc29lib.regrid here
         """
-        pass
+
+        # Refine the grid and update the data
+        self.data = self.interpolation_function()(shape.get_y_coordinates(), shape.get_x_coordinates())
+
+        # Update the info of this object
+        self.info.update(shape.to_dict())
+
+        # Assign the shape to the object
+        self.shape = shape
+
+        return self
 
     def gehinderden(self):
         """
@@ -388,6 +416,77 @@ class Grid(object):
         pass
 
 
+class Shape(object):
+    def __init__(self, data):
+        self.x_start = data['x_start']
+        self.x_stop = data['x_stop']
+        self.x_step = data['x_step']
+        self.x_number = data['x_number']
+        self.y_start = data['y_start']
+        self.y_stop = data['y_stop']
+        self.y_step = data['y_step']
+        self.y_number = data['y_number']
+
+    def refine_x(self, factor):
+        # Calculate the new step distance
+        self.x_step /= factor
+
+        # Calculate the new number of steps
+        self.x_number = 1 + factor * (self.x_number - 1)
+
+        return self
+
+    def refine_y(self, factor):
+        # Calculate the new step distance
+        self.y_step /= factor
+
+        # Calculate the new number of steps
+        self.y_number = 1 + factor * (self.y_number - 1)
+
+        return self
+
+    def refine(self, factor):
+        self.refine_x(factor)
+        self.refine_y(factor)
+        return self
+
+    def set_x_number(self, number):
+        if number < 2:
+            raise ValueError('Cannot set the number of x coordinates to {}. The minimum number is 2.'.format(number))
+        self.x_number = number
+        self.x_step = (self.x_stop - self.x_start) / (self.x_number - 1)
+        return self
+
+    def set_y_number(self, number):
+        if number < 2:
+            raise ValueError('Cannot set the number of y coordinates to {}. The minimum number is 2.'.format(number))
+        self.y_number = number
+        self.y_step = (self.y_stop - self.y_start) / (self.y_number - 1)
+        return self
+
+    def set_x_step(self, step):
+        self.x_step = step
+        self.x_number = 1 + (self.x_stop - self.x_start) / self.x_step
+        return self
+
+    def set_y_step(self, step):
+        self.y_step = step
+        self.y_number = 1 + (self.y_stop - self.y_start) / self.y_step
+        return self
+
+    def get_x_coordinates(self):
+        return np.linspace(self.x_start, self.x_stop, num=self.x_number)
+
+    def get_y_coordinates(self):
+        return np.linspace(self.y_start, self.y_stop, num=self.y_number)
+
+    def to_dict(self):
+        return self.__dict__
+
+    def copy(self):
+        return copy.deepcopy(self)
+
+
 def hdr_val(string, type):
     """
     Read value from header line
@@ -424,25 +523,25 @@ def read_envira(grid):
         header['demping_start'] = hdr_val(data.readline(), float)
         header['mindba'] = hdr_val(data.readline(), float)
         header['tijdstap'] = hdr_val(data.readline(), float)
-        header['Xonder'] = hdr_val(data.readline(), int)
-        header['Xboven'] = hdr_val(data.readline(), int)
-        header['Xstap'] = hdr_val(data.readline(), int)
-        header['nx'] = hdr_val(data.readline(), int)
-        header['Yonder'] = hdr_val(data.readline(), int)
-        header['Yboven'] = hdr_val(data.readline(), int)
-        header['Ystap'] = hdr_val(data.readline(), int)
-        header['ny'] = hdr_val(data.readline(), int)
+        header['x_start'] = hdr_val(data.readline(), int)
+        header['x_stop'] = hdr_val(data.readline(), int)
+        header['x_step'] = hdr_val(data.readline(), int)
+        header['x_number'] = hdr_val(data.readline(), int)
+        header['y_start'] = hdr_val(data.readline(), int)
+        header['y_stop'] = hdr_val(data.readline(), int)
+        header['y_step'] = hdr_val(data.readline(), int)
+        header['y_number'] = hdr_val(data.readline(), int)
         header['nvlb'] = hdr_val(data.readline(), int)
         header['neff'] = hdr_val(data.readline(), float)
         header['nlos'] = hdr_val(data.readline(), int)
         header['nweg'] = hdr_val(data.readline(), int)
 
         # Overwrite unreliable values
-        header['Xboven'] = header['Xonder'] + (header['nx'] - 1) * header['Xstap']
-        header['Yboven'] = header['Yonder'] + (header['ny'] - 1) * header['Ystap']
+        header['x_stop'] = header['x_start'] + (header['x_number'] - 1) * header['x_step']
+        header['y_stop'] = header['y_start'] + (header['y_number'] - 1) * header['y_step']
 
         # Extract the noise data from the remaining lines
-        dat = np.flipud(np.fromfile(data, sep=" ").reshape(header['ny'], header['nx']))
+        dat = np.flipud(np.resize(np.fromfile(data, sep=" "), (header['y_number'], header['x_number'])))
 
     return header, dat
 
@@ -465,14 +564,14 @@ def write_envira(filename, hdr, dat):
         f.write('DEMPING-START {:6.2f}\n'.format(hdr['demping_start']))
         f.write('MINDBA {:6.2f}\n'.format(hdr['mindba']))
         f.write('TIJDSTAP {:6.2f}\n'.format(hdr['tijdstap']))
-        f.write('X-ONDER {:9.0f}\n'.format(hdr['Xonder']))
-        f.write('X-BOVEN {:9.0f}\n'.format(hdr['Xboven']))
-        f.write('X-STAP {:9.0f}\n'.format(hdr['Xstap']))
-        f.write('NX{:6.0f}\n'.format(hdr['nx']))
-        f.write('Y-ONDER {:9.0f}\n'.format(hdr['Yonder']))
-        f.write('Y-BOVEN {:9.0f}\n'.format(hdr['Yboven']))
-        f.write('Y-STAP {:9.0f}\n'.format(hdr['Ystap']))
-        f.write('NY{:6.0f}\n'.format(hdr['ny']))
+        f.write('X-ONDER {:9.0f}\n'.format(hdr['x_start']))
+        f.write('X-BOVEN {:9.0f}\n'.format(hdr['x_stop']))
+        f.write('X-STAP {:9.0f}\n'.format(hdr['x_step']))
+        f.write('NX{:6.0f}\n'.format(hdr['x_number']))
+        f.write('Y-ONDER {:9.0f}\n'.format(hdr['y_start']))
+        f.write('Y-BOVEN {:9.0f}\n'.format(hdr['y_stop']))
+        f.write('Y-STAP {:9.0f}\n'.format(hdr['y_step']))
+        f.write('NY{:6.0f}\n'.format(hdr['y_number']))
         f.write('NVLB {:9.0f}\n'.format(hdr['nvlb']))
         f.write('NEFF {:9.0f}\n'.format(hdr['neff']))
         f.write('NLOS {:9.0f}\n'.format(hdr['nlos']))

@@ -14,7 +14,7 @@ def test_read_envira():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
 
-    assert grid.data.shape == (grid.info['ny'], grid.info['nx'])
+    assert grid.data.shape == (grid.info['y_number'], grid.info['x_number'])
 
 
 @raises(ValueError)
@@ -33,7 +33,7 @@ def test_read_envira_other_shape():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
 
-    assert grid.data.shape == (grid.info['ny'], grid.info['nx'])
+    assert grid.data.shape == (grid.info['y_number'], grid.info['x_number'])
 
 
 @raises(ValueError)
@@ -456,6 +456,55 @@ def test_interpolation():
 
     # todo: Implement a proper test for the calculation of the interpolation function
 
+    assert False
+
+
+def test_refine():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Refine the grid with a factor 2
+    grid.refine(2)
+
+    # Check if the shape of the data matches the changed input
+    assert grid.data.shape == (285, 285)
+    assert grid.shape.x_number == 285
+    assert grid.shape.y_number == 285
+
+
+def test_refine_exceptions_and_failures():
+    # todo: Implement proper tests for the improper use of refine()
+    assert False
+
+
+def test_resize():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Create an alternative shape
+    shape = grid.shape.copy()
+
+    # Change a few settings
+    shape.set_x_number(201)
+    shape.set_y_number(79)
+
+    # Resize the grid
+    grid.resize(shape)
+
+    # Check if the shape of the data matches the changed input
+    assert grid.data.shape == (79, 201)
+    assert grid.shape.x_number == 201
+    assert grid.shape.y_number == 79
+
+
+def test_resize_exceptions_and_failures():
+    # todo: Implement proper tests for the improper use of resize()
     assert False
 
 
