@@ -23,7 +23,7 @@ def test_read_envira_header_incorrect():
     file_path = abs_path('data/GP2018 - Lnight y2016e.dat')
 
     # Create a grid object from the data file
-    grid = Grid.read_envira(file_path)
+    Grid.read_envira(file_path)
 
 
 def test_read_envira_other_shape():
