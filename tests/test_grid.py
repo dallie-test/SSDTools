@@ -420,6 +420,21 @@ def test_scale_multigrid_int():
     np.testing.assert_equal(scaled_meteotoeslag, meteotoeslag + 10 * np.log10(4))
 
 
+def test_statistics_multigrid():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+
+    # todo: Implement a proper test for the calculation of the statistics
+
+    assert False
+
+
 def test_extract_year_from_file_name_y1234():
     assert 1234 == extract_year_from_file_name('y1234')
 
