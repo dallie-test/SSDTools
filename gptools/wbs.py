@@ -53,6 +53,15 @@ class WBS(object):
         return self.data.loc[self.select_above(level, unit), 'woningen'].sum()
 
     def count_annoyed_people(self, threshold=48):
+        """
+        Count the number of annoyed people. Uses the Lden metric with a minimum value (threshold) and applies a relative
+        annoyance.
+
+        :param float threshold: The Lden value threshold. Only include values above the threshold.
+        :return: the number of annoyed people.
+        :rtype: float
+        """
+
         # Get the rows above the Lden threshold
         data = self.data[self.select_above(threshold, 'Lden')]
 
@@ -63,6 +72,15 @@ class WBS(object):
         return (data['personen'] * relative_annoyance).sum()
 
     def count_sleep_disturbed_people(self, threshold=40):
+        """
+        Count the number of sleep disturbed people. Uses the Lnight metric with a minimum value (threshold) and applies
+        a relative sleep disturbance.
+
+        :param float threshold: The Lnight value threshold. Only include values above the threshold.
+        :return: the number of sleep disturbed people.
+        :rtype: float
+        """
+
         # Get the rows above the Lnight threshold
         data = self.data[self.select_above(threshold, 'Lnight')]
 
@@ -85,10 +103,11 @@ def annoyance(noise_levels, de='doc29', max_noise_level=None):
     This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
     ges2002 it is customary to apply a cut-off at 65dB(A).
 
-    :param np.ndarray|pd.Series noise_levels: the noise levels for which to calculate the relative annoyance.
+    :param np.ndarray | pd.Series noise_levels: the noise levels for which to calculate the relative annoyance.
     :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
     :param float max_noise_level: the cut-off noise level.
     :return: the relative annoyance for the provided noise levels.
+    :rtype: np.ndarray | pd.Series
     """
 
     # Apply a cut-off at max_db if provided
@@ -119,10 +138,11 @@ def sleep_disturbance(noise_levels, de='doc29', max_noise_level=None):
     This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
     ges2002 it is customary to apply a cut-off at 57dB(A).
 
-    :param np.ndarray|pd.Series noise_levels: the noise levels for which to calculate the relative sleep disturbance.
+    :param np.ndarray | pd.Series noise_levels: the noise levels for which to calculate the relative sleep disturbance.
     :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
     :param float max_noise_level: the cut-off noise level.
     :return: the relative sleep disturbance for the provided noise levels.
+    :rtype: np.ndarray | pd.Series
     """
 
     # Apply a cut-off at max_db if provided
