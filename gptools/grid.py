@@ -63,7 +63,7 @@ class Grid(object):
     Multi-contour grids are use to indicate the certainty ranges of the noise levels for a given traffic scenario.
     """
 
-    def __init__(self, data=None, info=None, years=None, unit=None):
+    def __init__(self, data=None, info=None, shape=None, years=None, unit=None):
         """
 
         :param list(np.ndarray)|np.ndarray data: grid data, is two-dimensional for single contour grids and
@@ -79,6 +79,8 @@ class Grid(object):
         if info is not None:
             self.info = info
             self.shape = Shape(info if isinstance(info, dict) else info[0])
+        if shape is not None:
+            self.shape = shape
         if years is not None:
             self.years = years
         if unit is not None:
@@ -153,6 +155,7 @@ class Grid(object):
         exclude = [] if exclude is None else exclude
 
         if isinstance(self.data, list) and isinstance(self.info, list):
+            # This is the case for multigrid
 
             # Check if the lists are equal
             if len(self.data) != len(self.info):
@@ -167,10 +170,14 @@ class Grid(object):
             if not info.duplicated(subset=info.columns[~info.columns.isin(exclude)], keep=False).all():
                 raise ValueError('All info in the provided info list should be the same')
 
-        elif isinstance(self.data, list) or isinstance(self.info, list):
+        elif isinstance(self.data, list) or (hasattr(self, 'info') and isinstance(self.info, list)):
             raise TypeError('Supplied data and info for a multigrid should both be lists.')
 
+        elif isinstance(self.data, np.ndarray) and hasattr(self, 'years') and isinstance(self.years, list):
+            # This is the case for a meteotoeslag grid
+            pass
         else:
+            # This is the case for a normal grid
             if not (self.shape.y_number, self.shape.x_number) == self.data.shape:
                 raise IndexError('Provided data does not have the same shape as mentioned in the header file.')
 
@@ -250,6 +257,21 @@ class Grid(object):
 
         return self.meteotoeslag_from_years(meteotoeslag_years(method, self.unit))
 
+    def meteotoeslag_grid_from_method(self, method):
+        """
+        Calculate the meteotoeslag based on the provided method.
+
+        :param str method: The method for selecting the meteorological representative years, which is either 'empirisch'
+         or 'hybride'.
+        :return the max-grid and the included meteorological years.
+        :rtype tuple(np.ndarray, np.ndarray)
+        """
+
+        # Calculate the grid with meteorological surcharge and the included years
+        meteotoeslag, meteo_years = self.meteotoeslag_from_years(meteotoeslag_years(method, self.unit))
+
+        return Grid(data=meteotoeslag, unit=self.unit, years=meteo_years, shape=self.shape)
+
     def meteotoeslag_from_years(self, years):
         """
         Determine the meteotoeslag excluding the extraordinary meteorological years.
@@ -307,6 +329,17 @@ class Grid(object):
             'dlo': lower_bound_confidence_interval,
             'dat': data
         }
+
+    def grid_from_year(self, year):
+
+        if not isinstance(self.data, list):
+            raise TypeError('Grid from year can only be extracted from multigrids')
+
+        # Get the location of the requested year, select the first match
+        index = np.where(np.array(self.years) == year)[0][0]
+
+        # Return the object
+        return Grid(data=self.data[index], info=self.info[index], unit=self.unit)
 
     def interpolation_function(self):
         """
@@ -460,12 +493,30 @@ class Grid(object):
         raise ValueError(
             'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
 
-    def tellen_etmaal(self):
+    def tellen_etmaal_from_wbs(self, wbs, bins=None, cumulative=True):
         """
-        todo: Translate tellen etmaal
-        todo: Add doc29lib.tellen_etmaal here
+        Count the number of homes and gehinderden above the provided noise level values. Geographically, this equals the
+        the area inside the provided contours.
+
+        todo: Rename this function?
         """
-        pass
+
+        # Calculate the noise levels for the WBS
+        db = self.interpolation_from_wbs(wbs)
+
+        # Calculate the number of gehinderden for each location
+        egh_per_locatie = self.gehinderden_from_wbs(wbs)
+
+        # Set the threshold values to check
+        bins = [48, 58, 9999] if bins is None else bins
+
+        # Count the number of homes and gehinderden inside the provided bins
+        w, _ = np.histogram(db, bins=bins, weights=wbs.data['woningen'])
+        egh, _ = np.histogram(db, bins=bins, weights=egh_per_locatie)
+
+        if cumulative:
+            return np.cumsum(w[::-1]), np.cumsum(egh[::-1])
+        return w, egh
 
     def tellen_nacht(self):
         """
