@@ -8,10 +8,15 @@ from gptools.grid import Grid
 
 
 class WBS(object):
+    """
+    A WBS object contains the data and methods related to woningbestanden.
+
+    """
+
     def __init__(self, data=None):
         """
 
-        :param pd.DataFrame data: woningbestand (wbs) data
+        :param pd.DataFrame data: woningbestand (WBS) data
         """
 
         if data is not None:
@@ -19,6 +24,14 @@ class WBS(object):
 
     @classmethod
     def read_file(cls, path):
+        """
+        Create a new WBS object based on a HDF5 formatted file.
+
+        :param string | buffer | Path path: the location of the file.
+        :return: the WBS file as object.
+        :rtype: WBS
+        """
+
         # Read the file as DataFrame
         data_frame = pd.read_hdf(path)
 
@@ -26,13 +39,21 @@ class WBS(object):
         return cls(data_frame)
 
     def copy(self):
+        """
+        Make a deep copy of this WBS object.
+
+        :return: a copy of this WBS object.
+        :rtype: WBS
+        """
         return copy.deepcopy(self)
 
     def add_noise_from_grid(self, grid):
         """
         Calculate the noise levels for each residence by interpolating the grid results.
 
-        :param Grid grid:
+        :param Grid grid: the grid data to add.
+        :return: this WBS object.
+        :rtype: WBS
         """
 
         # Get the interpolation function
@@ -44,12 +65,39 @@ class WBS(object):
         return self
 
     def select_above(self, level, unit):
+        """
+        Select the rows above the specified level for the specified unit.
+
+        :param float level: the level to compare with.
+        :param str unit: any column in the WBS data frame.
+        :return: the rows.
+        :rtype: pd.Series
+        """
+
         return self.data[unit] >= level
 
     def count_above(self, level, unit):
+        """
+        Count the number of rows above the specified level for the specified unit.
+
+        :param float level: the level to compare with.
+        :param str unit: any column in the WBS data frame.
+        :return: the number of rows.
+        :rtype: int
+        """
+
         return self.select_above(level, unit).sum()
 
     def count_homes_above(self, level, unit):
+        """
+        Count the number of homes above the specified level for the specified unit.
+
+        :param float level: the level to compare with.
+        :param str unit: any column in the WBS data frame.
+        :return: the number of homes.
+        :rtype: float
+        """
+
         return self.data.loc[self.select_above(level, unit), 'woningen'].sum()
 
     def count_annoyed_people(self, threshold=48):
