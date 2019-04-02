@@ -6,6 +6,7 @@ import textwrap
 from warnings import warn
 
 import numpy as np
+import math
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
@@ -310,7 +311,7 @@ class Grid(object):
         if not isinstance(self.data, list):
             raise TypeError('Statistics can only be extracted from multigrids')
 
-        # Conver the data to a multidimensional array
+        # Convert the data to a multidimensional array
         data = np.array(self.data)
 
         # Extract the statistics for each point in the grid
@@ -331,7 +332,12 @@ class Grid(object):
         }
 
     def grid_from_year(self, year):
-
+        """
+        Determine grid for the required year
+        :param year: int
+        :return: Grid
+        :rtype: Grid object
+        """
         if not isinstance(self.data, list):
             raise TypeError('Grid from year can only be extracted from multigrids')
 
@@ -344,7 +350,6 @@ class Grid(object):
     def interpolation_function(self):
         """
         Determine the bi-cubic spline interpolation function.
-
         :return the interpolation function.
         :rtype function
         """
@@ -365,7 +370,8 @@ class Grid(object):
     def refine(self, factor):
         """
         Refine the grid with a bi-cubic spline interpolation.
-
+        :return refined grid
+        :rtype Grid object
         """
 
         # Refine the current shape
@@ -377,10 +383,8 @@ class Grid(object):
     def resize(self, shape):
         """
         Reshape the grid based on with a bi-cubic spline interpolation.
-
-        Interpoleer met bi-cubic spline naar een nieuw grid
-
-        todo: Add doc29lib.regrid here
+        :return resized grid
+        :rtype Grid object
         """
 
         # Refine the grid and update the data
@@ -531,6 +535,7 @@ class Grid(object):
         todo: Add doc29lib.schaal_per_etmaalperiode here
         """
         pass
+        pass
 
     def relatief_norm_etmaal(self):
         """
@@ -552,56 +557,132 @@ class Shape(object):
         self.y_number = data['y_number']
 
     def refine_x(self, factor):
-        # Calculate the new step distance
-        self.x_step /= factor
+        """
+        Refine a shape by increasing the x resolution by factor
+        :param factor: should be a positive real number
+        :return: refined shape
+        :rtype: Shape object
+        """
+        if 0 < factor < np.inf:
 
-        # Calculate the new number of steps
-        self.x_number = 1 + factor * (self.x_number - 1)
+            # Calculate the new step distance
+            self.x_step /= factor
+
+            # Calculate the new number of steps
+            self.x_number = 1 + factor * (self.x_number - 1)
+        else:
+            raise ValueError('Invalid input: Factor must be a positive number')
 
         return self
 
     def refine_y(self, factor):
-        # Calculate the new step distance
-        self.y_step /= factor
+        """
+        Refine a grid by increasing the y resolution by factor
+        :param factor: should be a positive real number
+        :return: refined grid
+        :rtype: Shape object
+        """
+        if 0 < factor < np.inf:
 
-        # Calculate the new number of steps
-        self.y_number = 1 + factor * (self.y_number - 1)
+            # Calculate the new step distance
+            self.y_step /= factor
+
+            # Calculate the new number of steps
+            self.y_number = 1 + factor * (self.y_number - 1)
+        else:
+            raise ValueError('Invalid input: Factor must be a positive number')
 
         return self
 
     def refine(self, factor):
-        self.refine_x(factor)
-        self.refine_y(factor)
+        """
+        Refine a grid by increasing the x and y resolution by factor
+        :param factor: should be a positive real number
+        :return: refined shape
+        :rtype: Shape object
+        """
+        if 0 < factor < np.inf:
+            self.refine_x(factor)
+            self.refine_y(factor)
+        else:
+            raise ValueError('Invalid input: Factor must be a positive number')
+
         return self
 
     def set_x_number(self, number):
-        if number < 2:
+        """
+        Set the number of points in x direction for the shape, adjust shape accordingly
+        :param number: should be a real number greater than 2
+        :return: adjusted shape
+        :rtype: Shape object
+        """
+        if 2 <= number < np.inf:
+            self.x_number = number
+            self.x_step = (self.x_stop - self.x_start) / (self.x_number - 1)
+        else:
             raise ValueError('Cannot set the number of x coordinates to {}. The minimum number is 2.'.format(number))
-        self.x_number = number
-        self.x_step = (self.x_stop - self.x_start) / (self.x_number - 1)
+
         return self
 
     def set_y_number(self, number):
-        if number < 2:
-            raise ValueError('Cannot set the number of y coordinates to {}. The minimum number is 2.'.format(number))
-        self.y_number = number
-        self.y_step = (self.y_stop - self.y_start) / (self.y_number - 1)
+        """
+        Set the number of points in y direction for the shape, adjust shape accordingly
+        :param number: should be a real number greater than 2
+        :return: adjusted shape
+        :rtype: Shape object
+        """
+        if 2 <= number < np.inf:
+            self.y_number = number
+            self.y_step = (self.y_stop - self.y_start) / (self.y_number - 1)
+        else:
+            raise ValueError('Cannot set the number of x coordinates to {}. The minimum number is 2.'.format(number))
+
         return self
 
     def set_x_step(self, step):
-        self.x_step = step
-        self.x_number = 1 + (self.x_stop - self.x_start) / self.x_step
+        """
+        Set step size in x direction for the shape, adjust shape accordingly
+        :param step: should be a positive real number
+        :return: adjusted shape
+        :rtype: Shape object
+        """
+        if 0 < step < np.inf:
+            self.x_step = step
+            self.x_number = 1 + (self.x_stop - self.x_start) / self.x_step
+        else:
+            raise ValueError('Invalid input: step must be a positive number')
+
         return self
 
     def set_y_step(self, step):
-        self.y_step = step
-        self.y_number = 1 + (self.y_stop - self.y_start) / self.y_step
+        """
+        Set step size in y direction for the shape, adjust shape accordingly
+        :param step: should be a positive real number
+        :return: adjusted shape
+        :rtype: Shape object
+        """
+        if 0 < step < np.inf:
+            self.y_step = step
+            self.y_number = 1 + (self.y_stop - self.y_start) / self.y_step
+        else:
+            raise ValueError('Invalid input: step must be a positive number')
+
         return self
 
     def get_x_coordinates(self):
+        """
+        Extract x coordinates from shape
+        :return: array of x coordinates
+        :rtype: numpy array
+        """
         return np.linspace(self.x_start, self.x_stop, num=self.x_number)
 
     def get_y_coordinates(self):
+        """
+        Extract y coordinates from shape
+        :return: array of y coordinates
+        :rtype: numpy array
+        """
         return np.linspace(self.y_start, self.y_stop, num=self.y_number)
 
     def to_dict(self):
