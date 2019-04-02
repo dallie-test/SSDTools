@@ -6,20 +6,26 @@ from tests.test_grid import abs_path
 
 
 def test_grid_relatief_norm_etmaal():
+    """
+    Integration test based on the example provided to Robert Koster by Ed Gordijn on April 1st 2019.
+
+    This example shows an efficient way to determine the maximum volume of traffic that can fit within the GWC bounds.
+    It uses a routine to search for zeros, which is the case when there is no room for additional traffic.
+
+    """
+
     # ------------------------------------------------------------------------
     # Directories and paths
     # ------------------------------------------------------------------------
-    # prognose_dir = dc.check_dir('./data/MER2019 H_500_doc29_VVR')
-    prognose_dir = abs_path('data/MER2019 H_500_doc29_VVR')
+    forecast_directory = abs_path('data/MER2019 H_500_doc29_VVR')
     wbs_file = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
-    # wbs_file = abs_path('data/wbs2005.h5')
 
     # ------------------------------------------------------------------------
     # Read Grid
     # ------------------------------------------------------------------------
 
     # Create a grid object from the data file
-    den_grids = Grid.read_enviras(prognose_dir, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lden'))
+    den_grids = Grid.read_enviras(forecast_directory, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lden'))
 
     # Scale the grid with factor 1.0319
     den_grids.scale(1.0319)
@@ -34,7 +40,7 @@ def test_grid_relatief_norm_etmaal():
     den_meteotoeslag = den_grids.meteotoeslag_grid_from_method('hybride')
 
     # Create a grid object from the Lnight data file
-    night_grids = Grid.read_enviras(prognose_dir, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lnight'))
+    night_grids = Grid.read_enviras(forecast_directory, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lnight'))
 
     # Scale the grid with factor 1.0121
     night_grids.scale(1.0121)
