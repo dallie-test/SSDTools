@@ -1,5 +1,5 @@
 import numpy as np
-from gptools.grid import Grid, gwc, relatief_norm_etmaal
+from gptools.grid import Grid, gwc, relative_den_norm_performance
 from gptools.wbs import WBS
 from scipy.optimize import brentq
 from tests.test_grid import abs_path
@@ -144,11 +144,11 @@ def test_grid_relatief_norm_etmaal():
     norm = gwc['doc29_2018'].copy()
 
     # Run the function a single time for testing
-    a = relatief_norm_etmaal(1, norm, wbs, den_meteotoeslag)
-    b = relatief_norm_etmaal(3, norm, wbs, den_meteotoeslag)
+    a = relative_den_norm_performance(1, norm, wbs, den_meteotoeslag)
+    b = relative_den_norm_performance(3, norm, wbs, den_meteotoeslag)
 
     # Get the optimal scale factor to apply
-    scale_1 = brentq(relatief_norm_etmaal, 1.0, 3.0, rtol=0.0001, args=(norm, wbs, den_meteotoeslag))
+    scale_1 = brentq(relative_den_norm_performance, 1.0, 3.0, rtol=0.0001, args=(norm, wbs, den_meteotoeslag))
 
     # Test if the result is equal to the validation case
     assert scale_1 == 1.2713069520185394

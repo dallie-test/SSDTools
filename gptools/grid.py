@@ -411,7 +411,7 @@ class Grid(object):
         pass
 
 
-def relatief_norm_etmaal(scale, norm, wbs, den_grid, dat_n=None, scale_de=None, scale_n=None, c=True):
+def relative_den_norm_performance(scale, norm, wbs, den_grid, dat_n=None, scale_de=None, scale_n=None, c=True):
     """
     Calculate the difference with respect to the provided norm for affected houses and annoyed people.
 
