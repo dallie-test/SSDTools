@@ -10,6 +10,11 @@ import math
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
+# Set the gelijkwaardigheidscriteria
+gwc = {'doc29_2005': [13600, 166500, 14600, 45000],
+       'doc29_2015': [14000, 180000, 14800, 48500],
+       'doc29_2018': [12000, 186000, 12800, 50000]}
+
 
 def extract_year_from_file_name(file_name):
     """
@@ -209,6 +214,8 @@ class Grid(object):
         else:
             self.data += 10 * np.log10(factor)
 
+        return self
+
     def gelijkwaardigheid(self):
         """
         todo: Translate gelijkwaardigheid
@@ -398,151 +405,59 @@ class Grid(object):
 
         return self
 
-    def interpolation_from_wbs(self, wbs):
-        """
-        Determine the noise levels on each address in the WBS based on a bi-cubic spline interpolation function.
-
-        :return noise levels for each address
-        :rtype np.ndarray
-        """
-
-        if isinstance(self.data, list):
-            raise TypeError('Grid interpolation can only be performed on single grids.')
-
-        # Get the interpolation function
-        interpolation = self.interpolation_function()
-
-        # Return the interpolated noise levels for each wbs location
-        return interpolation(wbs.data['y'], wbs.data['x'], grid=False)
-
-    def gehinderden_from_wbs(self, wbs, de='doc29', max_db=None):
-        """
-        Calculate the number of disturbed people (gehinderden) for the WBS locations. This particular method is only
-        valid for Lden grids.
-
-        Two dose-effect relationships are supported:
-        1) doc29: the newest relationship, to be used for calculations with ECAC Doc. 29
-        2) ges2002: an older dose-effect relationship.
-
-        This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
-        ges2002 it is customary to apply a cut-off at 65dB(A).
-
-        :param WBS wbs: the woningbestand.
-        :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
-        :param float max_db: the cut-off noise level.
-        :return:
-        """
-
-        if self.unit != "Lden":
-            raise TypeError(
-                'Cannot calculate gehinderden based on an {} grid, an Lden grid should be used.'.format(self.unit))
-
-        # Calculate the noise levels for the WBS
-        db = self.interpolation_from_wbs(wbs)
-
-        # Apply a cut-off at max_db if provided
-        if max_db is not None:
-            db[db > max_db] = max_db
-
-        # Apply the dose-effect relationship
-        if de == 'ges2002':
-            return wbs.data['personen'] * 1 / (1 / np.exp(-8.1101 + 0.1333 * db) + 1)
-        elif de == 'doc29':
-            if max_db is not None:
-                warn('You have set max_db to {} dB(A) while using the doc29 dose-effect relationship. However, for ' +
-                     'doc29 it is not common to use a cut-off.'.format(max_db), UserWarning)
-            return wbs.data['personen'].values * (1 - 1 / (1 + np.exp(-7.7130 + 0.1260 * db)))
-
-        raise ValueError(
-            'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
-
-    def slaapverstoorden_from_wbs(self, wbs, de='doc29', max_db=None):
-        """
-        Calculate the number of slaapverstoorden for the WBS locations. This particular method is only valid for Lnight
-        grids.
-
-        Two dose-effect relationships are supported:
-        1) doc29: the newest relationship, to be used for calculations with ECAC Doc. 29
-        2) ges2002: an older dose-effect relationship.
-
-        This method also supports a cut-off at a specified dB value. For doc29 it is not common to use a cut-off, for
-        ges2002 it is customary to apply a cut-off at 57dB(A).
-
-        :param WBS wbs: the woningbestand.
-        :param str de: the dose-effect relationship to apply, defaults to 'doc29'.
-        :param float max_db: the cut-off noise level.
-        :return:
-        """
-
-        if self.unit != "Lnight":
-            raise TypeError(
-                'Cannot calculate gehinderden based on an {} grid, an Lnight grid should be used.'.format(self.unit))
-
-        # Calculate the noise levels for the WBS
-        db = self.interpolation_from_wbs(wbs)
-
-        # Apply a cut-off at max_db if provided
-        if max_db is not None:
-            db[db > max_db] = max_db
-
-        # Apply the dose-effect relationship
-        if de == 'ges2002':
-            return wbs.data['personen'] * 1 / (1 / np.exp(-6.642 + 0.1046 * db) + 1)
-        elif de == 'doc29':
-            if max_db is not None:
-                warn('You have set max_db to {} dB(A) while using the doc29 dose-effect relationship. However, for ' +
-                     'doc29 it is not common to use a cut-off.'.format(max_db), UserWarning)
-            return wbs.data['personen'].values * (1 - 1 / (1 + np.exp(-6.2952 + 0.0960 * db)))
-
-        raise ValueError(
-            'The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
-
-    def tellen_etmaal_from_wbs(self, wbs, bins=None, cumulative=True):
-        """
-        Count the number of homes and gehinderden above the provided noise level values. Geographically, this equals the
-        the area inside the provided contours.
-
-        todo: Rename this function?
-        """
-
-        # Calculate the noise levels for the WBS
-        db = self.interpolation_from_wbs(wbs)
-
-        # Calculate the number of gehinderden for each location
-        egh_per_locatie = self.gehinderden_from_wbs(wbs)
-
-        # Set the threshold values to check
-        bins = [48, 58, 9999] if bins is None else bins
-
-        # Count the number of homes and gehinderden inside the provided bins
-        w, _ = np.histogram(db, bins=bins, weights=wbs.data['woningen'])
-        egh, _ = np.histogram(db, bins=bins, weights=egh_per_locatie)
-
-        if cumulative:
-            return np.cumsum(w[::-1]), np.cumsum(egh[::-1])
-        return w, egh
-
-    def tellen_nacht(self):
-        """
-        todo: Translate tellen nacht
-        todo: Add doc29lib.tellen_nacht here
-        """
-        pass
-
     def schaal_per_etmaalperiode(self):
         """
         todo: Translate schaal per etmaalperiode
         todo: Add doc29lib.schaal_per_etmaalperiode here
+
+        schalen per periode
         """
-        pass
         pass
 
-    def relatief_norm_etmaal(self):
-        """
-        todo: Translate relatief norm etmaal
-        todo: Add doc29lib.relatief_norm_etmaal here
-        """
-        pass
+
+def relative_den_norm_performance(scale, norm, wbs, den_grid, dat_n=None, scale_de=None, scale_n=None, c=True):
+    """
+    Calculate the difference with respect to the provided norm for affected houses and annoyed people.
+
+    This function can be used to efficiently determine the traffic volume that fits within the gwc bounds. To do this
+    one can use the scipy.brentq routine. An example is shown below:
+
+        factor = brentq(relatief_norm_etmaal, 1.0, 3.0, rtol=0.0001, args=(norm, wbs, den_grid))
+
+    :param float scale: the scale to apply.
+    :param dict norm: the norm to match
+    :param WBS wbs: the woningbestand.
+    :param Grid den_grid: the Lden grid.
+    :return the available room in terms of houses or annoyed people
+    """
+
+    if dat_n is not None:
+        if scale_de is None:
+            scale_de = scale
+        if scale_n is None:
+            scale_n = scale
+
+        den_grid = schaal_per_etmaalperiode(den_grid, hdr_den, dat_n, scale_de=scale_de, scale_n=scale_n, c=c)
+        den_grid = den_grid['mm']
+        scale = 1
+
+    # Apply the scale
+    grid = den_grid.copy().scale(scale)
+
+    # Add the Lden data to the wbs
+    wbs = wbs.copy().add_noise_from_grid(grid)
+
+    # Count the number of homes
+    w = wbs.count_homes_above(58, 'Lden')
+
+    # Count the number of annoyed people
+    p = wbs.count_annoyed_people(48)
+
+    # Get the difference with the norm
+    delta_w = norm[0] - w
+    delta_p = norm[1] - p
+
+    return min(delta_w, delta_p)
 
 
 class Shape(object):

@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 
 from warnings import warn
-
 from gptools.grid import Grid
 
 
