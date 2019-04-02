@@ -9,6 +9,11 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
+# Set the gelijkwaardigheidscriteria
+gwc = {'doc29_2005': [13600, 166500, 14600, 45000],
+       'doc29_2015': [14000, 180000, 14800, 48500],
+       'doc29_2018': [12000, 186000, 12800, 50000]}
+
 
 def extract_year_from_file_name(file_name):
     """
@@ -207,6 +212,8 @@ class Grid(object):
             self.data = [d + 10 * np.log10(factor) for d in self.data]
         else:
             self.data += 10 * np.log10(factor)
+
+        return self
 
     def gelijkwaardigheid(self):
         """
@@ -522,6 +529,8 @@ class Grid(object):
         """
         todo: Translate tellen nacht
         todo: Add doc29lib.tellen_nacht here
+
+        schalen per periode
         """
         pass
 
@@ -529,15 +538,57 @@ class Grid(object):
         """
         todo: Translate schaal per etmaalperiode
         todo: Add doc29lib.schaal_per_etmaalperiode here
+
+        schalen per periode
         """
         pass
 
-    def relatief_norm_etmaal(self):
-        """
-        todo: Translate relatief norm etmaal
-        todo: Add doc29lib.relatief_norm_etmaal here
-        """
-        pass
+
+def relatief_norm_etmaal(scale, norm, wbs, den_grid, dat_n=None, scale_de=None, scale_n=None, c=True):
+    """
+    todo: Translate relatief norm etmaal
+    todo: Add doc29lib.relatief_norm_etmaal here
+
+    Bereken het verschil t.o.v. de norm voor woningen en ernstig gehinderden
+
+    Het voorbeeld voor het schalen relatief t.o.v. de norm is een beetje complexer. Ik gebruik die om efficient het
+    verkeersvolume te kunnen bepalen dat binnen de norm van de gelijkwaardigheidscriteria past. De routine die ik
+    daarvoor gebruik zoekt naar nulpunten, dus de situatie dat er geen ruimte meer is t.o.v. de norm.
+
+    :param float scale: the scale to apply.
+    :param dict norm: the norm to match
+    :param WBS wbs: the woningbestand.
+    :param Grid den_grid: the Lden grid.
+    :return the available room
+    """
+
+    if dat_n is not None:
+        if scale_de is None:
+            scale_de = scale
+        if scale_n is None:
+            scale_n = scale
+
+        den_grid = schaal_per_etmaalperiode(den_grid, hdr_den, dat_n, scale_de=scale_de, scale_n=scale_n, c=c)
+        den_grid = den_grid['mm']
+        scale = 1
+
+    # Apply the scale
+    grid = den_grid.copy().scale(scale)
+
+    # Add the Lden data to the wbs
+    wbs = wbs.copy().add_noise_from_grid(grid)
+
+    # Count the number of homes
+    w = wbs.count_homes_above(58, 'Lden')
+
+    # Count the number of persons above
+    p = wbs.count_annoyed_people(48)
+
+    # Get the difference with the norm
+    delta_w = norm[0] - w
+    delta_p = norm[1] - p
+
+    return min(delta_w, delta_p)
 
 
 class Shape(object):
