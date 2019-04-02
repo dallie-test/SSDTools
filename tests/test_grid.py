@@ -4,6 +4,7 @@ import warnings
 
 import numpy as np
 from nose.tools import raises
+from scipy.interpolate import RectBivariateSpline
 
 from gptools.grid import Grid, read_envira, meteotoeslag_years, extract_year_from_file_name
 from gptools.wbs import WBS
@@ -431,21 +432,73 @@ def test_statistics_multigrid():
 
     # Create a grid object from the data file
     grid = Grid.read_enviras(file_paths, pattern)
+    stats = Grid.statistics(grid)
 
-    # todo: Implement a proper test for the calculation of the statistics
-
-    assert False
+    assert isinstance(stats, dict)
 
 
-def test_interpolation_function():
+@raises(TypeError)
+def test_statistics_type():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+    grid.data = float(20)
+    stats = Grid.statistics(grid)
+    # todo: Confirm statistics tests
+
+
+@raises(TypeError)
+def test_statistics_nan():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/MINIMER2015')
+
+    # Set the pattern
+    pattern = r'[\w\d\s]+\.dat'
+
+    # Create a grid object from the data file
+    grid = Grid.read_enviras(file_paths, pattern)
+    grid.data = np.nan
+    stats = Grid.statistics(grid)
+
+
+def test_interpolation_function_nominal():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
+    interpolation = Grid.interpolation_function(grid)
 
-    # todo: Implement a proper test for the calculation of the interpolation function
+    assert isinstance(interpolation, RectBivariateSpline)
+    # todo: Confirm interpolation tests
 
+
+@raises(TypeError)
+def test_interpolation_function_multigrid():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+    grid.data = []
+    interpolation = Grid.interpolation_function(grid)
+    assert False
+
+
+@raises(AttributeError)
+def test_interpolation_function_nan():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+    grid.data = np.nan
+    interpolation = Grid.interpolation_function(grid)
     assert False
 
 
@@ -700,23 +753,68 @@ def test_tellen_etmaal_from_wbs():
 
 
 def test_refine():
+    """
+    Test various use cases for consistency
+    """
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid2 = Grid.read_envira(file_path)
+
+    # Refine the grid with a factor 2
+    grid2.refine(2)
+
+    # Check if the shape of the data matches the changed input
+    assert grid2.data.shape == (285, 285)
+    assert grid2.shape.x_number == 285
+    assert grid2.shape.y_number == 285
+
+    # Create a grid object from the data file
+    grid05 = Grid.read_envira(file_path)
+
+    # Refine the grid with a factor 0.5
+    grid05.refine(0.5)
+
+    # Check if the shape of the data matches the changed input
+    assert grid05.data.shape == (72, 72)
+    assert grid05.shape.x_number == 72
+    assert grid05.shape.y_number == 72
+
+    # Create a grid object from the data file
+    grid35 = Grid.read_envira(file_path)
+
+    # Refine the grid with a factor 3.5
+    grid35.refine(3.5)
+
+    assert grid35.data.shape == (498, 498)
+    assert grid35.shape.x_number == 498
+    assert grid35.shape.y_number == 498
+
+
+@raises(TypeError)
+def test_refine_type():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
 
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
 
-    # Refine the grid with a factor 2
+    grid.data = []
     grid.refine(2)
-
-    # Check if the shape of the data matches the changed input
-    assert grid.data.shape == (285, 285)
-    assert grid.shape.x_number == 285
-    assert grid.shape.y_number == 285
+    assert False
+    # todo: Confirm refine tests
 
 
-def test_refine_exceptions_and_failures():
-    # todo: Implement proper tests for the improper use of refine()
+@raises(ValueError)
+def test_refine_value():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+    factor = np.nan
+    grid.refine(factor)
     assert False
 
 
@@ -741,11 +839,12 @@ def test_resize():
     assert grid.data.shape == (79, 201)
     assert grid.shape.x_number == 201
     assert grid.shape.y_number == 79
+    assert isinstance(grid.info, dict)
 
+#
+# def test_resize_exceptions_and_failures():
+    # todo: Are there exceptions to be raised? Any infeasible cases already raise exceptions in subroutines
 
-def test_resize_exceptions_and_failures():
-    # todo: Implement proper tests for the improper use of resize()
-    assert False
 
 
 def test_extract_year_from_file_name_y1234():
