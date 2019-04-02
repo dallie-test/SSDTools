@@ -678,6 +678,27 @@ def test_slaapverstoorden_from_wbs_unknown_dose_effect():
     grid.slaapverstoorden_from_wbs(wbs, de='random123')
 
 
+def test_tellen_etmaal_from_wbs():
+    # Get the path to the Envira file
+    file_path = abs_path('data/MER2015 - Doc29 - Lden y1974.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Get the path to the WBS file
+    file_path = abs_path('data/wbs2005.h5')
+
+    # Create a wbs object from the data file
+    wbs = WBS.read_file(file_path)
+
+    # Tellen etmaal based on the grid and WBS combination
+    t = grid.tellen_etmaal_from_wbs(wbs)
+
+    # todo: Implement a proper test for the calculation of the ernstig gehinderden
+
+    assert False
+
+
 def test_refine():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
