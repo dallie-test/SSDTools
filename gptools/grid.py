@@ -331,11 +331,10 @@ class Grid(object):
         lower_bound_confidence_interval = mean - z * standard_deviation
 
         return {
-            'mean': mean,
-            'std': standard_deviation,
-            'dhi': upper_bound_confidence_interval,
-            'dlo': lower_bound_confidence_interval,
-            'dat': data
+            'mean': Grid(data=mean, shape=self.shape, unit=self.unit),
+            'std': Grid(data=standard_deviation, shape=self.shape, unit=self.unit),
+            'dhi': Grid(data=upper_bound_confidence_interval, shape=self.shape, unit=self.unit),
+            'dlo': Grid(data=lower_bound_confidence_interval, shape=self.shape, unit=self.unit),
         }
 
     def grid_from_year(self, year):
@@ -394,11 +393,16 @@ class Grid(object):
         :rtype Grid object
         """
 
-        # Refine the grid and update the data
-        self.data = self.interpolation_function()(shape.get_y_coordinates(), shape.get_x_coordinates())
-
-        # Update the info of this object
-        self.info.update(shape.to_dict())
+        if isinstance(self.data, list):
+            # Refine the grids of this multigrid and update the data and info
+            grids = [self.grid_from_year(year).resize(shape) for year in self.years]
+            self.data = [grid.data for grid in grids]
+            self.info = [grid.info for grid in grids]
+        else:
+            # Refine the grid and update the data and info
+            self.data = self.interpolation_function()(shape.get_y_coordinates(), shape.get_x_coordinates())
+            if hasattr(self, 'info'):
+                self.info.update(shape.to_dict())
 
         # Assign the shape to the object
         self.shape = shape
