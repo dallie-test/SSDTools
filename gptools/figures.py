@@ -2,13 +2,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from descartes import PolygonPatch
 from geopandas import GeoDataFrame
+from gptools.branding import default
 
 from scipy.misc import imread
 
 
 class GridPlot(object):
-    def __init__(self, grid, other_grid=None, title=None, figsize=None, xlim=None, ylim=None, background=None,
-                 schiphol_border=None, place_names=None, extent=None):
+    def __init__(self, grid, other_grid=None, title=None, branding=None, figsize=None, xlim=None, ylim=None,
+                 background=None, schiphol_border=None, place_names=None, extent=None):
 
         # Create an ID
         self.id = str(pd.Timestamp.utcnow())
@@ -19,6 +20,7 @@ class GridPlot(object):
 
         # Set the plotting options
         self.title = title
+        self.branding = default if branding is None else branding
         self.figsize = (21 / 2.54, 21 / 2.54) if figsize is None else figsize
         self.xlim = (80000, 140000) if xlim is None else xlim
         self.ylim = (455000, 515000) if ylim is None else ylim
@@ -120,38 +122,42 @@ class GridPlot(object):
         return fig, ax
 
     def add_contours(self, level, primary_color=None, secondary_color=None):
+
+        # Select this plot as active figure
         self.select()
 
+        # Refine the grid
+        grid = self.grid.copy().refine(20)
+
+        # Extract the x and y coordinates
+        x = grid.shape.get_x_coordinates()
+        y = grid.shape.get_y_coordinates()
+
         # If the grid is a multigrid, all noise levels should be plotted.
-        if isinstance(self.grid.data, list):
+        if isinstance(grid.data, list):
 
-            # Process all individual contours
-            for year in self.grid.years:
-                grid = self.grid.grid_from_year(year).refine(20)
+            # Get the various statistics of the data
+            statistic_grids = self.grid.statistics()
 
-                x = grid.shape.get_x_coordinates()
-                y = grid.shape.get_y_coordinates()
-                z = grid.data
+            # Extract the data of interest
+            mean_grid = statistic_grids['mean'].resize(grid.shape)
+            dhi_grid = statistic_grids['dhi'].resize(grid.shape)
+            dlo_grid = statistic_grids['dlo'].resize(grid.shape)
 
-                cs = self.ax.contour(x, y, z, levels=[level], colors=secondary_color, linewidths=[3, 3], alpha=0.1)
+            # Plot all individual contours
+            # todo: Replace by faster function with comparable results, such as a heatmap?
+            for year_data in grid.data:
+                cs_year = self.ax.contour(x, y, year_data, levels=[level], colors=secondary_color, linewidths=[3, 3],
+                                          alpha=0.1)
 
-            X1, Y1, Z1 = ld.verfijn(hdr, dat['mean'], k=20)
-            X2, Y2, Z2 = ld.verfijn(hdr, dat['dhi'], k=20)
-            X3, Y3, Z3 = ld.verfijn(hdr, dat['dlo'], k=20)
-            #
-            cs1 = ax.contour(X1, Y1, Z1, levels=[level], colors=primary_color, linewidths=[1, 1])
-            cs2 = ax.contour(X2, Y2, Z2, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
-            cs3 = ax.contour(X3, Y3, Z3, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
+            # Plot the contours of the statistics
+            cs = self.ax.contour(x, y, mean_grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
+            cs_hi = self.ax.contour(x, y, dhi_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
+            cs_lo = self.ax.contour(x, y, dlo_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
 
         # The input is a single grid, so only a single contour should be plotted
         else:
-            grid = self.grid.copy().refine(20)
-
-            x1 = grid.shape.get_x_coordinates()
-            y1 = grid.shape.get_y_coordinates()
-            z1 = grid.data
-
-            cs = self.ax.contour(x1, y1, z1, levels=[level], colors=primary_color, linewidths=[1, 1])
+            cs = self.ax.contour(x, y, grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
 
         return cs
 
