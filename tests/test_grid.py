@@ -447,9 +447,12 @@ def test_statistics_type():
 
     # Create a grid object from the data file
     grid = Grid.read_enviras(file_paths, pattern)
+
+    # Modify the data
     grid.data = float(20)
-    stats = Grid.statistics(grid)
-    # todo: Confirm statistics tests
+
+    # Check if the statistics can be calculated
+    Grid.statistics(grid)
 
 
 @raises(TypeError)
@@ -462,8 +465,12 @@ def test_statistics_nan():
 
     # Create a grid object from the data file
     grid = Grid.read_enviras(file_paths, pattern)
+
+    # Modify the data
     grid.data = np.nan
-    stats = Grid.statistics(grid)
+
+    # Check if the statistics can be calculated
+    Grid.statistics(grid)
 
 
 def test_interpolation_function_nominal():
@@ -591,10 +598,10 @@ def test_resize():
     assert grid.shape.y_number == 79
     assert isinstance(grid.info, dict)
 
+
 #
 # def test_resize_exceptions_and_failures():
-    # todo: Are there exceptions to be raised? Any infeasible cases already raise exceptions in subroutines
-
+# todo: Are there exceptions to be raised? Any infeasible cases already raise exceptions in subroutines
 
 
 def test_extract_year_from_file_name_y1234():
