@@ -1,11 +1,17 @@
 from gptools.grid import Grid
 from gptools.wbs import WBS
+import pandas as pd
+import numpy as np
+
 from tests.test_grid import abs_path
 
 
 def test_grid_gelijkwaardigheid():
     # Get the path to the Envira files
     file_paths = abs_path('data/H_500_00_doc29')
+
+    # Get the validation data
+    matlab_df = pd.read_csv(abs_path('data/gwcvalues.csv'))
 
     # Create a dict for the grids
     grids = {}
@@ -24,10 +30,10 @@ def test_grid_gelijkwaardigheid():
         meteotoeslag[unit] = grids[unit].meteotoeslag_grid_from_method('hybride')
 
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    wbs_file = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
 
     # Create a wbs object from the data file
-    wbs = WBS.read_file(file_path)
+    wbs = WBS.read_file(wbs_file)
 
     # Add the meteotoeslag Lden and Lnight noise levels
     wbs.add_noise_from_grid(meteotoeslag['Lden'])
@@ -41,9 +47,13 @@ def test_grid_gelijkwaardigheid():
     eh48den = wbs.count_annoyed_people(48)
     sv40n = wbs.count_sleep_disturbed_people(40)
 
-    print('   mm/year     w58den       w48n    eh48den      sv40n')
-    print('---------- ---------- ---------- ---------- ----------')
-    print('  incl. mm {:10.0f} {:10.0f} {:10.0f} {:10.0f}'.format(w58den, w48n, eh48den, sv40n))
+    df = pd.DataFrame({
+        'year': ['1971-2016mm'],
+        'w58den': [np.round(w58den, 0)],
+        'eh48den': [np.round(eh48den, 0)],
+        'w48n': [np.round(w48n, 0)],
+        'sv40n': [np.round(sv40n, 0)]
+    })
 
     for year in grids['Lden'].years:
         # Add the meteotoeslag Lden and Lnight noise levels
@@ -58,4 +68,16 @@ def test_grid_gelijkwaardigheid():
         eh48den = wbs.count_annoyed_people(48)
         sv40n = wbs.count_sleep_disturbed_people(40)
 
-        print('      {:04d} {:10.0f} {:10.0f} {:10.0f} {:10.0f}'.format(year, w58den, w48n, eh48den, sv40n))
+        df = df.append({
+            'year': year,
+            'w58den': np.round(w58den, 0),
+            'w48n': np.round(w48n, 0),
+            'eh48den': np.round(eh48den, 0),
+            'sv40n': np.round(sv40n, 0)
+        }, ignore_index=True)
+
+    np.testing.assert_array_equal(df['year'], matlab_df['year'])
+    np.testing.assert_allclose(df['w58den'], matlab_df['w58den'], rtol=0, atol=50)
+    np.testing.assert_allclose(df['eh48den'], matlab_df['eh48den'], rtol=0, atol=250)
+    np.testing.assert_allclose(df['w48n'], matlab_df['w48n'], rtol=0, atol=50)
+    np.testing.assert_allclose(df['sv40n'], matlab_df['sv40n'], rtol=0, atol=250)
