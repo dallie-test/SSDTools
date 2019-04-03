@@ -593,9 +593,32 @@ def test_resize():
     assert isinstance(grid.info, dict)
 
 
-#
-# def test_resize_exceptions_and_failures():
-# todo: Are there exceptions to be raised? Any infeasible cases already raise exceptions in subroutines
+def test_scale_per_time_interval():
+    assert False
+
+
+@raises(TypeError)
+def test_scale_per_time_interval_wrong_den_grid():
+    assert False
+
+
+@raises(TypeError)
+def test_scale_per_time_interval_wrong_night_grid():
+    assert False
+
+
+@raises(TypeError)
+def test_scale_per_time_interval_incompatible_grids():
+    assert False
+
+
+@raises(TypeError)
+def test_scale_per_time_interval_multigrid():
+    assert False
+
+
+def test_scale_per_time_interval_apply_night_time_correction():
+    assert False
 
 
 def test_extract_year_from_file_name_y1234():
