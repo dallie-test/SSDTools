@@ -1,3 +1,4 @@
+from gptools.branding import default
 from gptools.figures import GridPlot
 from gptools.grid import Grid
 
@@ -13,10 +14,10 @@ def example_1():
                     schiphol_border='../lib/2013-spl-luchtvaartterrein.shp')
 
     # Add the 58dB contour
-    plot.add_contours(58)
+    plot.add_contours(58, default['kleuren']['schemergroen'], default['kleuren']['wolkengrijs_1'])
 
     # Add the 48dB contour
-    plot.add_contours(48)
+    plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
     # Or save the figure
     plot.save('figures/plot_grid_example_1.png')
@@ -33,7 +34,7 @@ def example_2():
     plot = GridPlot(grid, background='../lib/Schiphol_RD900dpi.png', place_names=False, schiphol_border=False)
 
     # Add the 58dB contour
-    plot.add_contours(58)
+    plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
     # Or save the figure
     plot.save('figures/plot_grid_example_2.png')
