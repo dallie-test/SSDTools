@@ -5,6 +5,62 @@ from scipy.optimize import brentq
 from tests.test_grid import abs_path
 
 
+def test_grid_scale_per_time_interval():
+    # ------------------------------------------------------------------------
+    # Directories and paths
+    # ------------------------------------------------------------------------
+    forecast_directory = abs_path('data/MER2019 H_500_doc29_VVR')
+    wbs_file = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
+
+    # ------------------------------------------------------------------------
+    # Read Grid
+    # ------------------------------------------------------------------------
+
+    # Create a grid object from the data file
+    den_grids = Grid.read_enviras(forecast_directory, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lden'))
+
+    # Calculate the meteotoeslag
+    den_meteotoeslag = den_grids.meteotoeslag_grid_from_method('hybride')
+
+    # Create a grid object from the Lnight data file
+    night_grids = Grid.read_enviras(forecast_directory, r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lnight'))
+
+    # Calculate the meteotoeslag
+    night_meteotoeslag = night_grids.meteotoeslag_grid_from_method('hybride')
+
+    # ------------------------------------------------------------------------
+    # Read the WBS file
+    # ------------------------------------------------------------------------
+
+    # Create a wbs object from the data file
+    wbs = WBS.read_file(wbs_file)
+
+    # ------------------------------------------------------------------------
+    # Interpolate the noise levels for the WBS
+    # ------------------------------------------------------------------------
+
+    wbs.add_noise_from_grid(den_meteotoeslag)
+    wbs.add_noise_from_grid(night_meteotoeslag)
+
+    # ------------------------------------------------------------------------
+    # Get the optimal scaling factor that fits within the GWC
+    # ------------------------------------------------------------------------
+    norm = gwc['doc29_2018'].copy()
+
+    # Run the function a single time for testing
+    a = relative_den_norm_performance(1, norm, wbs, den_meteotoeslag)
+    b = relative_den_norm_performance(3, norm, wbs, den_meteotoeslag)
+    c = relative_den_norm_performance(3, norm, wbs, den_meteotoeslag, night_grid=night_meteotoeslag, scale_de=1,
+                                      apply_lnight_time_correction=False)
+
+    # Run the brentq function
+    scale = brentq(relative_den_norm_performance, 1.0, 3.0, rtol=0.0001,
+                   args=(norm, wbs, den_meteotoeslag, night_meteotoeslag, 1, None, False))
+
+    assert scale < 3
+    assert scale > 1
+
+
 def test_grid_relative_den_norm_performance():
     """
     Integration test based on the example provided to Robert Koster by Ed Gordijn on April 1st 2019.

@@ -409,17 +409,44 @@ class Grid(object):
 
         return self
 
-    def schaal_per_etmaalperiode(self):
+    def scale_per_time_interval(self, night_grid, scale_de=1, scale_n=1, apply_lnight_time_correction=True):
         """
-        todo: Translate schaal per etmaalperiode
-        todo: Add doc29lib.schaal_per_etmaalperiode here
+        Scale the Lden-grid separately for the day- and evening period and the night period.
 
-        schalen per periode
+        todo: Add support for multigrid.
+
+        :param Grid night_grid: the Lnight grid.
+        :param float scale_de: the scaling factor for day- and evening.
+        :param float scale_n: the scaling factor for night.
+        :param bool apply_lnight_time_correction: setting for the Lnight time correction, defaults to True.
+        :rtype: Grid
         """
-        pass
+
+        if self.unit != "Lden":
+            raise TypeError('The supplied base grid to scale should have the unit Lden.')
+        if night_grid.unit != "Lnight":
+            raise TypeError('The supplied night grid should have the unit Lnight.')
+        if isinstance(self.data, list) or isinstance(night_grid.data, list):
+            raise TypeError('This method does not support multigrids.')
+
+        # Convert Lnight to Ln
+        n_grid = night_grid.copy().scale(10)
+
+        # Apply a time correction for Lnight if requested
+        if apply_lnight_time_correction:
+            n_grid.scale(8 / 24.)
+
+        # Scale only the day- and evening
+        self.data = 10 * np.log10(
+            (10 ** (self.data / 10.) - 10 ** (n_grid.data / 10.)) * scale_de
+            + (10 ** (n_grid.data / 10.) * scale_n))
+
+        # Return itself, the scaled grid
+        return self
 
 
-def relative_den_norm_performance(scale, norm, wbs, den_grid, dat_n=None, scale_de=None, scale_n=None, c=True):
+def relative_den_norm_performance(scale, norm, wbs, den_grid, night_grid=None, scale_de=None, scale_n=None,
+                                  apply_lnight_time_correction=True):
     """
     Calculate the difference with respect to the provided norm for affected houses and annoyed people.
 
@@ -432,21 +459,25 @@ def relative_den_norm_performance(scale, norm, wbs, den_grid, dat_n=None, scale_
     :param dict norm: the norm to match
     :param WBS wbs: the woningbestand.
     :param Grid den_grid: the Lden grid.
-    :return the available room in terms of houses or annoyed people
+    :param Grid night_grid: the Lnight grid, as arguments for den_grid.scale_per_time_interval()
+    :param float scale_de: see Grid.scale_per_time_interval()
+    :param float scale_n: see Grid.scale_per_time_interval()
+    :param bool apply_lnight_time_correction: see Grid.scale_per_time_interval()
+    :return the available room in terms of houses or annoyed people.
     """
 
-    if dat_n is not None:
+    if night_grid is not None:
         if scale_de is None:
             scale_de = scale
         if scale_n is None:
             scale_n = scale
 
-        den_grid = schaal_per_etmaalperiode(den_grid, hdr_den, dat_n, scale_de=scale_de, scale_n=scale_n, c=c)
-        den_grid = den_grid['mm']
-        scale = 1
-
-    # Apply the scale
-    grid = den_grid.copy().scale(scale)
+        # Apply the scale per time interval
+        grid = den_grid.copy().scale_per_time_interval(night_grid=night_grid, scale_de=scale_de, scale_n=scale_n,
+                                                       apply_lnight_time_correction=apply_lnight_time_correction)
+    else:
+        # Apply the scale
+        grid = den_grid.copy().scale(scale)
 
     # Add the Lden data to the wbs
     wbs = wbs.copy().add_noise_from_grid(grid)
@@ -461,6 +492,7 @@ def relative_den_norm_performance(scale, norm, wbs, den_grid, dat_n=None, scale_
     delta_w = norm[0] - w
     delta_p = norm[1] - p
 
+    # Return the lowest value
     return min(delta_w, delta_p)
 
 
