@@ -5,7 +5,7 @@ from scipy.optimize import brentq
 from tests.test_grid import abs_path
 
 
-def test_grid_relatief_norm_etmaal():
+def test_grid_relative_den_norm_performance():
     """
     Integration test based on the example provided to Robert Koster by Ed Gordijn on April 1st 2019.
 
@@ -78,17 +78,25 @@ def test_grid_relatief_norm_etmaal():
 
     np.testing.assert_array_equal(dat_den_500k_dat.reshape(den_data.shape), den_data)
     np.testing.assert_array_equal(dat_den_500k_mm.reshape(den_meteotoeslag.data.shape), den_meteotoeslag.data)
-    np.testing.assert_array_equal(dat_den_500k_dhi.reshape(den_statistics['dhi'].shape), den_statistics['dhi'])
-    np.testing.assert_array_equal(dat_den_500k_dlo.reshape(den_statistics['dlo'].shape), den_statistics['dlo'])
-    np.testing.assert_array_equal(dat_den_500k_mean.reshape(den_statistics['mean'].shape), den_statistics['mean'])
-    np.testing.assert_array_equal(dat_den_500k_std.reshape(den_statistics['std'].shape), den_statistics['std'])
+    np.testing.assert_array_equal(dat_den_500k_dhi.reshape(den_statistics['dhi'].data.shape),
+                                  den_statistics['dhi'].data)
+    np.testing.assert_array_equal(dat_den_500k_dlo.reshape(den_statistics['dlo'].data.shape),
+                                  den_statistics['dlo'].data)
+    np.testing.assert_array_equal(dat_den_500k_mean.reshape(den_statistics['mean'].data.shape),
+                                  den_statistics['mean'].data)
+    np.testing.assert_array_equal(dat_den_500k_std.reshape(den_statistics['std'].data.shape),
+                                  den_statistics['std'].data)
 
     np.testing.assert_array_equal(dat_night_500k_dat.reshape(night_data.shape), night_data)
     np.testing.assert_array_equal(dat_night_500k_mm.reshape(night_meteotoeslag.data.shape), night_meteotoeslag.data)
-    np.testing.assert_array_equal(dat_night_500k_dhi.reshape(night_statistics['dhi'].shape), night_statistics['dhi'])
-    np.testing.assert_array_equal(dat_night_500k_dlo.reshape(night_statistics['dlo'].shape), night_statistics['dlo'])
-    np.testing.assert_array_equal(dat_night_500k_mean.reshape(night_statistics['mean'].shape), night_statistics['mean'])
-    np.testing.assert_array_equal(dat_night_500k_std.reshape(night_statistics['std'].shape), night_statistics['std'])
+    np.testing.assert_array_equal(dat_night_500k_dhi.reshape(night_statistics['dhi'].data.shape),
+                                  night_statistics['dhi'].data)
+    np.testing.assert_array_equal(dat_night_500k_dlo.reshape(night_statistics['dlo'].data.shape),
+                                  night_statistics['dlo'].data)
+    np.testing.assert_array_equal(dat_night_500k_mean.reshape(night_statistics['mean'].data.shape),
+                                  night_statistics['mean'].data)
+    np.testing.assert_array_equal(dat_night_500k_std.reshape(night_statistics['std'].data.shape),
+                                  night_statistics['std'].data)
 
     # ------------------------------------------------------------------------
     # Read the WBS file
