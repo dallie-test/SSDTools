@@ -99,12 +99,13 @@ class WBS(object):
 
         return self.data.loc[self.select_above(level, unit), 'woningen'].sum()
 
-    def count_annoyed_people(self, threshold=48):
+    def count_annoyed_people(self, threshold=48, **kwargs):
         """
         Count the number of annoyed people. Uses the Lden metric with a minimum value (threshold) and applies a relative
         annoyance.
 
         :param float threshold: The Lden value threshold. Only include values above the threshold.
+        :param kwargs: additional keyworded arguments for annoyance().
         :return: the number of annoyed people.
         :rtype: float
         """
@@ -113,17 +114,18 @@ class WBS(object):
         data = self.data[self.select_above(threshold, 'Lden')]
 
         # Calculate the relative annoyance for each residence
-        relative_annoyance = annoyance(data['Lden'])
+        relative_annoyance = annoyance(data['Lden'], **kwargs)
 
         # Multiply the relative annoyance by the number of people
         return (data['personen'] * relative_annoyance).sum()
 
-    def count_sleep_disturbed_people(self, threshold=40):
+    def count_sleep_disturbed_people(self, threshold=40, **kwargs):
         """
         Count the number of sleep disturbed people. Uses the Lnight metric with a minimum value (threshold) and applies
         a relative sleep disturbance.
 
         :param float threshold: The Lnight value threshold. Only include values above the threshold.
+        :param kwargs: additional keyworded arguments for sleep_disturbance().
         :return: the number of sleep disturbed people.
         :rtype: float
         """
@@ -132,7 +134,7 @@ class WBS(object):
         data = self.data[self.select_above(threshold, 'Lnight')]
 
         # Calculate the relative sleep disturbance for each residence
-        relative_sleep_disturbance = sleep_disturbance(data['Lnight'])
+        relative_sleep_disturbance = sleep_disturbance(data['Lnight'], **kwargs)
 
         # Multiply the relative sleep disturbance by the number of people
         return (data['personen'] * relative_sleep_disturbance).sum()
