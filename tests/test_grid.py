@@ -482,7 +482,6 @@ def test_interpolation_function_nominal():
     interpolation = Grid.interpolation_function(grid)
 
     assert isinstance(interpolation, RectBivariateSpline)
-    # todo: Confirm interpolation tests
 
 
 @raises(TypeError)
@@ -493,8 +492,7 @@ def test_interpolation_function_multigrid():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
     grid.data = []
-    interpolation = Grid.interpolation_function(grid)
-    assert False
+    Grid.interpolation_function(grid)
 
 
 @raises(AttributeError)
@@ -505,8 +503,7 @@ def test_interpolation_function_nan():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
     grid.data = np.nan
-    interpolation = Grid.interpolation_function(grid)
-    assert False
+    Grid.interpolation_function(grid)
 
 
 def test_refine():
@@ -549,7 +546,7 @@ def test_refine():
     assert grid35.shape.y_number == 498
 
 
-@raises(TypeError)
+@raises(AttributeError)
 def test_refine_type():
     # Get the path to the Envira file
     file_path = abs_path('data/GP2018 - Lnight y2016.dat')
@@ -559,8 +556,6 @@ def test_refine_type():
 
     grid.data = []
     grid.refine(2)
-    assert False
-    # todo: Confirm refine tests
 
 
 @raises(ValueError)
@@ -572,7 +567,6 @@ def test_refine_value():
     grid = Grid.read_envira(file_path)
     factor = np.nan
     grid.refine(factor)
-    assert False
 
 
 def test_resize():
