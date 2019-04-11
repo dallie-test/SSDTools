@@ -7,4 +7,4 @@ def test_meteo_from_knmi():
 
     assert isinstance(meteo, Meteo)
     assert isinstance(meteo.data, pd.DataFrame)
-    assert meteo.data.shape == (1, 2)
+    assert meteo.data.shape == (31 * 24, 6)
