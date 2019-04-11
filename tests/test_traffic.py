@@ -3,52 +3,52 @@ import os
 from gptools.traffic import Traffic
 
 
-def test_traffic_from_daisy_file_type_1_winter_season():
+def test_read_daisy_phase_file():
     # Get the path to the Daisy file
     file_path = abs_path('data/traffic Winterseizoen.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_daisy_file_type_1(file_path)
+    traffic = Traffic.read_daisy_phase_file(file_path)
 
     pass
 
 
-def test_traffic_from_daisy_file_type_2_summer_season():
+def test_read_daisy_phase_file_summer_season():
     # Get the path to the Daisy file
     file_path = abs_path('data/traffic Zomerseizoen.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_daisy_file_type_2(file_path)
+    traffic = Traffic.read_daisy_phase_file(file_path)
 
     pass
 
 
-def test_traffic_from_daisy_file_type_3_meteo_years_runways():
+def test_read_daisy_meteoyear_file():
     # Get the path to the Daisy file
     file_path = abs_path('data/traffic 1971-2016 - years.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_daisy_file_type_3(file_path)
+    traffic = Traffic.read_daisy_meteoyear_file(file_path)
 
     pass
 
 
-def test_traffic_from_daisy_file_type_4_runway_combinations():
+def test_read_daisy_runway_combination_file():
     # Get the path to the Daisy file
     file_path = abs_path('data/traffic 1971-2016 - pref.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_daisy_file_type_4(file_path)
+    traffic = Traffic.read_daisy_runway_combination_file(file_path)
 
     pass
 
 
-def test_traffic_from_daisy_file_type_5_mean():
+def test_read_daisy_mean_file():
     # Get the path to the Daisy file
     file_path = abs_path('data/traffic 1971-2016 - mean.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_daisy_file_type_5(file_path)
+    traffic = Traffic.read_daisy_mean_file(file_path)
 
     pass
 

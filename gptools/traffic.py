@@ -1,7 +1,6 @@
 import datetime
 
 import xlrd
-import numpy as np
 import pandas as pd
 
 
@@ -16,30 +15,57 @@ class Traffic(object):
             self.data = data
 
     @classmethod
-    def from_daisy_file_type_1(cls, path):
-        return cls(pd.read_csv(path, sep='\t', index_col=None))
+    def read_daisy_phase_file(cls, path):
+        """
+        A method to read daisy phase files.
+        E.g. summer seasons, winter seasons and maintenance periods.
+
+        :param str path: path to the file.
+        :return: daisy phase aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.phase')
 
     @classmethod
-    def from_daisy_file_type_2(cls, path):
-        return cls(pd.read_csv(path, sep='\t', index_col=None))
+    def read_daisy_meteoyear_file(cls, path):
+        """
+        A method to read daisy meteoyear files.
+
+        :param str path: path to the file.
+        :return: daisy meteoyear aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.meteoyear')
 
     @classmethod
-    def from_daisy_file_type_3(cls, path):
-        return cls(pd.read_csv(path, sep='\t', index_col=None))
+    def read_daisy_runway_combination_file(cls, path):
+        """
+        A method to read daisy runway combination files.
 
-    @classmethod
-    def from_daisy_file_type_4(cls, path):
+        :param str path: path to the file.
+        :return: daisy runway combination aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
         # Read the file as DataFrame
         data_frame = pd.read_csv(path, sep='\t', index_col=None)
 
         # todo: Split the runway combination (d_combination)
 
         # Return the traffic object
-        return cls(data_frame)
+        return TrafficAggregate(data=data_frame, aggregate_type='daisy.runway_combination')
 
     @classmethod
-    def from_daisy_file_type_5(cls, path):
-        return cls(pd.read_csv(path, sep='\t', index_col=None))
+    def read_daisy_mean_file(cls, path):
+        """
+        A method to read daisy mean files.
+
+        :param str path: path to the file.
+        :return: daisy mean aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.mean')
 
     @classmethod
     def from_casper_file(cls, path):
@@ -64,6 +90,12 @@ class Traffic(object):
 
         # Return the traffic object
         return cls(data_frame)
+
+
+class TrafficAggregate(object):
+    def __init__(self, data, aggregate_type=None):
+        self.data = data
+        self.type = aggregate_type
 
 
 def runway_usage(traffic, period):
