@@ -1,6 +1,7 @@
 import datetime
 
 import xlrd
+import numpy as np
 import pandas as pd
 
 
@@ -96,6 +97,52 @@ class TrafficAggregate(object):
     def __init__(self, data, aggregate_type=None):
         self.data = data
         self.type = aggregate_type
+
+    def get_runway_usage(self, period):
+        """
+        Get the runway usage during the provided period of the day.
+
+        :param str period: regular expression pattern to match the DEN parameter, should be 'D', 'D|E', etc.
+        :rtype: pd.DataFrame
+        """
+
+        if not self.type == 'daisy.meteoyear':
+            raise TypeError(
+                'This method is only supported for traffic aggregates of type daisy.meteoyear, but {} is given'.format(
+                    self.type))
+
+        # Match the period
+        data = self.data[self.data['d_den'].str.match(period)]
+
+        # Count the number of meteoyears in the dat
+        years = data['d_myear'].unique()
+
+        # Create a list for all statistics
+        statistics = []
+
+        # Aggregate for each type of operation, runway combination and meteoyear
+        for key, data_aggregate in data.groupby(['d_lt', 'd_runway']):
+            # Make sure that each meteoyear is present
+            x = pd.DataFrame({'d_myear': years, 'total': np.zeros(years.shape[0], dtype=int)})
+
+            # By adding all meteoyears to the data aggregate
+            y = data_aggregate.append(x)
+
+            # Calculate the totals for each meteoyear
+            z = y.groupby(['d_myear'])['total'].sum()
+
+            # Extract the statistics
+            statistics += [{
+                'lt': key[0],
+                'runway': key[1],
+                'mean': z.mean(),
+                'median': z.median(),
+                'std': z.std(),
+                'max': z.max(),
+                'min': z.min(),
+            }]
+
+        return pd.DataFrame(statistics)
 
 
 def runway_usage(traffic, period):

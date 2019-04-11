@@ -28,9 +28,24 @@ def test_read_daisy_meteoyear_file():
     file_path = abs_path('data/traffic 1971-2016 - years.txt')
 
     # Create a traffic object from the data file
-    traffic = Traffic.read_daisy_meteoyear_file(file_path)
+    aggregate = Traffic.read_daisy_meteoyear_file(file_path)
 
-    pass
+    # Get the runway usage statistics
+    runway_usage = aggregate.get_runway_usage('D|E|N')
+
+    assert runway_usage.shape == (20, 7)
+
+    assert runway_usage.columns.tolist() == [
+        'lt',
+        'max',
+        'mean',
+        'median',
+        'min',
+        'runway',
+        'std',
+    ]
+
+    # todo: Add a test with data from Matlab
 
 
 def test_read_daisy_runway_combination_file():
