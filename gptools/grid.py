@@ -3,11 +3,10 @@ import io
 import os
 import re
 import textwrap
-from warnings import warn
-
 import numpy as np
-import math
 import pandas as pd
+import shapefile
+import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
 
 # Set the gelijkwaardigheidscriteria
@@ -201,6 +200,39 @@ class Grid(object):
 
         # Write the data to the selected path
         return write_envira(path, self.info, self.data)
+
+    def to_shapefile(self, path, level):
+
+        # Extract the x and y coordinates
+        x = self.shape.get_x_coordinates()
+        y = self.shape.get_y_coordinates()
+
+        # Create a contour using matplotlib without opening a figure
+        figsize = (21 / 2.54, 21 / 2.54)
+        fig = plt.figure(figsize=figsize)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        plt.close(fig)
+        ax.contourf(x, y, self.data, levels=[level, 100], colors='blue', linewidths=.2)
+        cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
+
+        # Extract coordinates from contour and put into correct format for shapefile
+        l = cs.allsegs[0]
+
+        # Make ring into correct data type
+        flat_list = []
+
+        for ii in l:
+            ring = ii.tolist()
+
+            # Reverse ring to get rid of open holes
+            ring = list(reversed(ring))
+            flat_list.append(ring)
+
+        w = shapefile.Writer(target=path, shapeType=shapefile.POLYGON)
+        w.poly(flat_list)
+        w.field('FIRST_FLD', 'C', '40')
+        w.field('SECOND_FLD', 'C', '40')
+        w.record('First', 'Polygon')
 
     def scale(self, factor):
         """

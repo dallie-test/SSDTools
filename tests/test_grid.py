@@ -194,6 +194,17 @@ def test_to_envira():
     np.testing.assert_equal(grid_new.data, grid.data)
 
 
+def test_to_shapefile():
+    # Get the path to the Envira file
+    file_path = abs_path('data/GP2018 - Lnight y2016.dat')
+
+    # Create a grid object from the data file
+    grid = Grid.read_envira(file_path)
+
+    # Refine the grid and export as shapefile
+    grid.refine(20).to_shapefile(abs_path('data/GP2018 - Lnight y2016.shp'), 48)
+
+
 def test_meteotoeslag_years_empirisch_lden():
     # Determine the years to include for empirical Lden
     actual = meteotoeslag_years('empirisch', 'Lden')
