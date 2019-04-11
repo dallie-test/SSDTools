@@ -100,9 +100,10 @@ class TrafficAggregate(object):
 
     def get_runway_usage(self, period):
         """
-        Get the runway usage during the provided period of the day.
+        Aggregate the runway usage for the given period of the day and calculate the mean, median, minimum, maximum and
+        standard deviation.
 
-        :param str period: regular expression pattern to match the DEN parameter, should be 'D', 'D|E', etc.
+        :param str period: a regular expression for the period, e.g. 'D' or 'D|E|N'
         :rtype: pd.DataFrame
         """
 
@@ -143,17 +144,6 @@ class TrafficAggregate(object):
             }]
 
         return pd.DataFrame(statistics)
-
-
-def runway_usage(traffic, period):
-    """
-    Aggregate the runway usage and calculate the mean, median, minimum, maximum and standard deviation
-
-    :param Traffic traffic:
-    :param str period: a regular expression for the period, e.g. 'D' or 'D|E|N'
-    """
-
-    # todo: Require the following columns d_lt, d_runway, d_period, d_den, d_myear en total
 
 
 def start_summer_season(year):
