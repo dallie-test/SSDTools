@@ -1,10 +1,11 @@
-import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.misc import imread
+from matplotlib import colors
 from descartes import PolygonPatch
 from geopandas import GeoDataFrame
 from gptools.branding import default
-
-from scipy.misc import imread
 
 
 class GridPlot(object):
@@ -127,6 +128,48 @@ class GridPlot(object):
         self.select()
 
         # Refine the grid
+        shape = self.grid.shape.copy().refine(20)
+
+        # Extract the x and y coordinates
+        x = shape.get_x_coordinates()
+        y = shape.get_y_coordinates()
+
+        # If the grid is a multigrid, all noise levels should be plotted.
+        if isinstance(self.grid.data, list):
+
+            # Get the various statistics of the data
+            statistic_grids = self.grid.statistics()
+
+            # Extract the data of interest
+            mean_grid = statistic_grids['mean'].resize(shape)
+            dhi_grid = statistic_grids['dhi'].resize(shape)
+            dlo_grid = statistic_grids['dlo'].resize(shape)
+
+            # Plot the contour area
+            colormap = colors.ListedColormap([secondary_color])
+            area_mask = np.logical_or(dhi_grid.data < level, dlo_grid.data > level)
+            area_grid = np.ma.array(mean_grid.data, mask=area_mask)
+            c = self.ax.imshow(np.flipud(area_grid), cmap=colormap, extent=[x.min(), x.max(), y.min(), y.max()],
+                               alpha=0.4)
+
+            # Plot the contours of the statistics
+            cs = self.ax.contour(x, y, mean_grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
+            cs_hi = self.ax.contour(x, y, dhi_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
+            cs_lo = self.ax.contour(x, y, dlo_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
+
+        # The input is a single grid, so only a single contour should be plotted
+        else:
+            grid = self.grid.copy().resize(shape)
+            cs = self.ax.contour(x, y, grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
+
+        return cs
+
+    def add_individual_contours(self, level, primary_color=None, secondary_color=None):
+
+        # Select this plot as active figure
+        self.select()
+
+        # Refine the grid
         grid = self.grid.copy().refine(20)
 
         # Extract the x and y coordinates
@@ -145,7 +188,6 @@ class GridPlot(object):
             dlo_grid = statistic_grids['dlo'].resize(grid.shape)
 
             # Plot all individual contours
-            # todo: Replace by faster function with comparable results, such as a heatmap?
             for year_data in grid.data:
                 cs_year = self.ax.contour(x, y, year_data, levels=[level], colors=secondary_color, linewidths=[3, 3],
                                           alpha=0.1)
