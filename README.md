@@ -14,7 +14,7 @@ pip install git+ssh://github.com/Schiphol-Hub/GPtools@master#egg=GPtools
 ## Recommendations for further development
 
 1. Separate `MultiGrid` from `Grid`
-1. Create `Scenario` which contains both _Lden_ and _Lnight_ grids
+1. Create `Scenario` object which contains both _Lden_ and _Lnight_ grids
 1. Add `imshow()` as alternative to `contourf()`
 
 ### Add `imshow()` as alternative to `contourf()`
