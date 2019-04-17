@@ -55,48 +55,71 @@ class GridPlot(object):
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
 
-        # Set the background
-        if self.background is not False:
-            if isinstance(self.background, str):
-                self.background = imread(self.background)
-            ax.imshow(self.background, zorder=0, extent=self.extent)
+        return fig, ax
 
-        # Add the place names
-        if self.place_names is not False:
-            if isinstance(self.place_names, str):
-                self.place_names = pd.read_csv(self.place_names, comment='#')
+    def add_background(self, background):
+        """
+        Add the background map to the figure.
 
-            color = (0.0, 0.3, 0.3)
-            for index, row in self.place_names.iterrows():
-                ax.annotate(row['name'], xy=(row['x'], row['y']), size=4, color=color, horizontalalignment='center',
-                            verticalalignment='center')
+        :param str|np.ndarray background: path to the background file or background image as NumPy array.
+        """
+        if isinstance(background, str):
+            self.background = imread(background)
+        self.ax.imshow(self.background, zorder=0, extent=self.extent)
 
-        # Define the Schiphol terrain border
-        if self.schiphol_border is not False:
-            if isinstance(self.schiphol_border, str):
-                self.schiphol_border = GeoDataFrame.from_file(self.schiphol_border)
+    def add_place_names(self, place_names, color=(0.0, 0.3, 0.3)):
+        """
+        Add the place names to the map.
 
-            fc = 'none'
-            ec = (.0, .0, .0)
-            poly = self.schiphol_border['geometry'][0]
-            patch = PolygonPatch(poly, fc=fc, ec=ec, lw=0.2, zorder=10)
-            ax.add_patch(patch)
+        :param str|pd.DataFrame place_names: path to the place name file or a data frame containing the place names with
+        corresponding coordinates.
+        :param tuple color: the color of the text.
 
-            im = ax.imshow(self.background, clip_path=patch, clip_on=True, zorder=9, extent=self.extent)
-            im.set_clip_path(patch)
+        """
+        if isinstance(place_names, str):
+            self.place_names = pd.read_csv(place_names, comment='#')
+
+        for index, row in self.place_names.iterrows():
+            self.ax.annotate(row['name'], xy=(row['x'], row['y']), size=4, color=color, horizontalalignment='center',
+                             verticalalignment='center')
+
+    def add_terrain(self, terrain):
+        """
+
+        :param str|shapely.GeoDataFrame terrain: path to the terrain file or a Pandas DataFrame with a geometry column.
+        """
+        if isinstance(terrain, str):
+            self.schiphol_border = GeoDataFrame.from_file(terrain)
+
+        fc = 'none'
+        ec = (.0, .0, .0)
+        poly = self.schiphol_border['geometry'][0]
+        patch = PolygonPatch(poly, fc=fc, ec=ec, lw=0.2, zorder=10)
+        self.ax.add_patch(patch)
+
+        # todo: Is dit noodzakelijk?
+        # im = self.ax.imshow(self.background, clip_path=patch, clip_on=True, zorder=9, extent=self.extent)
+        # im.set_clip_path(patch)
+
+    def add_scale(self, ticks=None, color=(0.0, 0.3, 0.3)):
+        """
+
+        :param list(float) ticks: the ticks to use as scale, in km.
+        :param tuple color: the color of the scale.
+        """
 
         # Scale, with xpos and ypos as position in fig-units
         xpos = .95
         ypos = 0.04
-        ticks = [0, 2, 5, 10]
+        ticks = [0, 2, 5, 10] if ticks is None else ticks
 
         # Transform from data to fig
         l_data = ticks[-1] * 1000
-        l_disp = ax.transData.transform((l_data, 0)) - ax.transData.transform((0, 0))
-        inv_fig = fig.transFigure.inverted()
+        l_disp = self.ax.transData.transform((l_data, 0)) - self.ax.transData.transform((0, 0))
+        inv_fig = self.fig.transFigure.inverted()
         l_fig = inv_fig.transform(l_disp)[0]
 
-        ax2 = fig.add_axes([xpos - l_fig, ypos, l_fig, 0.01])
+        ax2 = self.fig.add_axes([xpos - l_fig, ypos, l_fig, 0.01])
 
         # Transparent background
         ax2.patch.set_alpha(0)
@@ -115,14 +138,20 @@ class GridPlot(object):
         ax2.set_xticklabels(labels)
 
         # Format
-        color = (0.0, 0.3, 0.3)
         ax2.spines['bottom'].set_color(color)
         ax2.spines['bottom'].set_linewidth(0.5)
         ax2.tick_params(axis='x', labelsize=6, colors=color, length=4, direction='in', width=0.5)
 
-        return fig, ax
-
     def add_contours(self, level, primary_color=None, secondary_color=None):
+        """
+        Add a contour of the grid at the specified noise level. When a multigrid is provided, the bandwidth of the contour
+        will be shown.
+
+        :param float level: the noise level of the contour to plot.
+        :param primary_color: color for the main contour.
+        :param secondary_color: color for the secondary contours (only used for multigrids).
+        :return:
+        """
 
         # Select this plot as active figure
         self.select()
@@ -165,6 +194,15 @@ class GridPlot(object):
         return cs
 
     def add_individual_contours(self, level, primary_color=None, secondary_color=None):
+        """
+        Add a contour of the grid at the specified noise level. When a multigrid is provided, all contours of the
+        individual grids will be shown.
+
+        :param float level: the noise level of the contour to plot.
+        :param primary_color: color for the main contour.
+        :param secondary_color: color for the secondary contours (only used for multigrids).
+        :return:
+        """
 
         # Select this plot as active figure
         self.select()
