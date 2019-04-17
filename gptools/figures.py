@@ -1,3 +1,4 @@
+import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +7,23 @@ from matplotlib import colors
 from descartes import PolygonPatch
 from geopandas import GeoDataFrame
 from gptools.branding import default
+
+
+def add_transparency_to_colormap(cmap, transition_width=.25, alpha=1.):
+    # Get the colormap colors
+    cmap_colors = cmap(np.arange(cmap.N))
+
+    # Get the transition range
+    transition_range = np.arange(int(cmap.N * transition_width))
+
+    # Set alpha
+    cmap_colors[:, -1] = alpha
+
+    # Set the alpha in the transition range
+    cmap_colors[transition_range, -1] *= np.linspace(0, 1, transition_range.shape[0])
+
+    # Create new colormap
+    return colors.ListedColormap(cmap_colors)
 
 
 class GridPlot(object):
@@ -240,8 +258,31 @@ class GridPlot(object):
 
         return cs
 
+    def add_heatmap(self, alpha=0.4, refine=1, **kwargs):
+        # Select this plot as active figure
+        self.select()
+
+        # Refine the grid
+        grid = self.grid.copy().refine(20)
+
+        # Extract the x and y coordinates
+        x = grid.shape.get_x_coordinates()
+        y = grid.shape.get_y_coordinates()
+
+        # Use the following colormap
+        cmap = matplotlib.cm.get_cmap('jet')
+
+        # Add the transparency to the colormap
+        cmap = add_transparency_to_colormap(cmap, transition_width=.25, alpha=alpha)
+
+        # Plot the contour area
+        cp = self.ax.contourf(*np.meshgrid(x, y), grid.data, levels=refine * cmap.N, cmap=cmap, **kwargs)
+
+        return cp
+
     def select(self):
         plt.figure(self.id)
+        plt.sca(self.ax)
 
     def compare(self, grid):
         self.other = grid
