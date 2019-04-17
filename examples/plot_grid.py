@@ -28,10 +28,10 @@ def example_1():
     # Add the 48dB contour
     plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
-    # Or save the figure
+    # Save the figure
     plot.save('figures/plot_grid_example_1.pdf')
 
-    # Show the plot
+    # And show the plot
     plot.show()
 
 
@@ -40,18 +40,42 @@ def example_2():
     grid = Grid.read_enviras('../tests/data/MER2019 H_500_doc29_VVR', r'[\w\d\s]+{}[\w\d\s]+\.dat'.format('Lden'))
 
     # Create a figure
-    plot = GridPlot(grid, background='../lib/Schiphol_RD900dpi.png', place_names=False, schiphol_border=False)
+    plot = GridPlot(grid)
 
     # Add the 58dB contour
     plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
-    # Or save the figure
+    # Save the figure
     plot.save('figures/plot_grid_example_2.pdf')
 
-    # Show the plot
+    # And show the plot
+    plot.show()
+
+
+def example_3():
+    # Collect a Grid
+    grid = Grid.read_envira('../tests/data/MER2015 - Doc29 - Lden y1974.dat')
+
+    # Create a figure
+    plot = GridPlot(grid)
+
+    # Add the background
+    plot.add_background('../lib/Schiphol_RD900dpi.png')
+
+    # Add a scale
+    plot.add_scale()
+
+    # Add the heatmap
+    plot.add_heatmap(vmin=46, vmax=70)
+
+    # Save the figure
+    plot.save('figures/plot_grid_example_3.pdf')
+
+    # And show the plot
     plot.show()
 
 
 if __name__ == "__main__":
     example_1()
     example_2()
+    example_3()
