@@ -8,10 +8,19 @@ def example_1():
     grid = Grid.read_envira('../tests/data/MER2015 - Doc29 - Lden y1974.dat')
 
     # Create a figure
-    plot = GridPlot(grid,
-                    background='../lib/Schiphol_RD900dpi.png',
-                    place_names='../lib/plaatsnamen.csv',
-                    schiphol_border='../lib/2013-spl-luchtvaartterrein.shp')
+    plot = GridPlot(grid)
+
+    # Add the background
+    plot.add_background('../lib/Schiphol_RD900dpi.png')
+
+    # Add a scale
+    plot.add_scale()
+
+    # Add the terrain
+    plot.add_terrain('../lib/2013-spl-luchtvaartterrein.shp')
+
+    # Add the place names
+    plot.add_place_names('../lib/plaatsnamen.csv')
 
     # Add the 58dB contour
     plot.add_contours(58, default['kleuren']['schemergroen'], default['kleuren']['wolkengrijs_1'])
