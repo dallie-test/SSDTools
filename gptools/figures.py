@@ -3,27 +3,79 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.misc import imread
-from matplotlib import colors
+from matplotlib import colors, colorbar
 from descartes import PolygonPatch
 from geopandas import GeoDataFrame
 from gptools.branding import default
 
 
-def add_transparency_to_colormap(cmap, transition_width=.25, alpha=1.):
+def soften_colormap_edge(colormap, transition_width=.25, alpha=1.):
+    """
+    Soften the colormap by applying a linear transition to zero at the front of the colormap.
+
+    # # # # # # # # # < 1
+    #   ----------- # < alpha
+    #  /            #
+    # /             #
+    # # # # # # # # # < 0
+    ^   ^           ^
+    0   |           1
+        |
+    transition_width
+
+    :param ColorMap colormap: the colormap to soften.
+    :param float transition_width: the width (as percentage) of the transition, should be between 0 and 1.
+    :param float alpha: the maximum alpha. Should have a value between 0 and 1.
+    :rtype: ColorMap
+    """
     # Get the colormap colors
-    cmap_colors = cmap(np.arange(cmap.N))
+    colormap_colors = colormap(np.arange(colormap.N))
 
     # Get the transition range
-    transition_range = np.arange(int(cmap.N * transition_width))
+    transition_range = np.arange(int(colormap.N * transition_width))
 
     # Set alpha
-    cmap_colors[:, -1] = alpha
+    colormap_colors[:, -1] = alpha
 
     # Set the alpha in the transition range
-    cmap_colors[transition_range, -1] *= np.linspace(0, 1, transition_range.shape[0])
+    colormap_colors[transition_range, -1] *= np.linspace(0, 1, transition_range.shape[0])
 
     # Create new colormap
-    return colors.ListedColormap(cmap_colors)
+    return colors.ListedColormap(colormap_colors)
+
+
+def soften_colormap_center(colormap, alpha=1.):
+    """
+    Soften the colormap by applying a linear transition from 1 to 0 at the first half and from 0 to 1 at the second
+    half.
+
+    # # # # # # < 1
+    # \     / # < alpha
+    #  \   /  #
+    #   \ /   #
+    # # # # # # < 0
+    ^    ^    ^
+    0   0.5   1
+
+    :param ColorMap colormap: the colormap to soften.
+    :param float alpha: the maximum alpha. Should have a value between 0 and 1.
+    :rtype: ColorMap
+    """
+    # Get the colormap colors
+    colormap_colors = colormap(np.arange(colormap.N))
+
+    # Calculate the length of half the list
+    n_2 = int(colormap.N / 2)
+
+    # Set alpha
+    colormap_colors[:, -1] = alpha
+
+    # Set the alpha in the transition range
+    colormap_colors[:n_2, -1] *= np.linspace(1, 0, n_2)
+    colormap_colors[n_2:, -1] *= np.linspace(0, 1, colormap.N - n_2)
+
+    # Create new colormap
+    return colors.ListedColormap(colormap_colors)
 
 
 class GridPlot(object):
@@ -50,6 +102,9 @@ class GridPlot(object):
 
         # Create a new figure
         self.fig, self.ax = self.create_figure()
+
+        # Create a placeholder for contour plots
+        self.contour_plot = None
 
     def create_figure(self):
         """
@@ -258,7 +313,19 @@ class GridPlot(object):
 
         return cs
 
-    def add_heatmap(self, alpha=0.4, refine=1, **kwargs):
+    def add_heatmap(self, colormap=matplotlib.cm.get_cmap('jet'), soften_colormap=True, alpha=0.4, refine=1, **kwargs):
+        """
+        Show a grid by creating a heatmap.
+
+        :param ColorMap colormap: the colormap to apply.
+        :param bool soften_colormap: soften the colormap by making the edge transparent.
+        :param float alpha: the maximum alpha. Should have a value between 0 and 1.
+        :param int refine: a multiplication factor for the number of additional layers to plot, most colormaps consist
+        of 64 colors.
+        :param kwargs: optional arguments for the underlying contourf function.
+        :return:
+        """
+
         # Select this plot as active figure
         self.select()
 
@@ -269,23 +336,69 @@ class GridPlot(object):
         x = grid.shape.get_x_coordinates()
         y = grid.shape.get_y_coordinates()
 
-        # Use the following colormap
-        cmap = matplotlib.cm.get_cmap('jet')
-
         # Add the transparency to the colormap
-        cmap = add_transparency_to_colormap(cmap, transition_width=.25, alpha=alpha)
+        if soften_colormap:
+            colormap = soften_colormap_edge(colormap, transition_width=.25, alpha=alpha)
 
         # Plot the contour area
-        cp = self.ax.contourf(*np.meshgrid(x, y), grid.data, levels=refine * cmap.N, cmap=cmap, **kwargs)
+        self.contour_plot = self.ax.contourf(*np.meshgrid(x, y), grid.data, levels=refine * colormap.N, cmap=colormap,
+                                             **kwargs)
 
-        return cp
+        return self.contour_plot
+
+    def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
+                               alpha=1.0, **kwargs):
+        """
+        Compare two grids by creating a heatmap.
+
+        :param Grid other_grid: the noise grid to compare.
+        :param ColorMap colormap: the colormap to apply.
+        :param bool soften_colormap: soften the colormap by making the center transparent.
+        :param float alpha: the maximum alpha. Should have a value between 0 and 1.
+        :param kwargs: optional arguments for the underlying contourf function.
+        :return:
+        """
+
+        # Select this plot as active figure
+        self.select()
+
+        # Align the shape of the other grid to the original grid
+        diff_grid = other_grid.copy().resize(self.grid.shape)
+
+        # Subtract the original grid from the other grid
+        diff_grid.data -= self.grid.data
+
+        # Refine the grid
+        diff_grid.refine(20)
+
+        # Extract the x and y coordinates
+        x = diff_grid.shape.get_x_coordinates()
+        y = diff_grid.shape.get_y_coordinates()
+
+        # Add the transparency to the colormap
+        if soften_colormap:
+            colormap = soften_colormap_center(colormap, alpha=alpha)
+
+        # Plot the contour area
+        self.contour_plot = self.ax.contourf(*np.meshgrid(x, y), diff_grid.data, levels=colormap.N, cmap=colormap,
+                                             **kwargs)
+
+        return self.contour_plot
+
+    def add_colorbar(self, contour_plot=None):
+
+        # Use the contour plot of this object if no contour plot is provided
+        contour_plot = self.contour_plot if contour_plot is None else contour_plot
+
+        # Create new axis for the colorbar in the top-right corner. The sequence is left, bottom, width and height.
+        cax = self.fig.add_axes([0.8, 0.6, 0.05, 0.3])
+
+        # Add the colorbar
+        return colorbar.ColorbarBase(cax, cmap=contour_plot.get_cmap(), norm=colors.Normalize(*contour_plot.get_clim()))
 
     def select(self):
         plt.figure(self.id)
         plt.sca(self.ax)
-
-    def compare(self, grid):
-        self.other = grid
 
     def save(self, *args, **kwargs):
         return self.fig.savefig(*args, **kwargs)
