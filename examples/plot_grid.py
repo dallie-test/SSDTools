@@ -29,7 +29,7 @@ def example_1():
     plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
     # Or save the figure
-    plot.save('figures/plot_grid_example_1.png')
+    plot.save('figures/plot_grid_example_1.pdf')
 
     # Show the plot
     plot.show()
@@ -46,7 +46,7 @@ def example_2():
     plot.add_contours(48, default['kleuren']['schipholblauw'], default['kleuren']['middagblauw'])
 
     # Or save the figure
-    plot.save('figures/plot_grid_example_2.png')
+    plot.save('figures/plot_grid_example_2.pdf')
 
     # Show the plot
     plot.show()
