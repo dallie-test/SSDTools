@@ -86,7 +86,7 @@ class GridPlot(object):
     def add_terrain(self, terrain):
         """
 
-        :param str|shapely.GeoDataFrame terrain: path to the terrain file or a Pandas DataFrame with a geometry column.
+        :param str|GeoDataFrame terrain: path to the terrain file or a Pandas DataFrame with a geometry column.
         """
         if isinstance(terrain, str):
             self.schiphol_border = GeoDataFrame.from_file(terrain)
@@ -98,8 +98,8 @@ class GridPlot(object):
         self.ax.add_patch(patch)
 
         # todo: Is dit noodzakelijk?
-        # im = self.ax.imshow(self.background, clip_path=patch, clip_on=True, zorder=9, extent=self.extent)
-        # im.set_clip_path(patch)
+        im = self.ax.imshow(self.background, clip_path=patch, clip_on=True, zorder=9, extent=self.extent)
+        im.set_clip_path(patch)
 
     def add_scale(self, ticks=None, color=(0.0, 0.3, 0.3)):
         """
@@ -178,8 +178,7 @@ class GridPlot(object):
             colormap = colors.ListedColormap([secondary_color])
             area_mask = np.logical_or(dhi_grid.data < level, dlo_grid.data > level)
             area_grid = np.ma.array(mean_grid.data, mask=area_mask)
-            c = self.ax.imshow(np.flipud(area_grid), cmap=colormap, extent=[x.min(), x.max(), y.min(), y.max()],
-                               alpha=0.4)
+            cp = plt.contourf(*np.meshgrid(x, y), area_grid, cmap=colormap, alpha=0.4)
 
             # Plot the contours of the statistics
             cs = self.ax.contour(x, y, mean_grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
