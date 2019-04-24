@@ -95,10 +95,23 @@ def test_traffic_from_casper_file():
     # Add day (D), evening (E), night (N)
     traffic.add_den()
 
+    # Add landing (L) or takeoff (T)
+    traffic.add_landing_takeoff()
+
+    # Add procedure
+    traffic.add_procedure()
+
     # Get the DEN distribution rounded by 25
     distribution = (25 * (traffic.get_den_distribution() / 25).round()).astype(int)
 
-    pass
+    # Get the procedure distribution
+    arrivals, departures = traffic.get_procedure_distribution()
+
+    # Normalized percentage arrivals per altitude procedure
+    arrivals_normalized = (100 * arrivals / arrivals.sum()).round(1)
+
+    # Normalized percentage departures per procedure
+    departures_normalized = (100 * departures / departures.sum()).round(1)
 
 
 def test_traffic_from_nlr_file():
@@ -111,10 +124,23 @@ def test_traffic_from_nlr_file():
     # Add day (D), evening (E), night (N)
     traffic.add_den()
 
+    # Add landing (L) or takeoff (T)
+    traffic.add_landing_takeoff()
+
+    # Add procedure
+    traffic.add_procedure()
+
     # Get the DEN distribution rounded by 5
     distribution = (5 * (traffic.get_den_distribution() / 5).round()).astype(int)
 
-    pass
+    # Get the procedure distribution
+    arrivals, departures = traffic.get_procedure_distribution()
+
+    # Normalized percentage arrivals per altitude procedure
+    arrivals_normalized = (100 * arrivals / arrivals.sum()).round(1)
+
+    # Normalized percentage departures per procedure
+    departures_normalized = (100 * departures / departures.sum()).round(1)
 
 
 def test_traffic_add_season():
@@ -145,7 +171,7 @@ def test_traffic_get_denem_distribution():
     traffic.add_season()
 
     # Add the departure/arrival to the data
-    traffic.add_takeoff_landing()
+    traffic.add_landing_takeoff()
 
     # Add the day (D), evening (E), night (N), and early morning (EM) to the data
     traffic.add_denem()
