@@ -405,3 +405,41 @@ class GridPlot(object):
 
     def show(self):
         return self.fig.show()
+
+
+def plot_season_traffic(distribution):
+    # Get the seasons
+    seasons = distribution.index.get_level_values(0).unique()
+
+    # Create a subplot for each season
+    fig, ax = plt.subplots(len(seasons))
+    plt.subplots_adjust(hspace=0.0)
+
+    # Add the data to each subplot
+    for i, season in enumerate(seasons):
+        # Select the data
+        season_data = distribution.loc[season]
+
+        # Create a cumsum
+        season_data_cumsum = np.zeros(season_data.shape, dtype=int)
+        season_data_cumsum[:, 1::] = np.cumsum(season_data.values[:, :-1], axis=1)
+
+        # Add the column
+        for j, column in enumerate(season_data.columns):
+            ax[i].barh(season_data.index, season_data.values[:, j], left=season_data_cumsum[:, j], label=column)
+
+        ax[i].set_ylabel(season)
+        ax[i].spines['top'].set_visible(False)
+        ax[i].spines['bottom'].set_visible(False)
+        ax[i].spines['right'].set_visible(False)
+
+        # Add vertical grid lines
+        ax[i].grid(axis='x')
+
+        ax[i].set_xlim([0, distribution.sum(axis=1).max()])
+
+    # Remove the top ticks
+    for i in range(len(seasons) - 1):
+        ax[i].axes.xaxis.set_ticklabels([])
+
+    return fig, ax
