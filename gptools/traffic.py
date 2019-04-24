@@ -6,14 +6,15 @@ import pandas as pd
 
 
 class Traffic(object):
-    def __init__(self, data=None):
+    def __init__(self, data=None, date_column=None, class_column=None):
         """
 
         :param pd.DataFrame data: traffic data
         """
 
-        if data is not None:
-            self.data = data
+        self.data = data
+        self.date_column = date_column
+        self.class_column = class_column
 
     @classmethod
     def read_daisy_phase_file(cls, path):
@@ -70,7 +71,14 @@ class Traffic(object):
 
     @classmethod
     def from_casper_file(cls, path):
-        return cls(pd.read_csv(path, sep=',', index_col=None))
+
+        # Parse the file
+        data = pd.read_csv(path, sep=',', index_col=None)
+
+        # Convert the dates
+        data['C_actual'] = pd.to_datetime(data['C_actual'], format='%Y-%m-%d %H:%M:%S')
+
+        return cls(data, date_column='C_actual', class_column='C_Klasse')
 
     @classmethod
     def from_nlr_file(cls, path):
@@ -90,7 +98,81 @@ class Traffic(object):
         data_frame = pd.DataFrame(data)
 
         # Return the traffic object
-        return cls(data_frame)
+        return cls(data_frame, traffic_type='nlr')
+
+    def add_season(self, date_column=None):
+        # Select the date column to use
+        date_column = date_column if date_column is not None else self.date_column
+
+        # Get the years
+        years = self.data[date_column].dt.year.unique()
+
+        # Put the season by default on winter
+        self.data['season'] = 'winter'
+
+        # Check for each year if the season should be summer
+        for year in years:
+            # Get the start dates for the two seasons and check which dates match the summer season
+            after_start_summer = self.data[date_column] >= start_summer_season(year)
+            before_start_winter = self.data[date_column] < start_winter_season(year)
+
+            # Update the season for the matches
+            self.data.at[np.logical_and(after_start_summer, before_start_winter), 'season'] = 'summer'
+
+    def add_takeoff_landing(self, class_column=None):
+        # Select the class column to use
+        class_column = class_column if class_column is not None else self.class_column
+
+        # Add a departure/arrival column
+        self.data['TL'] = None
+
+        # Make sure the the class column is a string
+        self.data.at[self.data[class_column] >= 0, 'TL'] = 'T'
+        self.data.at[self.data[class_column] >= 1000, 'TL'] = 'L'
+
+    def add_denem(self, date_column=None):
+
+        # Select the date column to use
+        date_column = date_column if date_column is not None else self.date_column
+
+        # Add a phase column
+        self.data['DENEM'] = None
+
+        # Check for early morning (EM)
+        em = self.data[date_column].dt.hour == 6
+        self.data.at[em, 'DENEM'] = 'EM'
+
+        # Check for day (D)
+        d = np.logical_and(self.data[date_column].dt.hour >= 7, self.data[date_column].dt.hour < 19)
+        self.data.at[d, 'DENEM'] = 'D'
+
+        # Check for evening (E)
+        e = np.logical_and(self.data[date_column].dt.hour >= 19, self.data[date_column].dt.hour < 23)
+        self.data.at[e, 'DENEM'] = 'E'
+
+        # Check for night (N)
+        n = np.logical_or(self.data[date_column].dt.hour >= 23, self.data[date_column].dt.hour < 6)
+        self.data.at[n, 'DENEM'] = 'N'
+
+    def get_denem_distribution(self):
+        # Get the distribution
+        distribution = self.data.groupby(['TL', 'DENEM'])['C_id'].count().reset_index(drop=False)
+
+        # Reshape the distribution
+        distribution = distribution.set_index(['DENEM']).pivot(columns='TL').xs('C_id', axis=1, level=0)
+
+        return distribution
+
+    def get_season_distribution(self):
+
+        # Get the distribution
+        distribution = self.data.groupby(['season', 'TL', 'DENEM'])['C_id'].count().reset_index(drop=False)
+
+        # Reshape the distribution
+        distribution = distribution.set_index(['season', 'TL']).pivot(columns='DENEM').xs('C_id', axis=1, level=0)
+
+        # Return the sorted distribution
+        return distribution[['D', 'E', 'N', 'EM']]
 
 
 class TrafficAggregate(object):
@@ -152,14 +234,14 @@ def start_summer_season(year):
 
     :param int year: the calendar year of the season
     :return the start date of the summer season
-    :rtype datetime.date
+    :rtype pd.Timestamp
     """
 
     # Get the last day of March
-    last_day = datetime.date(year, 3, 31)
+    last_day = pd.Timestamp(year=year, month=3, day=31)
 
     # Return the last Sunday of March
-    return last_day - datetime.timedelta(days=(last_day.weekday() + 1) % 7)
+    return last_day - pd.Timedelta((last_day.weekday() + 1) % 7, unit='day')
 
 
 def start_winter_season(year):
@@ -172,10 +254,10 @@ def start_winter_season(year):
     """
 
     # Get the last day of October
-    last_day = datetime.date(year, 10, 31)
+    last_day = pd.Timestamp(year=year, month=10, day=31)
 
     # Return the last Sunday of March
-    return last_day - datetime.timedelta(days=(last_day.weekday() + 1) % 7)
+    return last_day - pd.Timedelta((last_day.weekday() + 1) % 7, unit='day')
 
 
 def get_year_of_use(year):
