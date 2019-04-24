@@ -6,8 +6,9 @@ import pandas as pd
 
 
 class Traffic(object):
-    def __init__(self, data=None, date_column=None, class_column=None, id_column=None,
-                 den_column='DEN', denem_column='DENEM'):
+    def __init__(self, data=None, date_column=None, class_column=None, id_column=None, den_column='DEN',
+                 denem_column='DENEM', procedure_column='procedure', altitude_column='altitude',
+                 weight_column='weight'):
         """
 
         :param pd.DataFrame data: traffic data
@@ -19,6 +20,9 @@ class Traffic(object):
         self.id_column = id_column
         self.den_column = den_column
         self.denem_column = denem_column
+        self.procedure_column = procedure_column
+        self.altitude_column = altitude_column
+        self.weight_column = weight_column
 
     @classmethod
     def read_daisy_phase_file(cls, path):
@@ -127,16 +131,73 @@ class Traffic(object):
             # Update the season for the matches
             self.data.at[np.logical_and(after_start_summer, before_start_winter), 'season'] = 'summer'
 
-    def add_takeoff_landing(self, class_column=None):
+    def add_landing_takeoff(self, class_column=None):
         # Select the class column to use
         class_column = class_column if class_column is not None else self.class_column
 
         # Add a departure/arrival column
-        self.data['TL'] = None
+        self.data['LT'] = None
 
         # Make sure the the class column is a string
-        self.data.at[self.data[class_column] >= 0, 'TL'] = 'T'
-        self.data.at[self.data[class_column] >= 1000, 'TL'] = 'L'
+        self.data.at[(self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000), 'LT'] = 'T'
+        self.data.at[(self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000), 'LT'] = 'L'
+
+    def add_procedure(self):
+
+        # Add a procedure, altitude and weight column
+        self.data[self.procedure_column] = None
+        self.data[self.altitude_column] = None
+        self.data[self.altitude_column] = None
+
+        # Set procedure to other (takeoff)
+        other = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 100)
+        self.data.at[other, self.procedure_column] = 'other'
+
+        # Set procedure to NADP1 (takeoff)
+        nadp1 = (self.data[self.class_column] >= 500) & (self.data[self.class_column] < 600)
+        self.data.at[nadp1, self.procedure_column] = 'NADP1'
+
+        # Set procedure to NADP2 (takeoff)
+        nadp2 = (self.data[self.class_column] >= 600) & (self.data[self.class_column] < 900)
+        self.data.at[nadp2, self.procedure_column] = 'NADP2'
+
+        # Set procedure to normal (landing)
+        normal = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 1100)
+        self.data.at[normal, self.procedure_column] = 'normal'
+
+        # Set procedure to reduced flaps (landing)
+        reduced_flaps = (self.data[self.class_column] >= 1200) & (self.data[self.class_column] < 1300)
+        self.data.at[reduced_flaps, self.procedure_column] = 'reduced_flaps'
+
+        # Set weight to heavy (takeoff)
+        heavy = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                (self.data[self.class_column].mod(10) == 0)
+        self.data.at[heavy, self.weight_column] = 'heavy'
+
+        # Set weight to medium (takeoff)
+        medium = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                 (self.data[self.class_column].mod(10) >= 1) & (self.data[self.class_column].mod(10) <= 2)
+        self.data.at[medium, self.weight_column] = 'medium'
+
+        # Set weight to light (takeoff)
+        light = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                (self.data[self.class_column].mod(10) == 3)
+        self.data.at[light, self.weight_column] = 'light'
+
+        # Set altitude to 2000ft (landing)
+        ft2000 = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+                 (self.data[self.class_column].mod(10) == 0)
+        self.data.at[ft2000, self.altitude_column] = '2000ft'
+
+        # Set altitude to 3000ft (landing)
+        ft3000 = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+                 (self.data[self.class_column].mod(10) == 1)
+        self.data.at[ft3000, self.altitude_column] = '3000ft'
+
+        # Set altitude to CDA (landing)
+        cda = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+              (self.data[self.class_column].mod(10) == 9)
+        self.data.at[cda, self.altitude_column] = 'CDA'
 
     def add_denem(self, date_column=None):
 
@@ -199,16 +260,20 @@ class Traffic(object):
 
         return distribution
 
-    def get_denem_distribution(self, id_column=None):
+    def get_denem_distribution(self, separate_by=None, id_column=None):
 
         # Select the date column to use
         id_column = id_column if id_column is not None else self.id_column
 
+        if separate_by is None:
+            return self.data.groupby([self.den_column])[id_column].count()
+
         # Get the distribution
-        distribution = self.data.groupby(['TL', self.denem_column])[id_column].count().reset_index(drop=False)
+        distribution = self.data.groupby([separate_by, self.denem_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index([self.denem_column]).pivot(columns='TL').xs(id_column, axis=1, level=0)
+        distribution = distribution.set_index([self.denem_column]).pivot(columns=separate_by).xs(id_column, axis=1,
+                                                                                                 level=0)
 
         return distribution
 
@@ -218,14 +283,24 @@ class Traffic(object):
         id_column = id_column if id_column is not None else self.id_column
 
         # Get the distribution
-        distribution = self.data.groupby(['season', 'TL', self.denem_column])[id_column].count().reset_index(drop=False)
+        distribution = self.data.groupby(['season', 'LT', self.denem_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index(['season', 'TL']).pivot(columns=self.denem_column).xs(id_column, axis=1,
+        distribution = distribution.set_index(['season', 'LT']).pivot(columns=self.denem_column).xs(id_column, axis=1,
                                                                                                     level=0)
 
         # Return the sorted distribution
         return distribution[['D', 'E', 'N', 'EM']]
+
+    def get_procedure_distribution(self):
+
+        # Get the arrivals
+        arrivals = self.data[self.data['LT'] == 'L'].groupby(self.altitude_column)[self.id_column].count()
+
+        # Get the departures
+        departures = self.data[self.data['LT'] == 'T'].groupby(self.procedure_column)[self.id_column].count()
+
+        return arrivals, departures
 
 
 class TrafficAggregate(object):
