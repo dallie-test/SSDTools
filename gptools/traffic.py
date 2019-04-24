@@ -6,7 +6,8 @@ import pandas as pd
 
 
 class Traffic(object):
-    def __init__(self, data=None, date_column=None, class_column=None):
+    def __init__(self, data=None, date_column=None, class_column=None, id_column=None,
+                 den_column='DEN', denem_column='DENEM'):
         """
 
         :param pd.DataFrame data: traffic data
@@ -15,6 +16,9 @@ class Traffic(object):
         self.data = data
         self.date_column = date_column
         self.class_column = class_column
+        self.id_column = id_column
+        self.den_column = den_column
+        self.denem_column = denem_column
 
     @classmethod
     def read_daisy_phase_file(cls, path):
@@ -78,7 +82,7 @@ class Traffic(object):
         # Convert the dates
         data['C_actual'] = pd.to_datetime(data['C_actual'], format='%Y-%m-%d %H:%M:%S')
 
-        return cls(data, date_column='C_actual', class_column='C_Klasse')
+        return cls(data, date_column='C_actual', class_column='C_Klasse', id_column='C_id')
 
     @classmethod
     def from_nlr_file(cls, path):
@@ -97,8 +101,12 @@ class Traffic(object):
         # Put the data in a DataFrame
         data_frame = pd.DataFrame(data)
 
+        # Create a datetime column
+        data_frame['timestamp'] = pd.to_datetime(data_frame['Datum'] + data_frame['Tijd (LT)'], unit='D',
+                                                 origin=pd.Timestamp(1900, 1, 1))
+
         # Return the traffic object
-        return cls(data_frame, traffic_type='nlr')
+        return cls(data_frame, date_column='timestamp', class_column='Klasse', id_column='FlightId')
 
     def add_season(self, date_column=None):
         # Select the date column to use
@@ -136,40 +144,85 @@ class Traffic(object):
         date_column = date_column if date_column is not None else self.date_column
 
         # Add a phase column
-        self.data['DENEM'] = None
+        self.data[self.denem_column] = None
 
         # Check for early morning (EM)
         em = self.data[date_column].dt.hour == 6
-        self.data.at[em, 'DENEM'] = 'EM'
+        self.data.at[em, self.denem_column] = 'EM'
 
         # Check for day (D)
         d = np.logical_and(self.data[date_column].dt.hour >= 7, self.data[date_column].dt.hour < 19)
-        self.data.at[d, 'DENEM'] = 'D'
+        self.data.at[d, self.denem_column] = 'D'
 
         # Check for evening (E)
         e = np.logical_and(self.data[date_column].dt.hour >= 19, self.data[date_column].dt.hour < 23)
-        self.data.at[e, 'DENEM'] = 'E'
+        self.data.at[e, self.denem_column] = 'E'
 
         # Check for night (N)
         n = np.logical_or(self.data[date_column].dt.hour >= 23, self.data[date_column].dt.hour < 6)
-        self.data.at[n, 'DENEM'] = 'N'
+        self.data.at[n, self.denem_column] = 'N'
 
-    def get_denem_distribution(self):
+    def add_den(self, date_column=None):
+
+        # Select the date column to use
+        date_column = date_column if date_column is not None else self.date_column
+
+        # Add a phase column
+        self.data[self.den_column] = None
+
+        # Check for day (D)
+        d = np.logical_and(self.data[date_column].dt.hour >= 7, self.data[date_column].dt.hour < 19)
+        self.data.at[d, self.den_column] = 'D'
+
+        # Check for evening (E)
+        e = np.logical_and(self.data[date_column].dt.hour >= 19, self.data[date_column].dt.hour < 23)
+        self.data.at[e, self.den_column] = 'E'
+
+        # Check for night (N)
+        n = np.logical_or(self.data[date_column].dt.hour >= 23, self.data[date_column].dt.hour < 7)
+        self.data.at[n, self.den_column] = 'N'
+
+    def get_den_distribution(self, separate_by=None, id_column=None):
+
+        # Select the date column to use
+        id_column = id_column if id_column is not None else self.id_column
+
+        if separate_by is None:
+            return self.data.groupby([self.den_column])[id_column].count()
+
         # Get the distribution
-        distribution = self.data.groupby(['TL', 'DENEM'])['C_id'].count().reset_index(drop=False)
+        distribution = self.data.groupby([separate_by, self.den_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index(['DENEM']).pivot(columns='TL').xs('C_id', axis=1, level=0)
+        distribution = distribution.set_index([self.den_column]).pivot(columns=separate_by).xs(id_column, axis=1,
+                                                                                               level=0)
 
         return distribution
 
-    def get_season_distribution(self):
+    def get_denem_distribution(self, id_column=None):
+
+        # Select the date column to use
+        id_column = id_column if id_column is not None else self.id_column
 
         # Get the distribution
-        distribution = self.data.groupby(['season', 'TL', 'DENEM'])['C_id'].count().reset_index(drop=False)
+        distribution = self.data.groupby(['TL', self.denem_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index(['season', 'TL']).pivot(columns='DENEM').xs('C_id', axis=1, level=0)
+        distribution = distribution.set_index([self.denem_column]).pivot(columns='TL').xs(id_column, axis=1, level=0)
+
+        return distribution
+
+    def get_season_distribution(self, id_column=None):
+
+        # Select the date column to use
+        id_column = id_column if id_column is not None else self.id_column
+
+        # Get the distribution
+        distribution = self.data.groupby(['season', 'TL', self.denem_column])[id_column].count().reset_index(drop=False)
+
+        # Reshape the distribution
+        distribution = distribution.set_index(['season', 'TL']).pivot(columns=self.denem_column).xs(id_column, axis=1,
+                                                                                                    level=0)
 
         # Return the sorted distribution
         return distribution[['D', 'E', 'N', 'EM']]
@@ -226,6 +279,19 @@ class TrafficAggregate(object):
             }]
 
         return pd.DataFrame(statistics)
+
+    def get_den_distribution(self, separate_by=None):
+
+        if separate_by is None:
+            return self.data.groupby(['d_den'])['total'].sum()
+
+        # Get the distribution
+        distribution = self.data.groupby([separate_by, 'd_den'])['total'].sum().reset_index(drop=False)
+
+        # Reshape the distribution
+        distribution = distribution.set_index(['d_den']).pivot(columns=separate_by).xs('total', axis=1, level=0)
+
+        return distribution
 
 
 def start_summer_season(year):
