@@ -15,7 +15,7 @@ if __name__ == "__main__":
     traffic.add_season()
 
     # Add the departure/arrival to the data
-    traffic.add_takeoff_landing()
+    traffic.add_landing_takeoff()
 
     # Add the part of the day to the data
     traffic.add_denem()
