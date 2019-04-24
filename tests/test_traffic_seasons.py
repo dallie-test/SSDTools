@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import datetime
 from nose.tools import raises
 
@@ -16,11 +17,11 @@ def test_start_summer_nominal():
 
 
 def test_start_summer_nominal_2019():
-    assert start_summer_season(2019) == datetime.date(2019, 3, 31)
+    assert start_summer_season(2019) == pd.Timestamp(2019, 3, 31)
 
 
 def test_start_summer_nominal_2018():
-    assert start_summer_season(2018) == datetime.date(2018, 3, 25)
+    assert start_summer_season(2018) == pd.Timestamp(2018, 3, 25)
 
 
 @raises(TypeError)
@@ -38,11 +39,11 @@ def test_start_winter_nominal():
 
 
 def test_start_winter_nominal_2019():
-    assert start_winter_season(2019) == datetime.date(2019, 10, 27)
+    assert start_winter_season(2019) == pd.Timestamp(2019, 10, 27)
 
 
 def test_start_winter_nominal_2018():
-    assert start_winter_season(2018) == datetime.date(2018, 10, 28)
+    assert start_winter_season(2018) == pd.Timestamp(2018, 10, 28)
 
 
 @raises(TypeError)
