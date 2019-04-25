@@ -212,7 +212,7 @@ class Grid(object):
         fig = plt.figure(figsize=figsize)
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         plt.close(fig)
-        ax.contourf(x, y, self.data, levels=[level, 100], colors='blue', linewidths=.2)
+        ax.contourf(x, y, self.data, levels=[level, 100], colors='blue')
         cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
 
         # Extract coordinates from contour and put into correct format for shapefile
