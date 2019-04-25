@@ -2,6 +2,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 from scipy.misc import imread
 from matplotlib import colors, colorbar
 from descartes import PolygonPatch
@@ -441,5 +442,59 @@ def plot_season_traffic(distribution):
     # Remove the top ticks
     for i in range(len(seasons) - 1):
         ax[i].axes.xaxis.set_ticklabels([])
+
+    return fig, ax
+
+
+def plot_aircraft_types(traffic_aggregate, bar_color=None):
+    # Extract the weight class
+    weight_class = pd.concat([traffic_aggregate.data['total'],
+                              traffic_aggregate.data['d_ac_cat'].str.get(0).astype(int)], axis=1)
+    weight_class.columns = ('total', 'weight_class')
+
+    # Set the MTOW definitions
+    mtow_def = pd.Series({
+        0: '< 6',
+        1: '6 - 40',
+        2: '6 - 40',
+        3: '40 - 60',
+        4: '60 - 160',
+        5: '60 - 160',
+        6: '160 - 230',
+        7: '230 - 300',
+        8: '> 300',
+        9: '> 300'
+    }).reset_index(drop=False, name='MTOW').rename(columns={'index': 'weight_class'})
+
+    # Add the MTOW definitions to the weight classes
+    weight_class = pd.merge(weight_class, mtow_def, on='weight_class', how='left')
+
+    # Calculate the fleet distribution by MTOW
+    fleet = weight_class.groupby(['MTOW'])['total'].sum()
+    fleet = fleet.reindex(mtow_def['MTOW'].unique())
+    fleet = fleet / fleet.sum() * 100
+    fleet = fleet.fillna(0)
+
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # Add horizontal grid lines
+    ax.grid(axis='y')
+
+    # Create the bar plot
+    ax.bar(range(fleet.shape[0]), fleet, align='center', color=bar_color, width=0.5)
+
+    # Set the x-ticks
+    plt.xticks(range(fleet.shape[0]), fleet.index.tolist())
+
+    # Format the y-ticks
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%d %%'))
+
+    # Set the x-label
+    plt.xlabel('Maximum startgewicht in tonnen')
+
+    # Get rid of box around graph
+    for spine in plt.gca().spines.values():
+        spine.set_visible(False)
 
     return fig, ax
