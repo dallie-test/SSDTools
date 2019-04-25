@@ -1,5 +1,6 @@
 import os
-
+import numpy as np
+import pandas as pd
 from gptools.traffic import Traffic
 
 
@@ -181,6 +182,47 @@ def test_traffic_get_denem_distribution():
 
     # Check if it has the requested shape
     assert distribution.shape == (4, 2)
+
+
+def test_read_daisy_runway_combination_file_get_preference():
+    # Get the path to the Daisy file
+    file_path = abs_path('data/traffic 1971-2016 - pref.txt')
+
+    # Create a traffic object from the data file
+    aggregate = Traffic.read_daisy_runway_combination_file(file_path)
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Get the night (N) runway preference
+    night_preference = aggregate.get_n_runway_preference_usage(runway_combinations)
+
+    # Get the day (D), evening (E) and early morning (EM) runway preference
+    deem_preference = aggregate.get_deem_runway_preference_usage(runway_combinations)
+
+    # Test if the (relative) usage of the night preference is consistent
+    assert night_preference.index.tolist() == ['1', '2', '3', '4', 'subtotal', 'other', 'total']
+    np.testing.assert_almost_equal(night_preference.loc[['1', '2', '3', '4'], 'usage'].sum(),
+                                   night_preference.loc['subtotal', 'usage'], 2)
+    np.testing.assert_almost_equal(night_preference.loc[['subtotal', 'other'], 'usage'].sum(),
+                                   night_preference.loc['total', 'usage'], 2)
+    np.testing.assert_almost_equal(night_preference.loc[['1', '2', '3', '4'], 'relative usage'].sum(),
+                                   night_preference.loc['subtotal', 'relative usage'], 2)
+    np.testing.assert_almost_equal(night_preference.loc[['subtotal', 'other'], 'relative usage'].sum(),
+                                   night_preference.loc['total', 'relative usage'], 2)
+    np.testing.assert_almost_equal(night_preference.loc['total', 'relative usage'], 100, 2)
+
+    # Test if the (relative) usage of the day, evening and early morning preference is consistent
+    assert deem_preference.index.tolist() == ['1', '2', '3', '4', '5', '6', 'subtotal', 'other', 'total']
+    np.testing.assert_almost_equal(deem_preference.loc[['1', '2', '3', '4', '5', '6'], 'usage'].sum(),
+                                   deem_preference.loc['subtotal', 'usage'], 2)
+    np.testing.assert_almost_equal(deem_preference.loc[['subtotal', 'other'], 'usage'].sum(),
+                                   deem_preference.loc['total', 'usage'], 2)
+    np.testing.assert_almost_equal(deem_preference.loc[['1', '2', '3', '4', '5', '6'], 'relative usage'].sum(),
+                                   deem_preference.loc['subtotal', 'relative usage'], 2)
+    np.testing.assert_almost_equal(deem_preference.loc[['subtotal', 'other'], 'relative usage'].sum(),
+                                   deem_preference.loc['total', 'relative usage'], 2)
+    np.testing.assert_almost_equal(deem_preference.loc['total', 'relative usage'], 100, 2)
 
 
 def abs_path(rel_path):

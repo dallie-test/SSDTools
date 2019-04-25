@@ -368,6 +368,61 @@ class TrafficAggregate(object):
 
         return distribution
 
+    def get_n_runway_preference_usage(self, rc_preferences):
+
+        # Get the runway combination usage in the specified period
+        rc_usage = self.data[(self.data['d_den'] == 'N') & (self.data['d_schedule'] != 6)]
+
+        # get the runway combination preference for the specified period
+        rc_preference = rc_preferences[rc_preferences['period'] == 'N']
+
+        return self.get_runway_preference_usage(rc_usage, rc_preference)
+
+    def get_deem_runway_preference_usage(self, rc_preferences):
+
+        # Get the runway combination usage in the specified period
+        rc_usage = self.data[(self.data['d_den'] != 'N') | (self.data['d_schedule'] == 6)]
+
+        # get the runway combination preference for the specified period
+        rc_preference = rc_preferences[rc_preferences['period'] != 'N']
+
+        return self.get_runway_preference_usage(rc_usage, rc_preference)
+
+    @staticmethod
+    def get_runway_preference_usage(rc_usage, rc_preference):
+
+        # Add the preferences to the runway combinations
+        rc_usage = pd.merge(rc_usage, rc_preference, left_on='d_combination', right_on='combination', how='left')
+
+        # Fill the unknowns with -
+        rc_usage = rc_usage.fillna('-')
+
+        # Calculate the usage per preference
+        rc_preference_usage = rc_usage.groupby(['preference'])['total'].sum()
+
+        # Replace '-' with 'other'
+        rc_preference_usage.index = rc_preference_usage.index.str.replace('-', 'other')
+
+        # Add total
+        rc_preference_usage = rc_preference_usage.append(pd.Series(rc_preference_usage.sum(), index=['total']))
+
+        # Add subtotal (preferences only)
+        is_preferred = rc_preference_usage.index.str.isnumeric()
+        rc_preference_usage = rc_preference_usage.append(
+            pd.Series(rc_preference_usage[is_preferred].sum(), index=['subtotal']))
+
+        # Change the order of the index
+        is_preferred = rc_preference_usage.index.str.isnumeric()
+        new_index_order = rc_preference_usage.index[is_preferred].tolist() + ['subtotal', 'other', 'total']
+        rc_preference_usage = rc_preference_usage.reindex(index=new_index_order)
+
+        # Calculate the relative preference usage
+        rc_preference_usage_relative = (rc_preference_usage / rc_preference_usage['total'] * 100)
+
+        # Get the preference
+        return pd.concat([rc_preference_usage.rename('usage'), rc_preference_usage_relative.rename('relative usage')],
+                         axis=1)
+
 
 def start_summer_season(year):
     """
