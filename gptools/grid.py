@@ -216,18 +216,12 @@ class Grid(object):
         cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
 
         # Extract coordinates from contour and put into correct format for shapefile
-        l = cs.allsegs[0]
+        contours = cs.allsegs[0]
 
-        # Make ring into correct data type
-        flat_list = []
+        # Create polygons with correct data type (and reverse the coordinates to get rid of open holes)
+        flat_list = [contour_coordinates[::-1, :].tolist() for contour_coordinates in contours]
 
-        for ii in l:
-            ring = ii.tolist()
-
-            # Reverse ring to get rid of open holes
-            ring = list(reversed(ring))
-            flat_list.append(ring)
-
+        # Create the shapefile
         w = shapefile.Writer(target=path, shapeType=shapefile.POLYGON)
         w.poly(flat_list)
         w.field('FIRST_FLD', 'C', '40')
