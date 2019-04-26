@@ -669,3 +669,49 @@ class TrafficDistributionPlot(object):
 
     def show(self):
         return self.fig.show()
+
+
+def plot_prediction(history, prediction, column_name='data', prediction_name='prediction', history_name='history',
+                    history_color='#141251'):
+
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # Plot the history
+    plt.plot(history['years'], history[column_name], marker='o', markeredgewidth=2, fillstyle='none',
+             label=history_name, color=history_color)
+
+    # Describe the prediction for each year
+    statistics = prediction.groupby('years')[column_name].describe()
+
+    # Plot the prediction
+    plt.errorbar(history['years'].tail(1).tolist() + statistics.index.tolist(),
+                 history[column_name].tail(1).tolist() + statistics['mean'].tolist(),
+                 yerr=[[0] + (statistics['mean'] - statistics['min']).tolist(),
+                       [0] + (statistics['max'] - statistics['mean']).tolist()],
+                 marker='_',
+                 capsize=4,
+                 ecolor='#9491AA',
+                 markeredgewidth=4,
+                 markeredgecolor='#9491AA',
+                 fillstyle='none',
+                 color='#1B60DB',
+                 label=prediction_name)
+
+    # Color the background of the prediction
+    plt.fill_between(history['years'].tail(1).tolist() + statistics.index.tolist(),
+                     history[column_name].tail(1).tolist() + statistics['min'].tolist(),
+                     history[column_name].tail(1).tolist() + statistics['max'].tolist(),
+                     color='#027E9B',
+                     alpha=0.3)
+
+    # Set the xticks
+    ax.set_xticks(np.arange(history['years'].min(), prediction['years'].max() + 1, 1))
+
+    # Add horizontal grid lines
+    ax.grid(axis='y')
+
+    # Add a legend
+    plt.legend(ncol=2, bbox_to_anchor=(0.9, 1.15))
+
+    return fig, ax
