@@ -1,0 +1,10 @@
+font.family        : Arial
+font.size          : 13
+
+lines.markersize   : 6
+lines.linewidth    : 2.5
+
+axes.spines.left   : False
+axes.spines.bottom : False
+axes.spines.top    : False
+axes.spines.right  : False
