@@ -2,13 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from gptools.figures import plot_prediction
-from matplotlib import rc
 
 if __name__ == "__main__":
     # Set the branding to use
-    rc('font', family='Arial', size=13)
-    rc('lines', linewidth=2.5, markersize=8)
-    rc('axes.spines', left=False, bottom=False, right=False, top=False)
+    plt.style.use('../gptools/branding/schiphol_default.rc')
 
     # Create some random historic data
     historic_years = pd.Series(np.arange(2001, 2019), name='years')
