@@ -78,6 +78,37 @@ class Traffic(object):
         return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.mean')
 
     @classmethod
+    def read_daisy_weekday_file(cls, path):
+        """
+        A method to read daisy weekday files.
+
+        :param str path: path to the file.
+        :return: daisy weekday aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.weekday')
+
+    @classmethod
+    def read_taf_file(cls, path, **kwargs):
+        """
+        A method to read sir TAF files.
+
+        :param str path: path to the file.
+        :return: sir TAF aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
+        # Read the csv file
+        data = pd.read_csv(path, **kwargs)
+
+        # Replace A (arrival) and D (departure) by L (landing) and T (takeoff)
+        data['d_lt'] = data['d_lt'].str.replace(r'^A$', 'L').str.replace(r'^D$', 'T')
+
+        # Return the traffic aggregate
+        return TrafficAggregate(data=data, aggregate_type='taf.sir')
+
+    @classmethod
     def from_casper_file(cls, path):
 
         # Parse the file
@@ -422,6 +453,81 @@ class TrafficAggregate(object):
         # Get the preference
         return pd.concat([rc_preference_usage.rename('usage'), rc_preference_usage_relative.rename('relative usage')],
                          axis=1)
+
+    def get_bracket(self, percentile=None):
+
+        # Convert the d_schedule column to a timedelta
+        dt = pd.to_datetime(self.data['d_schedule'], format="%H:%M") - pd.to_datetime("00:00", format="%H:%M")
+
+        # Create a numeric value for each 20 minute time range
+        brackets = np.mod(np.floor(dt / pd.to_timedelta(20, unit='m')).astype(int), 72)
+
+        # Combine the brackets with the original data
+        data = pd.concat([self.data, brackets.rename('bracket')], axis=1)
+
+        # Add a total if none is present in the data
+        if 'total' not in data:
+            data['total'] = 1
+
+        # Sum the number of takeoffs/landings each bracket
+        bracket_by_date = data.groupby(['d_lt', 'bracket', 'd_date'])['total'].sum()
+
+        # Use the mean by default, or use the percentile if specified
+        if percentile is None:
+            bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).mean()
+        else:
+            bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).quantile(percentile)
+
+        # Return a bracket with reshaped data
+        return Bracket(bracket_data.reset_index().pivot('d_lt', 'bracket', 'total'))
+
+
+class Bracket(object):
+
+    def __init__(self, data):
+        self.data = data
+
+    @classmethod
+    def read_taf_bracket_excel_file(cls, path, **kwargs):
+        """
+        A method to read TAF bracket files.
+
+        :param str path: path to the file.
+        :return: Bracket.
+        :rtype: Bracket
+        """
+
+        # Get the data from the file
+        data = pd.read_excel(path, **kwargs)
+
+        # Use a zero based index for the bracket numbers
+        data['bracket'] = data['bracket'] - data['bracket'].min()
+
+        # Reshape the bracket
+        data = data.set_index('bracket').T
+
+        return cls(data)
+
+    @classmethod
+    def from_periods_and_capacity(cls, period, capacity):
+        """
+        A method to read Daisy period files.
+
+        :param str path: path to the file.
+        :return: Bracket.
+        :rtype: Bracket
+        """
+
+        # Get the dominant period
+        period['period'] = period['period'].str.split(',', 1).str[0]
+
+        # Merge the capacity with the periods and rename the
+        period = period.merge(capacity, on='period', how='left').rename(columns={'Lcap': 'L', 'Tcap': 'T'})
+
+        # Reshape the bracket
+        period = period[['L', 'T', 'period']].T
+
+        return cls(period)
 
 
 def start_summer_season(year):
