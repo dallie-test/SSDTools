@@ -2,7 +2,9 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
+from matplotlib.ticker import FormatStrFormatter, MultipleLocator, FuncFormatter, FixedLocator
 from scipy.misc import imread
 from matplotlib import colors, colorbar
 from descartes import PolygonPatch
@@ -498,3 +500,172 @@ def plot_aircraft_types(traffic_aggregate, bar_color=None):
         spine.set_visible(False)
 
     return fig, ax
+
+
+class TrafficDistributionPlot(object):
+    def __init__(self, slond_colors=None, figsize=None, capacity_color='#cdbbce', takeoff_color='#4a8ab7',
+                 landing_color='#fdbb4b'):
+        # Create an ID
+        self.id = str(pd.Timestamp.utcnow())
+
+        # Set the plotting options
+        self.figsize = (21 / 2.54, 21 / 2.54) if figsize is None else figsize
+        self.capacity_color = capacity_color
+        self.slond_colors = slond_colors if slond_colors is not None else {
+            'S': '#cdbbce',
+            'L': '#cdbbce',
+            'O': '#8fbbd6',
+            'N': '#d1e6bd',
+            'D': '#f1b7b1'
+        }
+        self.landing_color = landing_color
+        self.takeoff_color = takeoff_color
+
+        # Create a new figure
+        self.fig, self.ax = self.create_figure()
+
+        # Create a placeholder for the capacity bracket
+        self.capacity_bracket = None
+
+    def create_figure(self):
+        """
+        Initialize a new traffic distribution plot.
+
+        :return: the figure and axis handles.
+        """
+
+        # Create a new figure with figsize
+        fig, ax = plt.subplots(num=self.id, figsize=self.figsize)
+        fig.set_size_inches(21 / 2.54, 9 / 2.54)
+
+        return fig, ax
+
+    def add_capacity_bracket(self, bracket=None):
+        self.select()
+
+        if bracket is None:
+            bracket = self.capacity_bracket
+        else:
+            self.capacity_bracket = bracket
+
+        # Get the x-coordinates for the brackets
+        x = bracket.data.columns + .5
+
+        # Add the SLOND colors
+        if 'period' in bracket.data.index:
+            color = bracket.data.loc['period', :].map(self.slond_colors).values
+        else:
+            color = self.capacity_color
+
+        # Plot the takeoffs on top and the landings on the bottom
+        self.ax.bar(x, -bracket.data.loc['L', :], width=0.92, color=color, edgecolor=None)
+        self.ax.bar(x, bracket.data.loc['T', :], width=0.92, color=color, edgecolor=None)
+
+    def add_traffic_bracket(self, bracket):
+        self.select()
+
+        x = bracket.data
+
+        # Plot the takeoffs on top and the landings on the bottom
+        self.ax.bar(x.columns + .5, -x.loc['L', :], width=0.5, facecolor=self.takeoff_color, edgecolor='#757575',
+                    lw=0.25)
+        self.ax.bar(x.columns + .5, x.loc['T', :], width=0.5, facecolor=self.landing_color, edgecolor='#757575',
+                    lw=0.25)
+
+        # Set the lines of the grid
+        self.ax.set_axisbelow(True)
+        self.ax.set_xticks(x.columns, minor=True)
+        self.ax.xaxis.grid(which='minor')
+        self.ax.yaxis.grid(which='major')
+
+        # Set the ticks of the axes
+        self.ax.axes.tick_params(axis='both', which='both', labelsize=6, labelrotation=0, labelcolor='#757575', pad=4)
+
+        # Set the x-axis
+        self.ax.set_xlim([0, 72])
+        self.ax.set_xlabel('')  # size = 14)                    # verberg as-label
+        self.ax.xaxis.set_tick_params(which='both', length=0)  # en geen tickmarks
+        self.ax.xaxis.set_major_locator(FixedLocator(np.arange(1.5, 71, 3)))
+        self.ax.xaxis.set_major_formatter(FuncFormatter(lambda u, v: '{:d}:00'.format(int(u // 3))))
+
+        # Create a second x-axis to separate the hours
+        ax2 = self.ax.twiny()
+        ax2.spines["bottom"].set_position(('outward', 3))
+        ax2.xaxis.set_major_locator(FixedLocator(np.arange(0, 72.5, 3) / 72))
+        ax2.xaxis.set_ticks_position("bottom")
+        ax2.xaxis.set_tick_params(which='major', length=7, width=0.5, color='#757575')
+        ax2.xaxis.set_ticklabels([])
+        for side in ax2.spines:
+            ax2.spines[side].set_color('none')
+
+        # Set the y-axis
+        self.ax.yaxis.set_tick_params(which='both', length=0)
+        self.ax.yaxis.set_major_locator(MultipleLocator(5))
+        self.ax.yaxis.set_major_formatter(FuncFormatter(lambda u, v: '{:1.0f}'.format(abs(u))))
+
+    def add_takeoff_landing_label(self, takeoff_label='takeoffs', landing_label='landings'):
+        self.select()
+
+        ylim = self.ax.get_ylim()
+
+        ymid = -ylim[0] / (-ylim[0] + ylim[1])
+        for y, label in zip([ymid / 2, (1 + ymid) / 2], [landing_label, takeoff_label]):
+            self.ax.text(-0.041, y,
+                         label,
+                         ha='right',
+                         va='center',
+                         rotation='vertical',
+                         transform=self.ax.transAxes)
+        for y1, y2 in zip([0, ymid], [ymid, 1]):
+            line = Line2D([-0.035, -0.035], [0.02 + y1, y2 - 0.02],
+                          lw=0.5, color='#757575', transform=self.ax.transAxes)
+            line.set_clip_on(False)
+            self.ax.add_line(line)
+
+    def add_capacity_legend(self, label='runway capacity'):
+        w = 1 / 72
+        x = 0.72
+        ys = [1.0492, 1.0353, 1.0492, 1.0561, 1.0457]
+        heights = [4 * w, 4 * w, 3 * w, 2 * w, 3.5 * w]
+        for s, y, h in zip(self.slond_colors, ys, heights):
+            if 'period' in self.capacity_bracket.data.index:
+                c = self.slond_colors[s]
+                self.ax.text(x + w / 2, 1.07, s, fontsize=4, ha='center', va='center', transform=self.ax.transAxes)
+            else:
+                c = self.capacity_color
+
+            rect = Rectangle(xy=(x, y), width=w, height=h, facecolor=c, edgecolor='white', linewidth=0.5, clip_on=False,
+                             transform=self.ax.transAxes)
+            self.ax.add_patch(rect)
+            x += w
+
+        self.ax.text(x + w / 2, 1.07, label, fontsize=6, ha='left', va='center', transform=self.ax.transAxes)
+
+    def add_traffic_legend(self, label='traffic'):
+
+        self.select()
+
+        # Add traffic legend
+        w = .5 / 72
+        y = 1.07
+        h1, h2 = [6 * w, 2 * w, 3 * w], [-2 * w, -4 * w, -7 * w]
+        colors = [self.landing_color, self.takeoff_color]
+        for c, heights in zip(colors, [h1, h2]):
+            x = 0.92
+            for h in heights:
+                rect = Rectangle(xy=(x, y), width=w, height=h, facecolor=c, edgecolor='#757575', linewidth=0.5,
+                                 clip_on=False, transform=self.ax.transAxes)
+                self.ax.add_patch(rect)
+                x += w
+
+        self.ax.text(x + w / 2, 1.07, label, fontsize=6, ha='left', va='center', transform=self.ax.transAxes)
+
+    def select(self):
+        plt.figure(self.id)
+        plt.sca(self.ax)
+
+    def save(self, *args, **kwargs):
+        return self.fig.savefig(*args, **kwargs)
+
+    def show(self):
+        return self.fig.show()
