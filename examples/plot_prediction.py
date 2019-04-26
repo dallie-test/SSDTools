@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     # Create a prediction plot
     fig, ax = plot_prediction(history, pd.concat([prediction_2020, prediction_2025], axis=0),
-                              history_name='realisatie', prediction_name='prognose')
+                              history_plot_kwargs={'label': 'realisatie'},
+                              prediction_errorbar_kwargs={'label': 'prognose'})
 
     plt.savefig('figures/plot_prediction.pdf')
 

@@ -671,15 +671,44 @@ class TrafficDistributionPlot(object):
         return self.fig.show()
 
 
-def plot_prediction(history, prediction, column_name='data', prediction_name='prediction', history_name='history',
-                    history_color='#141251'):
+def plot_prediction(history, prediction, column_name='data', prediction_errorbar_kwargs=None,
+                    prediction_fill_between_kwargs=None, history_plot_kwargs=None):
+    """
+
+    :param pd.DataFrame history: the historic dataset to visualise, should contain the specified column_name as the data
+    and a 'year' column.
+    :param pd.DataFrame prediction: the predicted values, should contain the specified column_name as the data and a
+    'year' column.
+    :param int|str column_name: the column name of the data to visualise, defaults to 'data'.
+    :param dict history_plot_kwargs: argument arguments to overwrite the settings used for visualising the historic data.
+    :param dict prediction_errorbar_kwargs: arguments to overwrite the settings used for visualising the errorbars of
+    the prediction.
+    :param dict prediction_fill_between_kwargs: arguments to overwrite the settings used for visualising the filled area
+    of the prediction.
+    :return: a Matplotlib figure and axes.
+    """
+    # Apply the custom history plot style if provided
+    history_style = {'marker': 'o', 'markeredgewidth': 2, 'fillstyle': 'none', 'label': 'history',
+                     'color': '#141251'}
+    if history_plot_kwargs is not None:
+        history_style.update(history_plot_kwargs)
+
+    # Apply the custom prediction errobar style if provided
+    prediction_style = {'marker': '_', 'capsize': 4, 'ecolor': '#9491AA', 'markeredgewidth': 4,
+                        'markeredgecolor': '#9491AA', 'fillstyle': 'none', 'color': '#1B60DB', 'label': 'prediction'}
+    if prediction_errorbar_kwargs is not None:
+        prediction_style.update(prediction_errorbar_kwargs)
+
+    # Apply the custom prediction fill_between style if provided
+    prediction_fill_between_style = {'color': '#027E9B', 'alpha': 0.3}
+    if prediction_fill_between_kwargs is not None:
+        prediction_fill_between_style.update(prediction_fill_between_kwargs)
 
     # Create a figure
     fig, ax = plt.subplots(figsize=(12, 4))
 
     # Plot the history
-    plt.plot(history['years'], history[column_name], marker='o', markeredgewidth=2, fillstyle='none',
-             label=history_name, color=history_color)
+    plt.plot(history['years'], history[column_name], **history_style)
 
     # Describe the prediction for each year
     statistics = prediction.groupby('years')[column_name].describe()
@@ -688,22 +717,13 @@ def plot_prediction(history, prediction, column_name='data', prediction_name='pr
     plt.errorbar(history['years'].tail(1).tolist() + statistics.index.tolist(),
                  history[column_name].tail(1).tolist() + statistics['mean'].tolist(),
                  yerr=[[0] + (statistics['mean'] - statistics['min']).tolist(),
-                       [0] + (statistics['max'] - statistics['mean']).tolist()],
-                 marker='_',
-                 capsize=4,
-                 ecolor='#9491AA',
-                 markeredgewidth=4,
-                 markeredgecolor='#9491AA',
-                 fillstyle='none',
-                 color='#1B60DB',
-                 label=prediction_name)
+                       [0] + (statistics['max'] - statistics['mean']).tolist()], **prediction_style)
 
     # Color the background of the prediction
     plt.fill_between(history['years'].tail(1).tolist() + statistics.index.tolist(),
                      history[column_name].tail(1).tolist() + statistics['min'].tolist(),
                      history[column_name].tail(1).tolist() + statistics['max'].tolist(),
-                     color='#027E9B',
-                     alpha=0.3)
+                     **prediction_fill_between_style)
 
     # Set the xticks
     ax.set_xticks(np.arange(history['years'].min(), prediction['years'].max() + 1, 1))
