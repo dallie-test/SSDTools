@@ -23,8 +23,22 @@ if __name__ == "__main__":
     # Get the traffic distribution to plot
     distribution = traffic.get_season_distribution()
 
+    # Rename the labels
+    distribution = distribution.rename(
+        index={'summer': 'zomer', 'L': 'landingen', 'T': 'starts'},
+        columns={'D': 'dag', 'E': 'avond', 'N': 'nacht', 'EM': 'vroege ochtend'}
+    )
+
+    # Set the colors for each column
+    colors = {
+        'dag': '#141251',
+        'avond': '#1B60DB',
+        'nacht': '#9491AA',
+        'vroege ochtend': '#027E9B'
+    }
+
     # Create a season traffic plot with the data in it
-    fig, ax = plot_season_traffic(distribution)
+    fig, ax = plot_season_traffic(distribution, column_colors=colors)
 
     # Add the legend
     ax[0].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=1, ncol=distribution.shape[1], borderaxespad=0.)

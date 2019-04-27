@@ -410,26 +410,43 @@ class GridPlot(object):
         return self.fig.show()
 
 
-def plot_season_traffic(distribution):
+def plot_season_traffic(distribution, column_colors=None):
+    """
+    A function to create a traffic per season plot. Can also be used to plot other grouped horizontal stacked bar
+    charts.
+
+    :param dict column_colors: a dict containing the colors for the columns.
+    :param pd.DataFrame distribution: a dataframe containing the numbers to visualise. The dataframe should have a
+    2-level multiindex, where the first level is the seasons and the second level is the type of operation. The columns
+    are used as labels for the data.
+    :return: figure and axes.
+    """
+
     # Get the seasons
     seasons = distribution.index.get_level_values(0).unique()
 
     # Create a subplot for each season
     fig, ax = plt.subplots(len(seasons))
-    plt.subplots_adjust(hspace=0.0)
+    plt.subplots_adjust(left=.25, hspace=0.0)
 
     # Add the data to each subplot
     for i, season in enumerate(seasons):
         # Select the data
         season_data = distribution.loc[season]
 
-        # Create a cumsum
+        # Create a cumulative sum to get the indentation of the bars right
         season_data_cumsum = np.zeros(season_data.shape, dtype=int)
         season_data_cumsum[:, 1::] = np.cumsum(season_data.values[:, :-1], axis=1)
 
         # Add the column
         for j, column in enumerate(season_data.columns):
-            ax[i].barh(season_data.index, season_data.values[:, j], left=season_data_cumsum[:, j], label=column)
+            if column_colors is not None and column in column_colors:
+                color = column_colors[column]
+            else:
+                color = None
+
+            ax[i].barh(season_data.index, season_data.values[:, j], left=season_data_cumsum[:, j], label=column,
+                       color=color)
 
         ax[i].set_ylabel(season)
         ax[i].spines['top'].set_visible(False)
