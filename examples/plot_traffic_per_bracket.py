@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from gptools.figures import TrafficDistributionPlot
+from gptools.figures import BracketPlot
 from gptools.traffic import Traffic, Bracket
 from matplotlib import rc
 
@@ -24,7 +24,7 @@ def example_1():
     aggregate = Traffic.read_taf_file(file_path, **file_kwargs)
 
     # Create a new traffic distribution plot, set the colors
-    plot = TrafficDistributionPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
+    plot = BracketPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
 
     # Add the traffic distribution from the traffic aggregate
     plot.add_traffic_bracket(aggregate.get_bracket())
@@ -36,7 +36,7 @@ def example_1():
     plot.add_traffic_legend('verkeer')
 
     # Save the figure
-    plot.save('figures/plot_traffic_distribution_example_1.pdf')
+    plot.save('figures/plot_traffic_per_bracket_example_1.pdf')
 
     # Show the plot
     plot.show()
@@ -50,7 +50,7 @@ def example_2():
     aggregate = Traffic.read_daisy_weekday_file(file_path)
 
     # Create a new traffic distribution plot, set the colors
-    plot = TrafficDistributionPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
+    plot = BracketPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
 
     # Add the traffic distribution from the traffic aggregate
     plot.add_traffic_bracket(aggregate.get_bracket())
@@ -62,7 +62,7 @@ def example_2():
     plot.add_traffic_legend('verkeer')
 
     # Save the figure
-    plot.save('figures/plot_traffic_distribution_example_2.pdf')
+    plot.save('figures/plot_traffic_per_bracket_example_2.pdf')
 
     # Show the plot
     plot.show()
@@ -83,7 +83,7 @@ def example_3():
                                                   names=['bracket', 'L', 'T'])
 
     # Create a new traffic distribution plot, set the colors
-    plot = TrafficDistributionPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
+    plot = BracketPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
 
     # Add the TAF brackets as the capacity
     plot.add_capacity_bracket(bracket)
@@ -101,7 +101,7 @@ def example_3():
     plot.add_traffic_legend('verkeer')
 
     # Save the figure
-    plot.save('figures/plot_traffic_distribution_example_3.pdf')
+    plot.save('figures/plot_traffic_per_bracket_example_3.pdf')
 
     # Show the plot
     plt.show()
@@ -125,7 +125,7 @@ def example_4():
     bracket = Bracket.from_periods_and_capacity(periods, capacity)
 
     # Create a new traffic distribution plot, set the colors
-    plot = TrafficDistributionPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
+    plot = BracketPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
 
     # Add the TAF brackets as the capacity
     plot.add_capacity_bracket(bracket)
@@ -143,7 +143,7 @@ def example_4():
     plot.add_traffic_legend('verkeer')
 
     # Save the figure
-    plot.save('figures/plot_traffic_distribution_example_4.pdf')
+    plot.save('figures/plot_traffic_per_bracket_example_4.pdf')
 
     # Show the plot
     plt.show()
@@ -173,7 +173,7 @@ def example_5():
     bracket = Bracket.from_periods_and_capacity(periods, capacity)
 
     # Create a new traffic distribution plot, set the colors
-    plot = TrafficDistributionPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
+    plot = BracketPlot(takeoff_color='#fdbb4b', landing_color='#4a8ab7')
 
     # Add the TAF brackets as the capacity
     plot.add_capacity_bracket(bracket)
@@ -194,7 +194,7 @@ def example_5():
     plot.add_traffic_legend('verkeer')
 
     # Save the figure
-    plot.save('figures/plot_traffic_distribution_example_5.pdf')
+    plot.save('figures/plot_traffic_per_bracket_example_5.pdf')
 
     # Show the plot
     plt.show()

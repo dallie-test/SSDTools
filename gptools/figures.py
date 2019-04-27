@@ -519,7 +519,7 @@ def plot_aircraft_types(traffic_aggregate, bar_color=None):
     return fig, ax
 
 
-class TrafficDistributionPlot(object):
+class BracketPlot(object):
     def __init__(self, slond_colors=None, figsize=None, capacity_color='#cdbbce', takeoff_color='#4a8ab7',
                  landing_color='#fdbb4b'):
         # Create an ID
