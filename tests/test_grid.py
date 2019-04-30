@@ -1,13 +1,11 @@
 import os
 import re
-import warnings
 
 import numpy as np
 from nose.tools import raises
 from scipy.interpolate import RectBivariateSpline
 
 from ssdtools.grid import Grid, read_envira, meteotoeslag_years, extract_year_from_file_name
-from ssdtools.wbs import WBS
 
 
 def test_read_envira():
