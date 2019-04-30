@@ -1,6 +1,6 @@
 import numpy as np
-from gptools.grid import Grid, gwc, relative_den_norm_performance
-from gptools.wbs import WBS
+from ssdtools.grid import Grid, gwc, relative_den_norm_performance
+from ssdtools.wbs import WBS
 from scipy.optimize import brentq
 from tests.test_grid import abs_path
 

@@ -3,9 +3,9 @@ import pandas as pd
 import datetime
 from nose.tools import raises
 
-from gptools.traffic import start_winter_season
-from gptools.traffic import start_summer_season
-from gptools.traffic import get_year_of_use
+from ssdtools.traffic import start_winter_season
+from ssdtools.traffic import start_summer_season
+from ssdtools.traffic import get_year_of_use
 
 
 def test_start_summer_nominal():

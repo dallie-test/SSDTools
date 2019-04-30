@@ -1,5 +1,5 @@
-from gptools.grid import Grid
-from gptools.wbs import WBS
+from ssdtools.grid import Grid
+from ssdtools.wbs import WBS
 import pandas as pd
 import numpy as np
 

@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from gptools.traffic import Traffic
+from ssdtools.traffic import Traffic
 
 
 def test_read_daisy_phase_file():

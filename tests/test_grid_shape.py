@@ -1,6 +1,6 @@
 import numpy as np
 from nose.tools import raises
-from gptools.grid import read_envira, Shape
+from ssdtools.grid import read_envira, Shape
 from test_grid import abs_path
 
 

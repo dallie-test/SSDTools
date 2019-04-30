@@ -1,5 +1,5 @@
 import pandas as pd
-from gptools.meteo import Meteo
+from ssdtools.meteo import Meteo
 
 
 def test_meteo_from_knmi():

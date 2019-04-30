@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from nose.tools import raises
 
-from gptools.grid import Grid
-from gptools.wbs import WBS
+from ssdtools.grid import Grid
+from ssdtools.wbs import WBS
 
 
 def test_wbs_read_file():
