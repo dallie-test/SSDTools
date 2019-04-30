@@ -31,7 +31,7 @@ setup(
     name='SSDTools',
     version=version,
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
-    url='https://github.com/schiphol-Hub/GPTools/',
+    url='https://github.com/schiphol-Hub/SSDTools/',
     author='Schiphol Stakeholder and Strategy Development',
     author_email='wouter.dalmeijer@schiphol.nl',
     description=('A Python toolbox that contains the common objects and '
@@ -45,6 +45,6 @@ setup(
                       'descartes'],
     zip_safe=False,
     project_urls={
-        'Source': 'https://github.com/schiphol-Hub/GPTools/',
+        'Source': 'https://github.com/schiphol-Hub/SSDTools/',
     },
 )
