@@ -38,7 +38,7 @@ def test_read_daisy_meteoyear_file():
     aggregate = Traffic.read_daisy_meteoyear_file(file_path)
 
     # Get the runway usage statistics
-    runway_usage = aggregate.get_runway_usage('D|E|N')
+    runway_usage = aggregate.get_runway_usage_statistics('D|E|N')
 
     assert runway_usage.shape == (20, 7)
 
