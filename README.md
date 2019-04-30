@@ -21,6 +21,7 @@ pip install git+ssh://github.com/Schiphol-Hub/GPtools@master#egg=GPtools
 1. Organise a git training for all future contributors
 1. Separate the verification cases from the unit tests
 1. Remove the data from the repository
+1. Use map service instead of manually provided background image.
 
 ### Add `imshow()` as alternative to `contourf()`
 The package now uses vectors to ensure high quality of images, however, for some use cases it might be sufficient to use a pixel-perfect method such as `imshow()`. Supporting both types in heatmaps will result in the possibility to choose between runtime performance and precision. This means faster rendering times during development and high quality images for publication. 
