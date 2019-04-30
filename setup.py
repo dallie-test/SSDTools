@@ -11,15 +11,15 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
 ==========================
 Unsupported Python version
 ==========================
-This version of GPtools requires Python {}.{}, but you're trying to
+This version of SSDTools requires Python {}.{}, but you're trying to
 install it on Python {}.{}.
 """.format(*(REQUIRED_PYTHON + CURRENT_PYTHON)))
     sys.exit(1)
 
 EXCLUDE_FROM_PACKAGES = []
 
-# Dynamically calculate the version based on gptools.VERSION.
-version = __import__('gptools').get_version()
+# Dynamically calculate the version based on ssdtools.VERSION.
+version = __import__('ssdtools').get_version()
 
 
 def read(fname):
@@ -28,7 +28,7 @@ def read(fname):
 
 
 setup(
-    name='GPtools',
+    name='SSDTools',
     version=version,
     python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
     url='https://github.com/schiphol-Hub/GPTools/',

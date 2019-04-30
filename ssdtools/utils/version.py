@@ -82,7 +82,7 @@ def get_complete_version(version=None):
     :rtype tuple
     """
     if version is None:
-        from gptools import VERSION as version
+        from ssdtools import VERSION as version
     else:
         assert len(version) == 5
         assert version[3] in ('dev', 'final')
