@@ -16,6 +16,10 @@ pip install git+ssh://github.com/Schiphol-Hub/GPtools@master#egg=GPtools
 1. Separate `MultiGrid` from `Grid`
 1. Create `Scenario` object which contains both _Lden_ and _Lnight_ grids
 1. Add `imshow()` as alternative to `contourf()`
+1. Make `Traffic` compatible with `Schedule` from TAFTools
+1. Create standardized/preferred data types for each object
+1. Organise a git training for all future contributors
+1. Separate the verification cases from the unit tests
 
 ### Add `imshow()` as alternative to `contourf()`
 The package now uses vectors to ensure high quality of images, however, for some use cases it might be sufficient to use a pixel-perfect method such as `imshow()`. Supporting both types in heatmaps will result in the possibility to choose between runtime performance and precision. This means faster rendering times during development and high quality images for publication. 
