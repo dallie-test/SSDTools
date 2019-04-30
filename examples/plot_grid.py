@@ -1,6 +1,6 @@
-from gptools.branding import default
-from gptools.figures import GridPlot
-from gptools.grid import Grid
+from ssdtools.branding import default
+from ssdtools.figures import GridPlot
+from ssdtools.grid import Grid
 
 
 def example_1():

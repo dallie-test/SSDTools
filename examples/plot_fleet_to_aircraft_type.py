@@ -1,12 +1,12 @@
 import os
 import matplotlib.pyplot as plt
 
-from gptools.figures import plot_aircraft_types
-from gptools.traffic import Traffic
+from ssdtools.figures import plot_aircraft_types
+from ssdtools.traffic import Traffic
 
 if __name__ == "__main__":
     # Set the branding to use
-    plt.style.use('../gptools/branding/schiphol_default.rc')
+    plt.style.use('../ssdtools/branding/schiphol_default.rc')
 
     # Get the path to the Daisy file
     file_path = os.path.join(os.path.dirname(__file__), '../tests/data/traffic 1971-2016 - mean.txt')

@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from gptools.figures import BracketPlot
-from gptools.traffic import Traffic, Bracket
+from ssdtools.figures import BracketPlot
+from ssdtools.traffic import Traffic, Bracket
 from matplotlib import rc
 
 

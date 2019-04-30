@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from gptools.figures import plot_prediction
+from ssdtools.figures import plot_prediction
 
 if __name__ == "__main__":
     # Set the branding to use
-    plt.style.use('../gptools/branding/schiphol_default.rc')
+    plt.style.use('../ssdtools/branding/schiphol_default.rc')
 
     # Create some random historic data
     historic_years = pd.Series(np.arange(2001, 2019), name='years')

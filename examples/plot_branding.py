@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     # Set the branding to use
-    plt.style.use('../gptools/branding/schiphol_default.rc')
+    plt.style.use('../ssdtools/branding/schiphol_default.rc')
 
     # Plot the various colors as bars
     for x in range(11):

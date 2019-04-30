@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
-from gptools.figures import plot_season_traffic
-from gptools.traffic import Traffic
+from ssdtools.figures import plot_season_traffic
+from ssdtools.traffic import Traffic
 
 if __name__ == "__main__":
     # Get the path to the Casper file
