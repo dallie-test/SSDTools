@@ -341,6 +341,23 @@ class TrafficAggregate(object):
 
     def get_runway_usage(self, period):
         """
+        Aggregate the runway usage for the given period of the day.
+
+        :param str period: a regular expression for the period, e.g. 'D' or 'D|E|N'
+        :rtype: pd.DataFrame
+        """
+
+        # Match the period
+        data = self.data[self.data['d_den'].str.match(period)]
+
+        # Sum the number of flights for each LT-runway combination
+        data = data.groupby(['d_lt', 'd_runway'])['total'].sum().reset_index()
+
+        # Return the pivoted dataframe
+        return data.pivot('d_lt', 'd_runway', 'total')
+
+    def get_runway_usage_statistics(self, period):
+        """
         Aggregate the runway usage for the given period of the day and calculate the mean, median, minimum, maximum and
         standard deviation.
 
