@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 from nose.tools import raises
 
 from gptools.grid import Grid
@@ -186,6 +187,54 @@ def test_count_sleep_disturbed_people():
     s = wbs.count_sleep_disturbed_people()
 
     assert isinstance(s, float)
+
+
+def test_gwc():
+    # Get the validation data
+    matlab_df = pd.read_csv(abs_path('data/gwcvalues.csv'), index_col=[0])
+
+    # Get the path to the WBS file
+    file_path = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
+
+    # Create a wbs object from the data file
+    wbs = WBS.read_file(file_path)
+
+    # Get the path to the Envira files
+    file_paths = abs_path('data/GP2018')
+
+    # Create a dict for the grids
+    grids = {}
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a grid object from the data file
+        grids[unit] = Grid.read_enviras(file_paths, pattern)
+
+        # Calculate the meteotoeslag
+        meteotoeslag[unit] = grids[unit].meteotoeslag_grid_from_method('hybride')
+
+    # Scale the Lden grid
+    grids['Lden'].scale(1.025)
+
+    # Calculate the gelijkwaardigheidscriteria (GWC)
+    gwc = wbs.gwc(grids['Lden'], grids['Lnight'])
+
+    # Calculate the gelijkwaardigheidscriteria (GWC)
+    meteo_gwc = wbs.gwc(lden_grid=meteotoeslag['Lden'], lnight_grid=meteotoeslag['Lnight'])
+
+    np.testing.assert_allclose(gwc['w58den'], matlab_df['w58den'], rtol=0, atol=50)
+    np.testing.assert_allclose(gwc['eh48den'], matlab_df['eh48den'], rtol=0, atol=250)
+    np.testing.assert_allclose(gwc['w48n'], matlab_df['w48n'], rtol=0, atol=50)
+    np.testing.assert_allclose(gwc['sv40n'], matlab_df['sv40n'], rtol=0, atol=250)
+
+    assert gwc.shape == (40, 4)
+
+    assert meteo_gwc.shape == (4,)
 
 
 def abs_path(rel_path):
