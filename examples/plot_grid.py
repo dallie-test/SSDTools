@@ -11,16 +11,16 @@ def example_1():
     plot = GridPlot(grid)
 
     # Add the background
-    plot.add_background('../lib/Schiphol_RD900dpi.png')
+    plot.add_background('../data/Schiphol_RD900dpi.png')
 
     # Add a scale
     plot.add_scale()
 
     # Add the terrain
-    plot.add_terrain('../lib/2013-spl-luchtvaartterrein.shp')
+    plot.add_terrain('../data/2013-spl-luchtvaartterrein.shp')
 
     # Add the place names
-    plot.add_place_names('../lib/plaatsnamen.csv')
+    plot.add_place_names('../data/plaatsnamen.csv')
 
     # Add the 58dB contour
     plot.add_contours(58, default['kleuren']['schemergroen'], default['kleuren']['wolkengrijs_1'])
@@ -60,7 +60,7 @@ def example_3():
     plot = GridPlot(grid)
 
     # Add the background
-    plot.add_background('../lib/Schiphol_RD900dpi.png')
+    plot.add_background('../data/Schiphol_RD900dpi.png')
 
     # Add a scale
     plot.add_scale()
@@ -89,7 +89,7 @@ def example_4():
     plot = GridPlot(grid_1)
 
     # Add the background
-    plot.add_background('../lib/Schiphol_RD900dpi.png')
+    plot.add_background('../data/Schiphol_RD900dpi.png')
 
     # Add a scale
     plot.add_scale()
