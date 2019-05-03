@@ -947,3 +947,64 @@ def plot_prediction(history, prediction, column_name='data', prediction_errorbar
     plt.legend(ncol=2, bbox_to_anchor=(0.9, 1.15))
 
     return fig, ax
+
+
+def plot_windrose(windrose):
+    # Get the directions
+    directions = windrose.index.get_level_values(0).unique()
+    directions = directions[directions > 0]
+
+    # Get the directions
+    speeds = windrose.index.get_level_values(1).unique()
+    speeds = speeds[speeds > 0]
+
+    # Fill zero values, necessary for bar stacking
+    idx = pd.MultiIndex.from_product([directions, speeds])
+    data = windrose.reindex(idx)
+
+    # Calculate the angles
+    theta = np.deg2rad(directions)
+
+    # Calculate the percentages and reshape the data
+    data_x = (data / windrose.sum() * 100).reset_index().pivot(index='level_0', columns='level_1', values='STN')
+    bottom = np.zeros(data_x.shape) + 5
+    bottom[:, 1:] += data_x.iloc[:, :-1].cumsum(axis=1).values
+    bottom_x = pd.DataFrame(bottom, index=data_x.index, columns=data_x.columns)
+
+    # Create a polar axis system
+    ax = plt.subplot(111, projection='polar', facecolor='0.9')
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
+    ax.set_ylim(0, 30)
+    ax.set_yticks([5, 15, 25, 35])
+    ax.set_yticklabels(['', '10 %', '20 %', '30 %'])
+    ax.set_xticks(theta)
+    ax.set_xticklabels(['', '', 'O', '', '', 'Z', '', '', 'W', '', '', 'N'])
+
+    for max_speed in data_x.columns:
+
+        # Calculate the minimum speed for this maximum speed
+        min_speed = max_speed - 5
+
+        # Set the label
+        if max_speed != data_x.columns.max():
+            label = '{}-{} kts'.format(min_speed, max_speed)
+        else:
+            label = '>{} kts'.format(min_speed)
+
+        # Remove the nan values to avoid runtime warnings
+        theta_s = theta[~bottom_x[max_speed].isna()]
+        data_s = data_x.loc[~bottom_x[max_speed].isna(), max_speed]
+        bottom_s = bottom_x.loc[~bottom_x[max_speed].isna(), max_speed]
+
+        # Calculate the width of the bar
+        bar_width = 2 * np.pi / 12 * (0.15 + max_speed / 50)
+
+        # Plot the bars
+        p1 = ax.bar(theta_s, data_s, bottom=bottom_s, width=bar_width, label=label)
+
+    ax.bar(0, 5, width=2 * np.pi, label='other')
+    plt.text(0, 0, '{:.1f} %'.format(windrose.loc[0, 0] / windrose.sum() * 100), horizontalalignment='center',
+             verticalalignment='center')
+    ax.legend(loc=4)
+    plt.show()
