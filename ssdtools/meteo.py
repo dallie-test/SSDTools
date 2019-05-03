@@ -1,6 +1,6 @@
 import io
-
 import requests
+import numpy as np
 import pandas as pd
 
 
@@ -9,10 +9,31 @@ class Meteo(object):
         self.data = data
 
     def get_windrose(self):
-        # todo: Aggregate per direction (within 30 degrees)
-        # todo: Aggregate per speed (within x knots)
+        """
+        Get the number of observed data points for every direction (rounded 30 degrees) and every windspeed (in bins of
+        5 knots).
 
-        pass
+        :return: data frame containing all the counts for each windspeed and direction combination.
+        :rtype: pd.DataFrame
+        """
+
+        # Select the exceptional cases
+        exceptional = (self.data['DD'] == 0) | (self.data['DD'] == 990)
+
+        # Round the direction by 30 degrees
+        self.data['DR'] = (((np.round(self.data['DD'] / 30.) - 1) % 12).astype(int) + 1) * 30
+
+        # Set the direction for exceptional cases to zero
+        self.data.loc[exceptional, 'DR'] = 0
+
+        # Round the speed to 5 kts
+        self.data['SC'] = np.ceil(self.data['kts'] / 5.).astype(int) * 5
+
+        # Add an upper limit of 30 kts
+        self.data.loc[self.data['kts'] >= 30, 'SC'] = 30
+
+        # Count occurrence per classification
+        return self.data.groupby(['DR', 'SC'])['STN'].count()
 
     @classmethod
     def from_knmi(cls, start, end):
@@ -59,6 +80,6 @@ class Meteo(object):
         z.close()
 
         # Add the windspeed in knots
-        data['kts'] = data['FF'] * 0.194384449
+        data['kts'] = data['FF'] * 360 / 1852.
 
         return cls(data)
