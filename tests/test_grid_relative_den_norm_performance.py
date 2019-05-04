@@ -10,7 +10,7 @@ def test_grid_scale_per_time_interval():
     # Directories and paths
     # ------------------------------------------------------------------------
     forecast_directory = abs_path('data/MER2019 H_500_doc29_VVR')
-    wbs_file = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
+    wbs_file = abs_path('../data/wbs2018.h5')
 
     # ------------------------------------------------------------------------
     # Read Grid
@@ -74,7 +74,7 @@ def test_grid_relative_den_norm_performance():
     # Directories and paths
     # ------------------------------------------------------------------------
     forecast_directory = abs_path('data/MER2019 H_500_doc29_VVR')
-    wbs_file = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
+    wbs_file = abs_path('../data/wbs2018.h5')
 
     # ------------------------------------------------------------------------
     # Read Grid
