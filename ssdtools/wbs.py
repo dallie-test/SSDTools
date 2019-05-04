@@ -139,10 +139,11 @@ class WBS(object):
         # Multiply the relative sleep disturbance by the number of people
         return (data['personen'] * relative_sleep_disturbance).sum()
 
-    def gwc(self, lden_grid, lnight_grid):
+    def gwc(self, lden_grid, lnight_grid, **kwargs):
 
+        # Check if a multigrid is provided
         if isinstance(lden_grid.data, list):
-            df = pd.DataFrame(index=lden_grid.years, columns=['w58den', 'w48n', 'eh48den', 'sv40n'])
+            df = pd.DataFrame(index=lden_grid.years, columns=['w58den', 'w48n', 'eh48den', 'sv40n'], dtype=float)
 
             for year in lden_grid.years:
                 # Add the Lden and Lnight noise levels
@@ -150,19 +151,12 @@ class WBS(object):
                 self.add_noise_from_grid(lnight_grid.grid_from_year(year))
 
                 # Calculate the number of houses with >58dBA Lden and >48dBA Lnight
-                w58den = self.count_homes_above(58, 'Lden')
-                w48n = self.count_homes_above(48, 'Lnight')
+                df.at[year, 'w58den'] = self.count_homes_above(58, 'Lden')
+                df.at[year, 'w48n'] = self.count_homes_above(48, 'Lnight')
 
                 # Calculate the number of annoyed and sleep disturbed people
-                eh48den = self.count_annoyed_people(48)
-                sv40n = self.count_sleep_disturbed_people(40)
-
-                df.at[year, :] = pd.Series({
-                    'w58den': w58den,
-                    'w48n': w48n,
-                    'eh48den': eh48den,
-                    'sv40n': sv40n
-                })
+                df.at[year, 'eh48den'] = self.count_annoyed_people(48, **kwargs)
+                df.at[year, 'sv40n'] = self.count_sleep_disturbed_people(40, **kwargs)
 
             return df
         else:
@@ -176,8 +170,8 @@ class WBS(object):
             w48n = self.count_homes_above(48, 'Lnight')
 
             # Calculate the number of annoyed and sleep disturbed people
-            eh48den = self.count_annoyed_people(48)
-            sv40n = self.count_sleep_disturbed_people(40)
+            eh48den = self.count_annoyed_people(48, **kwargs)
+            sv40n = self.count_sleep_disturbed_people(40, **kwargs)
 
             return pd.Series({
                 'w58den': w58den,
@@ -208,7 +202,8 @@ def annoyance(noise_levels, de='doc29', max_noise_level=None):
 
     # Apply a cut-off at max_db if provided
     if max_noise_level is not None:
-        noise_levels[noise_levels > max_noise_level] = max_noise_level
+        noise_levels = noise_levels.copy()
+        noise_levels.loc[noise_levels > max_noise_level] = max_noise_level
 
     # Apply the dose-effect relationship
     if de == 'ges2002':
@@ -243,7 +238,8 @@ def sleep_disturbance(noise_levels, de='doc29', max_noise_level=None):
 
     # Apply a cut-off at max_db if provided
     if max_noise_level is not None:
-        noise_levels[noise_levels > max_noise_level] = max_noise_level
+        noise_levels = noise_levels.copy()
+        noise_levels.loc[noise_levels > max_noise_level] = max_noise_level
 
     # Apply the dose-effect relationship
     if de == 'ges2002':

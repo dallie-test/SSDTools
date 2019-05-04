@@ -9,7 +9,7 @@ from ssdtools.wbs import WBS
 
 def test_wbs_read_file():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     WBS.read_file(file_path)
@@ -17,7 +17,7 @@ def test_wbs_read_file():
 
 def test_add_noise_from_grid():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -34,7 +34,7 @@ def test_add_noise_from_grid():
 
 def test_add_noise_from_grid_lden_lnight():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -60,7 +60,7 @@ def test_add_noise_from_grid_lden_lnight():
 
 def test_select_above():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -83,7 +83,7 @@ def test_select_above():
 @raises(KeyError)
 def test_select_above_wrong_unit():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -103,7 +103,7 @@ def test_select_above_wrong_unit():
 
 def test_count_above():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -125,7 +125,7 @@ def test_count_above():
 
 def test_count_homes_above():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -147,7 +147,7 @@ def test_count_homes_above():
 
 def test_count_annoyed_people():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -169,7 +169,7 @@ def test_count_annoyed_people():
 
 def test_count_sleep_disturbed_people():
     # Get the path to the WBS file
-    file_path = abs_path('data/wbs2005.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
@@ -190,17 +190,22 @@ def test_count_sleep_disturbed_people():
 
 
 def test_gwc():
-    # Get the validation data
-    matlab_df = pd.read_csv(abs_path('data/gwcvalues.csv'), index_col=[0])
+    # Get the verification data
+    gwc_verification = pd.read_csv(abs_path('data/H_500_00_doc29_gwc_verification.csv'), index_col=[0])
+    gwc_description_verification = pd.read_csv(abs_path('data/H_500_00_doc29_gwc_description_verification.csv'),
+                                               index_col=[0])
+
+    # Set the dose-effect relationship arguments
+    de_kwargs = dict(de='ges2002', max_noise_level=65)
 
     # Get the path to the WBS file
-    file_path = abs_path('../../20180907 Berekeningen - TC/doc29py/wbs2018.h5')
+    file_path = abs_path('../data/wbs2005.h5')
 
     # Create a wbs object from the data file
     wbs = WBS.read_file(file_path)
 
     # Get the path to the Envira files
-    file_paths = abs_path('data/GP2018')
+    file_paths = abs_path('data/H_500_00_doc29')
 
     # Create a dict for the grids
     grids = {}
@@ -218,23 +223,32 @@ def test_gwc():
         # Calculate the meteotoeslag
         meteotoeslag[unit] = grids[unit].meteotoeslag_grid_from_method('hybride')
 
-    # Scale the Lden grid
-    grids['Lden'].scale(1.025)
-
     # Calculate the gelijkwaardigheidscriteria (GWC)
-    gwc = wbs.gwc(grids['Lden'], grids['Lnight'])
+    gwc = wbs.gwc(grids['Lden'], grids['Lnight'], **de_kwargs)
 
     # Calculate the gelijkwaardigheidscriteria (GWC)
     meteo_gwc = wbs.gwc(lden_grid=meteotoeslag['Lden'], lnight_grid=meteotoeslag['Lnight'])
 
-    np.testing.assert_allclose(gwc['w58den'], matlab_df['w58den'], rtol=0, atol=50)
-    np.testing.assert_allclose(gwc['eh48den'], matlab_df['eh48den'], rtol=0, atol=250)
-    np.testing.assert_allclose(gwc['w48n'], matlab_df['w48n'], rtol=0, atol=50)
-    np.testing.assert_allclose(gwc['sv40n'], matlab_df['sv40n'], rtol=0, atol=250)
+    # Calculate the GWC statistics
+    gwc_statistics = gwc.agg(['mean', 'min', 'max'])
 
-    assert gwc.shape == (40, 4)
+    pd.testing.assert_series_equal(gwc_statistics['w58den'].round(-2),
+                                   gwc_description_verification.loc['Won 58 dB(A) Lden', gwc_statistics.index],
+                                   check_names=False)
+    pd.testing.assert_series_equal(gwc_statistics['eh48den'].round(-2),
+                                   gwc_description_verification.loc['EGH 48 dB(A) Lden', gwc_statistics.index],
+                                   check_names=False)
+    pd.testing.assert_series_equal(gwc_statistics['w48n'].round(-2),
+                                   gwc_description_verification.loc['Won 48 dB(A) Lnight', gwc_statistics.index],
+                                   check_names=False)
+    pd.testing.assert_series_equal(gwc_statistics['sv40n'].round(-2),
+                                   gwc_description_verification.loc['SV 40 dB(A) Lnight', gwc_statistics.index],
+                                   check_names=False)
 
-    assert meteo_gwc.shape == (4,)
+    pd.testing.assert_series_equal(gwc['w58den'], gwc_verification['w58den'], check_names=False)
+    pd.testing.assert_series_equal(gwc['eh48den'], gwc_verification['egh48den'], check_names=False)  # error
+    pd.testing.assert_series_equal(gwc['w48n'], gwc_verification['w48n'], check_names=False)
+    pd.testing.assert_series_equal(gwc['sv40n'], gwc_verification['sv40n'], check_names=False)  # error
 
 
 def abs_path(rel_path):
