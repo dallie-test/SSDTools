@@ -109,7 +109,7 @@ class Traffic(object):
         return TrafficAggregate(data=data, aggregate_type='taf.sir')
 
     @classmethod
-    def from_casper_file(cls, path):
+    def read_casper_file(cls, path):
 
         # Parse the file
         data = pd.read_csv(path, sep=',', index_col=None)
@@ -120,7 +120,7 @@ class Traffic(object):
         return cls(data, date_column='C_actual', class_column='C_Klasse', id_column='C_id')
 
     @classmethod
-    def from_nlr_file(cls, path):
+    def read_nlr_file(cls, path):
 
         # Open the .xlsx file (this might take a while, but this is the only way to open large .xlsx files...)
         workbook = xlrd.open_workbook(path, on_demand=True)
@@ -297,7 +297,7 @@ class Traffic(object):
         id_column = id_column if id_column is not None else self.id_column
 
         if separate_by is None:
-            return self.data.groupby([self.den_column])[id_column].count()
+            return self.data.groupby([self.denem_column])[id_column].count()
 
         # Get the distribution
         distribution = self.data.groupby([separate_by, self.denem_column])[id_column].count().reset_index(drop=False)
@@ -347,6 +347,20 @@ class TrafficAggregate(object):
         :rtype: pd.DataFrame
         """
 
+        # Define the supported types
+        supported_types = ['daisy.meteoyear', 'daisy.mean']
+
+        # Check if a different type is provided
+        if self.type not in supported_types:
+            # List the supported types as a string
+            supported_types_string = ', '.join(supported_types)
+
+            # Include 'or' after the last comma
+            supported_types_string = ', or '.join(supported_types_string.rsplit(', ', 1))
+
+            raise TypeError('This method is only supported for traffic aggregates of type {}, but {} is given'.format(
+                supported_types_string, self.type))
+
         # Match the period
         data = self.data[self.data['d_den'].str.match(period)]
 
@@ -358,17 +372,26 @@ class TrafficAggregate(object):
 
     def get_runway_usage_statistics(self, period):
         """
-        Aggregate the runway usage for the given period of the day and calculate the mean, median, minimum, maximum and
-        standard deviation.
+        Aggregate the runway usage for the given period of the day and calculate the various statistics, including mean,
+        median, minimum, maximum and standard deviation.
 
         :param str period: a regular expression for the period, e.g. 'D' or 'D|E|N'
         :rtype: pd.DataFrame
         """
 
-        if not self.type == 'daisy.meteoyear':
-            raise TypeError(
-                'This method is only supported for traffic aggregates of type daisy.meteoyear, but {} is given'.format(
-                    self.type))
+        # Define the supported types
+        supported_types = ['daisy.meteoyear']
+
+        # Check if a different type is provided
+        if self.type not in supported_types:
+            # List the supported types as a string
+            supported_types_string = ', '.join(supported_types)
+
+            # Include 'or' after the last comma
+            supported_types_string = ', or '.join(supported_types_string.rsplit(', ', 1))
+
+            raise TypeError('This method is only supported for traffic aggregates of type {}, but {} is given'.format(
+                supported_types_string, self.type))
 
         # Match the period
         data = self.data[self.data['d_den'].str.match(period)]
@@ -448,6 +471,27 @@ class TrafficAggregate(object):
                          axis=1)
 
     def get_bracket(self, percentile=None):
+        """
+        Aggregate the data for each twenty minute bracket.
+
+        :param float percentile: value between 0 <= percentile <= 1, the percentile to compute. See also
+        pd.DataFrame.quantile
+        :rtype: Bracket
+        """
+
+        # Define the supported types
+        supported_types = ['daisy.phase', 'daisy.weekday', 'taf.sir']
+
+        # Check if a different type is provided
+        if self.type not in supported_types:
+            # List the supported types as a string
+            supported_types_string = ', '.join(supported_types)
+
+            # Include 'or' after the last comma
+            supported_types_string = ', or '.join(supported_types_string.rsplit(', ', 1))
+
+            raise TypeError('This method is only supported for traffic aggregates of type {}, but {} is given'.format(
+                supported_types_string, self.type))
 
         # Convert the d_schedule column to a timedelta
         dt = pd.to_datetime(self.data['d_schedule'], format="%H:%M") - pd.to_datetime("00:00", format="%H:%M")
@@ -462,14 +506,19 @@ class TrafficAggregate(object):
         if 'total' not in data:
             data['total'] = 1
 
-        # Sum the number of takeoffs/landings each bracket
-        bracket_by_date = data.groupby(['d_lt', 'bracket', 'd_date'])['total'].sum()
+        if 'd_date' not in data:
+            # Sum the number of takeoffs/landings each bracket
+            bracket_data = data.groupby(['d_lt', 'bracket'])['total'].sum()
 
-        # Use the mean by default, or use the percentile if specified
-        if percentile is None:
-            bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).mean()
         else:
-            bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).quantile(percentile)
+            # Sum the number of takeoffs/landings each bracket
+            bracket_by_date = data.groupby(['d_lt', 'bracket', 'd_date'])['total'].sum()
+
+            # Use the mean by default, or use the percentile if specified
+            if percentile is None:
+                bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).mean()
+            else:
+                bracket_data = bracket_by_date.groupby(['d_lt', 'bracket']).quantile(percentile)
 
         # Return a bracket with reshaped data
         return Bracket(bracket_data.reset_index().pivot('d_lt', 'bracket', 'total'))

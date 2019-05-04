@@ -14,7 +14,39 @@ def test_read_daisy_phase_file():
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
 
-    pass
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage_statistics('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_n_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_deem_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    bracket = aggregate.get_bracket()
 
 
 def test_read_daisy_phase_file_summer_season():
@@ -40,24 +72,61 @@ def test_read_daisy_meteoyear_file():
     # Get the runway usage statistics
     runway_usage = aggregate.get_runway_usage_statistics('D|E|N')
 
-    assert runway_usage.shape == (20, 7)
+    # Check if the expected shape is returned
+    assert runway_usage.shape == (20, 8)
 
+    # Check if the expected columns are returned
     assert runway_usage.columns.tolist() == [
-        'lt',
-        'max',
+        'count',
         'mean',
-        'median',
-        'min',
-        'runway',
         'std',
+        'min',
+        '25%',
+        '50%',
+        '75%',
+        'max',
     ]
-
-    # todo: Add a test with data from Matlab
 
     # Get the DEN distribution for each meteo year
     distribution = aggregate.get_den_distribution(separate_by='d_myear')
 
-    pass
+    # Check if the totals are equal
+    assert distribution.sum().sum() == aggregate.data['total'].sum()
+
+    # In this case the day (D) and evening (E) counts are all equal
+    assert distribution.loc['D', :].min() == distribution.loc['D', :].max()
+    assert distribution.loc['E', :].min() == distribution.loc['E', :].max()
+
+    # The night distribution varies from 31677 to 31688
+    assert distribution.loc['N', :].min() == 31677
+    assert distribution.loc['N', :].max() == 31688
+
+    # Test if runway usage can be obtained
+    assert aggregate.get_runway_usage('D').shape == (2, 12)
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_n_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_deem_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_bracket()
+        assert False
+    except TypeError:
+        assert True
 
 
 def test_read_daisy_runway_combination_file():
@@ -70,7 +139,33 @@ def test_read_daisy_runway_combination_file():
     # Get the DEN distribution rounded by 100
     distribution = aggregate.get_den_distribution().round(decimals=-2)
 
-    pass
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage_statistics('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since runway data is present, it should be possible to calculate the runway preferences
+    rp_night = aggregate.get_n_runway_preference_usage(runway_combinations)
+    rp_deem = aggregate.get_deem_runway_preference_usage(runway_combinations)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_bracket()
+        assert False
+    except TypeError:
+        assert True
 
 
 def test_read_daisy_mean_file():
@@ -83,7 +178,142 @@ def test_read_daisy_mean_file():
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
 
-    pass
+    # For this type of aggregate, runway usage should be possible to calculate
+    assert aggregate.get_runway_usage('D').shape == (2, 12)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage_statistics('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_n_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_deem_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_bracket()
+        assert False
+    except TypeError:
+        assert True
+
+
+def test_read_daisy_weekday_file():
+    # Get the path to the Daisy file
+    file_path = abs_path('data/traffic-Daisy.txt')
+
+    # Create a traffic object from the data file
+    aggregate = Traffic.read_daisy_weekday_file(file_path)
+
+    # Get the DEN distribution for takeoff and landing rounded by 100
+    distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage_statistics('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_n_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_deem_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    bracket = aggregate.get_bracket()
+
+
+def test_read_taf_file():
+    # Get the path to the TAF file
+    file_path = abs_path('data/traffic.csv')
+
+    # Set the read_csv arguments for this file
+    file_kwargs = {
+        'usecols': [0, 1, 2],
+        'parse_dates': [1],
+        'names': ['d_lt', 'd_schedule', 'd_date'],
+        'skiprows': 1,
+        'delimiter': ','
+    }
+
+    # Create a traffic object from the data file
+    aggregate = Traffic.read_taf_file(file_path, **file_kwargs)
+
+    # Get the DEN distribution for takeoff and landing rounded by 100
+    try:
+        distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_runway_usage_statistics('D')
+        assert False
+    except TypeError:
+        assert True
+
+    # Get the runway combinations
+    runway_combinations = pd.read_csv('data/Baancombinaties.txt', delim_whitespace=1)
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_n_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    try:
+        aggregate.get_deem_runway_preference_usage(runway_combinations)
+        assert False
+    except KeyError:
+        assert True
+
+    # Since no runway data is present in this aggregate, the following method should fail
+    bracket = aggregate.get_bracket()
 
 
 def test_traffic_from_casper_file():
@@ -91,7 +321,7 @@ def test_traffic_from_casper_file():
     file_path = abs_path('data/Vluchten Export 2017-11-01 00_00_00 - 2018-11-01 00_00_00_2019-01-29 10_59_35.csv')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_casper_file(file_path)
+    traffic = Traffic.read_casper_file(file_path)
 
     # Add day (D), evening (E), night (N)
     traffic.add_den()
@@ -120,7 +350,7 @@ def test_traffic_from_nlr_file():
     file_path = abs_path('data/20181107_Traffic_2018.xlsx')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_nlr_file(file_path)
+    traffic = Traffic.read_nlr_file(file_path)
 
     # Add day (D), evening (E), night (N)
     traffic.add_den()
@@ -149,7 +379,7 @@ def test_traffic_add_season():
     file_path = abs_path('data/Vluchten Export 2017-11-01 00_00_00 - 2018-11-01 00_00_00_2019-01-29 10_59_35.csv')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_casper_file(file_path)
+    traffic = Traffic.read_casper_file(file_path)
 
     # Add the seasons to the data
     traffic.add_season()
@@ -166,7 +396,7 @@ def test_traffic_get_denem_distribution():
     file_path = abs_path('data/Vluchten Export 2017-11-01 00_00_00 - 2018-11-01 00_00_00_2019-01-29 10_59_35.csv')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_casper_file(file_path)
+    traffic = Traffic.read_casper_file(file_path)
 
     # Add the seasons to the data
     traffic.add_season()
@@ -177,8 +407,8 @@ def test_traffic_get_denem_distribution():
     # Add the day (D), evening (E), night (N), and early morning (EM) to the data
     traffic.add_denem()
 
-    # Get the day (D), evening (E), night (N), and early morning (EM) distribution
-    distribution = traffic.get_denem_distribution()
+    # Get the day (D), evening (E), night (N), and early morning (EM) distribution for landing (L) and takeoff (T)
+    distribution = traffic.get_denem_distribution(separate_by='LT')
 
     # Check if it has the requested shape
     assert distribution.shape == (4, 2)

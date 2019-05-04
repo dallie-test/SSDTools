@@ -9,7 +9,7 @@ if __name__ == "__main__":
                              '../tests/data/Vluchten Export 2017-11-01 00_00_00 - 2018-11-01 00_00_00_2019-01-29 10_59_35.csv')
 
     # Create a traffic object from the data file
-    traffic = Traffic.from_casper_file(file_path)
+    traffic = Traffic.read_casper_file(file_path)
 
     # Add the seasons to the data
     traffic.add_season()
