@@ -18,5 +18,5 @@ def test_get_windrose():
 
     assert windrose.shape[0] <= 12 * 5 + 1
     assert meteo.data.shape[0] == 31 * 24
-    assert np.all(windrose.index.get_level_values(0).isin(np.arange(0, 390, 30)))
-    assert np.all(windrose.index.get_level_values(1).isin(np.arange(0, 30, 5)))
+    assert windrose.index.get_level_values(0).isin(np.arange(0, 361, 30)).all()
+    assert windrose.index.get_level_values(1).isin(np.arange(0, 31, 5)).all()
