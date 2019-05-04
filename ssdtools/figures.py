@@ -787,7 +787,7 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
     for i, trf_file in enumerate(traffic):
 
         # Get the runway statistics
-        trf_stats = trf_file.get_runway_usage_statistics('|'.join(den))
+        trf_stats = trf_file.get_runway_usage_statistics('|'.join(den)).reset_index()
 
         # sorteer
         if 'key' not in trf_stats.columns:

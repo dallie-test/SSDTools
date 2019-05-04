@@ -377,7 +377,7 @@ class TrafficAggregate(object):
         data = data.groupby(['d_lt', 'd_runway', 'd_myear'])['total'].sum().reset_index()
 
         # Describe the various yearly scenarios per runway per type of operation
-        return data.groupby(['d_lt', 'd_runway'])['total'].describe().reset_index()
+        return data.groupby(['d_lt', 'd_runway'])['total'].describe()
 
     def get_den_distribution(self, separate_by=None):
 
