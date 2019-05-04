@@ -7,9 +7,11 @@ A Python toolbox that contains common objects and functions used for reporting a
 If you want to use this package in your own project, you can import this package by running the following command or include it in the `requirements.txt` or `environment.yml` of your project.
 
 ```bash
-# Exectute the the following command in your terminal to install the latest version of GPtools. 
-pip install git+ssh://github.com/Schiphol-Hub/GPtools@master#egg=GPtools
+# Execute the the following command in your terminal to install the latest version of GPtools. 
+pip install git+ssh://github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
 ```
+
+For more information about installing a Python package from a repository, please visit https://pip.pypa.io/en/stable/reference/pip_install/#git.
 
 ## Recommendations for further development
 
