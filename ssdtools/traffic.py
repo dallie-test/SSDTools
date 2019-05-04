@@ -144,6 +144,12 @@ class Traffic(object):
         return cls(data_frame, date_column='timestamp', class_column='Klasse', id_column='FlightId')
 
     def add_season(self, date_column=None):
+        """
+        Add the season (summer or winter) to the traffic, based on the date of the entry.
+
+        :param date_column: the column with the date to use.
+        """
+
         # Select the date column to use
         date_column = date_column if date_column is not None else self.date_column
 
@@ -163,6 +169,12 @@ class Traffic(object):
             self.data.at[np.logical_and(after_start_summer, before_start_winter), 'season'] = 'summer'
 
     def add_landing_takeoff(self, class_column=None):
+        """
+        Add takeoff/landing to the traffic, based on the four-digit traffic class.
+
+        :param class_column: the column with the four-digit class to use.
+        """
+
         # Select the class column to use
         class_column = class_column if class_column is not None else self.class_column
 
@@ -170,15 +182,18 @@ class Traffic(object):
         self.data['LT'] = None
 
         # Make sure the the class column is a string
-        self.data.at[(self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000), 'LT'] = 'T'
-        self.data.at[(self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000), 'LT'] = 'L'
+        self.data.at[(self.data[class_column] >= 0) & (self.data[class_column] < 1000), 'LT'] = 'T'
+        self.data.at[(self.data[class_column] >= 1000) & (self.data[class_column] < 2000), 'LT'] = 'L'
 
     def add_procedure(self):
+        """
+        Add the procedure to the traffic, based on the four-digit traffic class.
+        """
 
         # Add a procedure, altitude and weight column
         self.data[self.procedure_column] = None
         self.data[self.altitude_column] = None
-        self.data[self.altitude_column] = None
+        self.data[self.weight_column] = None
 
         # Set procedure to other (takeoff)
         other = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 100)
@@ -231,6 +246,11 @@ class Traffic(object):
         self.data.at[cda, self.altitude_column] = 'CDA'
 
     def add_denem(self, date_column=None):
+        """
+        Add day (D), evening (E), night (N) and early morning (EM) classification to the traffic, based on the date.
+
+        :param date_column: the column with the date to use.
+        """
 
         # Select the date column to use
         date_column = date_column if date_column is not None else self.date_column
@@ -255,6 +275,11 @@ class Traffic(object):
         self.data.at[n, self.denem_column] = 'N'
 
     def add_den(self, date_column=None):
+        """
+        Add day (D), evening (E), and night (N) classification to the traffic, based on the date.
+
+        :param date_column: the column with the date to use.
+        """
 
         # Select the date column to use
         date_column = date_column if date_column is not None else self.date_column
@@ -275,6 +300,14 @@ class Traffic(object):
         self.data.at[n, self.den_column] = 'N'
 
     def get_den_distribution(self, separate_by=None, id_column=None):
+        """
+        Get the day (D), evening (E), and night (N) distribution of the traffic.
+
+        :param separate_by: the column to use for grouping the results, such as meteorological year or takeoff/landing.
+        :param id_column: the column to use for counting the traffic rows.
+        :return: the DEN distribution of the traffic with DEN on the index and separate_by values as columns if provided
+        :rtype: pd.DataFrame
+        """
 
         # Select the date column to use
         id_column = id_column if id_column is not None else self.id_column
@@ -286,12 +319,18 @@ class Traffic(object):
         distribution = self.data.groupby([separate_by, self.den_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index([self.den_column]).pivot(columns=separate_by).xs(id_column, axis=1,
-                                                                                               level=0)
-
-        return distribution
+        return distribution.set_index([self.den_column]).pivot(columns=separate_by).xs(id_column, axis=1, level=0)
 
     def get_denem_distribution(self, separate_by=None, id_column=None):
+        """
+        Get the day (D), evening (E), night (N), and early morning (EM) distribution of the traffic.
+
+        :param separate_by: the column to use for grouping the results, such as meteorological year or takeoff/landing.
+        :param id_column: the column to use for counting the traffic rows.
+        :return: the DENEM distribution of the traffic with DENEM on the index and separate_by values as columns if
+        provided
+        :rtype: pd.DataFrame
+        """
 
         # Select the date column to use
         id_column = id_column if id_column is not None else self.id_column
@@ -303,12 +342,16 @@ class Traffic(object):
         distribution = self.data.groupby([separate_by, self.denem_column])[id_column].count().reset_index(drop=False)
 
         # Reshape the distribution
-        distribution = distribution.set_index([self.denem_column]).pivot(columns=separate_by).xs(id_column, axis=1,
-                                                                                                 level=0)
-
-        return distribution
+        return distribution.set_index([self.denem_column]).pivot(columns=separate_by).xs(id_column, axis=1, level=0)
 
     def get_season_distribution(self, id_column=None):
+        """
+        Get the traffic count for all season and takeoff/landing combinations.
+
+        :param id_column: the column to use for counting the traffic rows.
+        :return: the distribution of the traffic with season and landing/takeoff on the index and DENEM as columns
+        :rtype: pd.DataFrame
+        """
 
         # Select the date column to use
         id_column = id_column if id_column is not None else self.id_column
@@ -324,6 +367,13 @@ class Traffic(object):
         return distribution[['D', 'E', 'N', 'EM']]
 
     def get_procedure_distribution(self):
+        """
+        Get the traffic count for all altitude classes of arrivals and procedure classes of departures.
+
+        :return: the distribution of the traffic for takeoff/landing with altitude on the index for arrivals and
+        procedure on the index for departures.
+        :rtype: pd.DataFrame, pd.DataFrame
+        """
 
         # Get the arrivals
         arrivals = self.data[self.data['LT'] == 'L'].groupby(self.altitude_column)[self.id_column].count()
