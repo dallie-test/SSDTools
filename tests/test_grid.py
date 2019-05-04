@@ -603,31 +603,255 @@ def test_resize():
 
 
 def test_scale_per_time_interval():
-    assert False
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the Lnight
+    meteotoeslag_ln_scaled = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'], scale_n=1.021)
+
+    # The Lden data should increase due to the increase of Lnight
+    assert (meteotoeslag_ln_scaled.data > meteotoeslag['Lden'].data).all()
+
+    # Scale the Lden
+    meteotoeslag_lde_scaled = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'],
+                                                                                  scale_de=1.031)
+
+    # The Lden data should increase due to the increase of Lde
+    assert (meteotoeslag_lde_scaled.data > meteotoeslag['Lden'].data).all()
+
+    # Scale both Lden and Lnight
+    meteotoeslag_lden_scaled = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'],
+                                                                                   scale_n=1.021,
+                                                                                   scale_de=1.031)
+
+    # The Lden data should increase due to the scaling factors
+    assert (meteotoeslag_lden_scaled.data > meteotoeslag['Lden'].data).all()
+    assert (meteotoeslag_lden_scaled.data > meteotoeslag_lde_scaled.data).all()
+    assert (meteotoeslag_lden_scaled.data > meteotoeslag_ln_scaled.data).all()
+
+
+def test_scale_per_time_interval_no_scale():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag without actually scaling
+    meteotoeslag_lden_scaled = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'])
+
+    # Check if the values are still the same
+    np.testing.assert_almost_equal(meteotoeslag['Lden'].data, meteotoeslag_lden_scaled.data, 12)
+
+
+def test_scale_per_time_interval_decrease():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag with a scaling factor below 1
+    meteotoeslag_lden_scaled = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'], scale_de=.9)
+
+    # The Lden data should decrease due to the decrease of Lde
+    assert (meteotoeslag_lden_scaled.data < meteotoeslag['Lden'].data).all()
+
+
+@raises(ValueError)
+def test_scale_per_time_interval_negative_scale():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag with a negative scaling factor
+    meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'], scale_de=-1)
+
+
+@raises(ValueError)
+def test_scale_per_time_interval_zero_scale():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag with a zero scaling factor
+    meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'], scale_de=0)
 
 
 @raises(TypeError)
 def test_scale_per_time_interval_wrong_den_grid():
-    assert False
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag
+    meteotoeslag['Lnight'].copy().scale_per_time_interval(meteotoeslag['Lnight'])
 
 
 @raises(TypeError)
 def test_scale_per_time_interval_wrong_night_grid():
-    assert False
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag
+    meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lden'])
 
 
-@raises(TypeError)
+@raises(ValueError)
 def test_scale_per_time_interval_incompatible_grids():
-    assert False
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag without actually scaling
+    meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'].refine(.5))
 
 
 @raises(TypeError)
-def test_scale_per_time_interval_multigrid():
-    assert False
+def test_scale_per_time_interval_lden_multigrid():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    grid = {}
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a grid object from the data file
+        grid[unit] = Grid.read_enviras(file_paths, pattern)
+
+        # Create a meteotoeslag grid
+        meteotoeslag[unit] = grid[unit].meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag without actually scaling
+    grid['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'])
+
+
+@raises(TypeError)
+def test_scale_per_time_interval_lnight_multigrid():
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    grid = {}
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a grid object from the data file
+        grid[unit] = Grid.read_enviras(file_paths, pattern)
+
+        # Create a meteotoeslag grid
+        meteotoeslag[unit] = grid[unit].meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag without actually scaling
+    meteotoeslag['Lden'].copy().scale_per_time_interval(grid['Lnight'])
 
 
 def test_scale_per_time_interval_apply_night_time_correction():
-    assert False
+    # Get the path to the Envira files
+    file_paths = abs_path('data/H_500_00_doc29')
+
+    # Create a dict for the meteotoeslag grids
+    meteotoeslag = {}
+
+    for unit in ['Lden', 'Lnight']:
+        # Set the pattern
+        pattern = r'[\w\d\s]+{}[\w\d\s]+\.dat'.format(unit)
+
+        # Create a meteotoeslag grid object from the data file
+        meteotoeslag[unit] = Grid.read_enviras(file_paths, pattern).meteotoeslag_grid_from_method('hybride')
+
+    # Scale the meteotoeslag 2.1%
+    meteotoeslag_lden_scaled_with = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'],
+                                                                                        scale_de=1.021)
+
+    # Scale the meteotoeslag 2.1% without lnight time correction
+    meteotoeslag_lden_scaled_without = meteotoeslag['Lden'].copy().scale_per_time_interval(meteotoeslag['Lnight'],
+                                                                                           scale_de=1.021,
+                                                                                           apply_lnight_time_correction=False)
+
+    # Without lnight time correction, the scaled data Lden should be lower
+    assert (meteotoeslag_lden_scaled_with.data > meteotoeslag_lden_scaled_without.data).all()
 
 
 def test_extract_year_from_file_name_y1234():
