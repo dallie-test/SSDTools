@@ -11,6 +11,8 @@ def test_read_daisy_phase_file():
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_phase_file(file_path)
 
+    assert aggregate.type == 'daisy.phase'
+
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
 
@@ -56,10 +58,10 @@ def test_read_daisy_phase_file_summer_season():
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_phase_file(file_path)
 
+    assert aggregate.type == 'daisy.phase'
+
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt')
-
-    pass
 
 
 def test_read_daisy_meteoyear_file():
@@ -68,6 +70,8 @@ def test_read_daisy_meteoyear_file():
 
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_meteoyear_file(file_path)
+
+    assert aggregate.type == 'daisy.meteoyear'
 
     # Get the runway usage statistics
     runway_usage = aggregate.get_runway_usage_statistics('D|E|N')
@@ -136,6 +140,8 @@ def test_read_daisy_runway_combination_file():
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_runway_combination_file(file_path)
 
+    assert aggregate.type == 'daisy.runway_combination'
+
     # Get the DEN distribution rounded by 100
     distribution = aggregate.get_den_distribution().round(decimals=-2)
 
@@ -174,6 +180,8 @@ def test_read_daisy_mean_file():
 
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_mean_file(file_path)
+
+    assert aggregate.type == 'daisy.mean'
 
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
@@ -219,6 +227,8 @@ def test_read_daisy_weekday_file():
 
     # Create a traffic object from the data file
     aggregate = Traffic.read_daisy_weekday_file(file_path)
+
+    assert aggregate.type == 'daisy.weekday'
 
     # Get the DEN distribution for takeoff and landing rounded by 100
     distribution = aggregate.get_den_distribution(separate_by='d_lt').round(decimals=-2)
@@ -273,6 +283,8 @@ def test_read_taf_file():
 
     # Create a traffic object from the data file
     aggregate = Traffic.read_taf_file(file_path, **file_kwargs)
+
+    assert aggregate.type == 'taf.sir'
 
     # Get the DEN distribution for takeoff and landing rounded by 100
     try:
