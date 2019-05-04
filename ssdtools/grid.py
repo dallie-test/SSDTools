@@ -454,6 +454,8 @@ class Grid(object):
             raise TypeError('The supplied night grid should have the unit Lnight.')
         if isinstance(self.data, list) or isinstance(night_grid.data, list):
             raise TypeError('This method does not support multigrids.')
+        if scale_de <= 0 or scale_n <= 0:
+            raise ValueError('This method does not support negative scaling factors.')
 
         # Convert Lnight to Ln
         n_grid = night_grid.copy().scale(10)
@@ -463,9 +465,8 @@ class Grid(object):
             n_grid.scale(8 / 24.)
 
         # Scale only the day- and evening
-        self.data = 10 * np.log10(
-            (10 ** (self.data / 10.) - 10 ** (n_grid.data / 10.)) * scale_de
-            + (10 ** (n_grid.data / 10.) * scale_n))
+        self.data = 10 * np.log10((10 ** (self.data / 10.) - 10 ** (n_grid.data / 10.)) * scale_de
+                                  + (10 ** (n_grid.data / 10.) * scale_n))
 
         # Return itself, the scaled grid
         return self
