@@ -1,10 +1,8 @@
 import matplotlib.pyplot as plt
 
-from ssdtools.branding import set_schiphol_default
-
 if __name__ == "__main__":
     # Set the branding to use
-    set_schiphol_default()
+    plt.style.use('../ssdtools/branding/schiphol_default.rc')
 
     # Plot the various colors as bars
     for x in range(11):
