@@ -1,4 +1,15 @@
+import os
+
 import matplotlib.pyplot as plt
+
+
+def set_schiphol_default():
+    # Get the path to the schiphol_default.rc
+    path = os.path.join(os.path.dirname(__file__), 'branding/schiphol_default.rc')
+
+    # Set the branding to use
+    plt.style.use(path)
+
 
 baangebruik = {'MER': {'markerwidth': [0.5, 0.4, 0.08],  # voor 1, 2 en >2 traffics
                        'markerheight': [0.2, 0.2, 0.08],  # voor 1, 2 en >2
