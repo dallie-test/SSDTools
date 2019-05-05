@@ -488,7 +488,7 @@ def test_interpolation_function_nominal():
 
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
-    interpolation = Grid.interpolation_function(grid)
+    interpolation = grid.interpolation_function()
 
     assert isinstance(interpolation, RectBivariateSpline)
 
@@ -501,7 +501,7 @@ def test_interpolation_function_multigrid():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
     grid.data = []
-    Grid.interpolation_function(grid)
+    grid.interpolation_function()
 
 
 @raises(AttributeError)
@@ -512,7 +512,7 @@ def test_interpolation_function_nan():
     # Create a grid object from the data file
     grid = Grid.read_envira(file_path)
     grid.data = np.nan
-    Grid.interpolation_function(grid)
+    grid.interpolation_function()
 
 
 def test_refine():

@@ -365,7 +365,8 @@ class Grid(object):
     def interpolation_function(self):
         """
         Determine the bi-cubic spline interpolation function.
-        :return the interpolation function.
+
+        :return the interpolation function, with first argument the y-coordinate and second argument the x-coordinate.
         :rtype function
         """
 
