@@ -8,7 +8,7 @@ If you want to use this package in your own project, you can import this package
 
 ```bash
 # Execute the the following command in your terminal to install the latest version of GPtools. 
-pip install git+ssh://github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
+pip install git+https://github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
 ```
 
 For more information about installing a Python package from a repository, please visit https://pip.pypa.io/en/stable/reference/pip_install/#git.
