@@ -21,8 +21,11 @@ def git_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env).communicate()[0]
-        return out
+
+        # Set the working directory
+        cwd = os.path.dirname(os.path.abspath(__file__))
+
+        return subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env, cwd=cwd).communicate()[0]
 
     try:
         out = _minimal_ext_cmd(['git', 'rev-parse', 'HEAD'])
