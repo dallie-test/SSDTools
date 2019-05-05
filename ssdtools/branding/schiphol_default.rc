@@ -1,0 +1,12 @@
+font.family        : Arial
+font.size          : 13
+
+lines.markersize   : 6
+lines.linewidth    : 2.5
+
+axes.prop_cycle    : cycler('color', ['141251', 'AA3191', '027E9B', '6552A8', '1B60DB', 'D285D6', '25D7F4', '94B0EA', 'FF8FB2', '9491AA', 'BFBDCC'])
+axes.spines.left   : False
+axes.spines.bottom : False
+axes.spines.top    : False
+axes.spines.right  : False
+
