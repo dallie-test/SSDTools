@@ -1,7 +1,12 @@
+import os
+
 import numpy as np
 from nose.tools import raises
 from ssdtools.grid import read_envira, Shape
-from test_grid import abs_path
+
+
+def abs_path(rel_path):
+    return os.path.join(os.path.dirname(__file__), rel_path)
 
 
 def test_read_envira_shape():
@@ -120,7 +125,7 @@ def test_set_x_number_11():
     assert shape_dict == {
         'x_number': 11,
         'x_start': 84000,
-        'x_step': (155000 - 84000)/10,
+        'x_step': (155000 - 84000) / 10,
         'x_stop': 155000,
         'y_number': 143,
         'y_start': 455000,
@@ -533,7 +538,7 @@ def test_set_y_number_11():
         'x_stop': 155000,
         'y_number': 11,
         'y_start': 455000,
-        'y_step': (526000 - 455000)/10,
+        'y_step': (526000 - 455000) / 10,
         'y_stop': 526000
     }
 
@@ -627,6 +632,7 @@ def test_refine_y_nan():
     factor = np.nan
     shape.refine_y(factor)
     assert False
+
 
 @raises(ValueError)
 def test_refine_y_inf():

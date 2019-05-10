@@ -2,7 +2,6 @@ import os
 import numpy as np
 import pandas as pd
 from nose.tools import raises
-
 from ssdtools.grid import Grid
 from ssdtools.wbs import WBS
 

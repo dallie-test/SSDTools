@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import datetime
 from nose.tools import raises
-
 from ssdtools.traffic import start_winter_season
 from ssdtools.traffic import start_summer_season
 from ssdtools.traffic import get_year_of_use
