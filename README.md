@@ -1,67 +1,14 @@
-# SSDtools
+# GPtools
 
-A Python toolbox that contains common objects and functions used for reporting on the environmental impact of air traffic movements on airports surrounding. It's consist of two main functionalities:
-- Datafiles containing air traffic schedules can be loaded and analysis can be performed.
-- Noise grids can be loaded and Lden and Lnight levels at individual locations can be computed. Used for official reporting about noise impact at Schiphol airport. 
+A Python toolbox that contains common objects and functions used for reporting and analysis at the Schiphol department for Stakeholder and Strategy Development.
 
-## Creating conda invironment with ssdtools installed (for Schiphol users)
-If you are using the conda editor, here is some usefull code to get you started by setting up an environment this packages has been tested in. First make a environment.yml file, from which to set up your conda environement, containing the following code:
-```bash
-name: ssd
-channels:
-  - conda-forge
-dependencies:
-  - python=3.6
-  - numpy=1.16.*
-  - pandas=0.24.*
-  - scipy=1.2.*
-  - xlrd=1.2.*
-  - requests=2.21.*
-  - matplotlib=3.0.*
-  - gdal=2.3.*
-  - proj4=5.*
-  - pyshp=2.1.*
-  - pytables=3.5.*
-  - geopandas=0.5.*
-  - descartes=1.1.*
-  - pip=19.1.*
-  - pip:
-      - Pillow==6.0.*
-      - python-docx==0.8.*
-      - git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
-
-
-# to install from environment.yml, use:
-conda env create -f environment.yml
-
-```
-Make sure you have a personal acces token, to circumvent the two-factor identification. For more info on a personal acces token, see: https://github.com/settings/tokens Then install using:
-```bash
-# to install from environment.yml, use:
-conda env create -f environment.yml
-
-```
-When prompted for a pasword use the personal acces token.
-
-## Installation (for non-schiphol users)
+## Installation
 
 If you want to use this package in your own project, you can import this package by running the following command or include it in the `requirements.txt` or `environment.yml` of your project.
 
 ```bash
 # Execute the the following command in your terminal to install the latest version of GPtools. 
-
-# If you work with an ssh key, then use:
-pip install git+ssh://git@github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
-
-# OR clone first using for example https:
-git clone https://github.com/Schiphol-Hub/SSDTools.git
-
-# and then install to environement from local repo:
-pip install git+file:///PATH_TO_CLONE#egg=SSDTools
-
-# OR install directly using hhtps:
-pip install git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
-
+pip install git+https://github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
 ```
 
 For more information about installing a Python package from a repository, please visit https://pip.pypa.io/en/stable/reference/pip_install/#git.

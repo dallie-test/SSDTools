@@ -203,20 +203,8 @@ class Grid(object):
 
     def to_shapefile(self, path, level):
 
-        # Extract the x and y coordinates
-        x = self.shape.get_x_coordinates()
-        y = self.shape.get_y_coordinates()
-
-        # Create a contour using matplotlib without opening a figure
-        figsize = (21 / 2.54, 21 / 2.54)
-        fig = plt.figure(figsize=figsize)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        plt.close(fig)
-        ax.contourf(x, y, self.data, levels=[level, 100], colors='blue')
-        cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
-
         # Extract coordinates from contour and put into correct format for shapefile
-        contours = cs.allsegs[0]
+        contours = self.contour_points(level)
 
         # Create polygons with correct data type (and reverse the coordinates to get rid of open holes)
         flat_list = [contour_coordinates[::-1, :].tolist() for contour_coordinates in contours]
@@ -242,26 +230,21 @@ class Grid(object):
 
         return self
 
-    def gelijkwaardigheid(self):
-        """
-        todo: Translate gelijkwaardigheid
-        todo: Add the functionality of GPtools_matlab/lib/GPcalc_gelijkwaardigheid.m here
-        """
-        pass
+    def contour_points(self, level):
+        # Extract the x and y coordinates
+        x = self.shape.get_x_coordinates()
+        y = self.shape.get_y_coordinates()
 
-    def inpasbaarvolume(self):
-        """
-        todo: Translate inpasbaarvolume
-        todo: Add GPtools_matlab/lib/GPcalc_inpasbaarvolume.m here
-        """
-        pass
+        # Create a contour using matplotlib without opening a figure
+        figsize = (21 / 2.54, 21 / 2.54)
+        fig = plt.figure(figsize=figsize)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        plt.close(fig)
+        ax.contourf(x, y, self.data, levels=[level, 100], colors='blue')
+        cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
 
-    def contourpunten(self):
-        """
-        todo: Translate contourpunten
-        todo: Add GPtools_matlab/lib/ContourPunten.m here
-        """
-        pass
+        # Extract coordinates from the contour
+        return cs.allsegs[0]
 
     def hg(self):
         """
@@ -382,7 +365,8 @@ class Grid(object):
     def interpolation_function(self):
         """
         Determine the bi-cubic spline interpolation function.
-        :return the interpolation function.
+
+        :return the interpolation function, with first argument the y-coordinate and second argument the x-coordinate.
         :rtype function
         """
 

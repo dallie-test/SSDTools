@@ -1,8 +1,12 @@
+import os
 import numpy as np
 from ssdtools.grid import Grid, gwc, relative_den_norm_performance
 from ssdtools.wbs import WBS
 from scipy.optimize import brentq
-from tests.test_grid import abs_path
+
+
+def abs_path(rel_path):
+    return os.path.join(os.path.dirname(__file__), rel_path)
 
 
 def test_grid_scale_per_time_interval():
