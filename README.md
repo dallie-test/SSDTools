@@ -4,9 +4,9 @@ A Python toolbox that contains common objects and functions used for reporting o
 - Datafiles containing air traffic schedules can be loaded and analysis can be performed.
 - Noise grids can be loaded and Lden and Lnight levels at individual locations can be computed. Used for official reporting about noise impact at Schiphol airport. 
 
-## Creating conda invironment with ssdtools installed (for Schiphol users)
-If you are using the conda editor, here is some usefull code to get you started by setting up an environment this packages has been tested in. First make a environment.yml file, from which to set up your conda environement, containing the following code:
-```bash
+## Creating conda environment with ssdtools installed (for Schiphol users)
+If you are using the conda editor, here is some useful code to get you started by setting up an environment this packages has been tested in. First make a environment.yml file, from which to set up your conda environment, containing the following code:
+```yaml
 name: ssd
 channels:
   - conda-forge
@@ -29,19 +29,15 @@ dependencies:
       - Pillow==6.0.*
       - python-docx==0.8.*
       - git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
-
-
-# to install from environment.yml, use:
-conda env create -f environment.yml
-
 ```
-Make sure you have a personal acces token, to circumvent the two-factor identification. For more info on a personal acces token, see: https://github.com/settings/tokens Then install using:
+
+Make sure you have a personal access token, to circumvent the two-factor identification. For more info on a personal access token, see: https://github.com/settings/tokens Then install using:
 ```bash
-# to install from environment.yml, use:
+# To install from an environment.yml, use:
 conda env create -f environment.yml
 
 ```
-When prompted for a pasword use the personal acces token.
+When prompted for a password use the personal access token.
 
 ## Installation (for non-schiphol users)
 
