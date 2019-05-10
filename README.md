@@ -1,6 +1,9 @@
-# GPtools
+# SSDtools
 
-A Python toolbox that contains common objects and functions used for reporting and analysis at the Schiphol department for Stakeholder and Strategy Development.
+A Python toolbox that contains common objects and functions used for reporting on the environmental impact of air traffic movements on airports surrounding. It's consist of two main functionalities:
+- Datafiles containing air traffic schedules can be loaded and analysis can be performed.
+- Noise grids can be loaded and Lden and Lnight levels at individual locations can be computed. Used for official reporting about noise impact at Schiphol airport. 
+
 
 ## Installation
 
@@ -8,7 +11,7 @@ If you want to use this package in your own project, you can import this package
 
 ```bash
 # Execute the the following command in your terminal to install the latest version of GPtools. 
-pip install git+ssh://github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
+pip install git+ssh://git@github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
 ```
 
 For more information about installing a Python package from a repository, please visit https://pip.pypa.io/en/stable/reference/pip_install/#git.
