@@ -40,6 +40,7 @@ conda env create -f environment.yml
 Now install SSDTools. Open a git bash, and type the following command.Make sure you have a personal access token, to circumvent the two-factor identification. For more info on a personal acces token, see: https://github.com/settings/tokens 
 
 ```git bash
+conda init bash
 conda activate ssd
 pip install git+https://git@github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
 
