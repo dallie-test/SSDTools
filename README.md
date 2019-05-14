@@ -24,20 +24,35 @@ dependencies:
   - pytables=3.5.*
   - geopandas=0.5.*
   - descartes=1.1.*
+  - pytest=4.4.*
+  - nose=1.3.*
+  - Pillow=6.0.*
   - pip=19.1.*
-  - pip:
-      - Pillow==6.0.*
-      - python-docx==0.8.*
-      - git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
-```
+  - python-docx=0.8.*
 
-Make sure you have a personal access token, to circumvent the two-factor identification. For more info on a personal access token, see: https://github.com/settings/tokens Then install using:
-```bash
-# To install from an environment.yml, use:
+```
+Create environment using the following command in a conda command prompt.
+```conda prompt
+# to install from environment.yml, use:
 conda env create -f environment.yml
 
 ```
-When prompted for a password use the personal access token.
+Now install SSDTools. Open a git bash, and type the following command.Make sure you have a personal access token, to circumvent the two-factor identification. For more info on a personal acces token, see: https://github.com/settings/tokens 
+
+```git bash
+conda activate ssd
+pip install git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
+
+```
+When prompted for a password, use the personal acces token. Now reinstall the spyder kernels:
+
+```conda prompt
+conda activate ssd
+conda install spyder-kernels=0.*
+```
+
+Note: when importing SSD tools, make sure spyder is pointing to the correct python.exe. Go to tools->preferences-> python interpreter and set the interpreter to your environment path, e.g.:
+C:\Users\dalmeijer_w\AppData\Local\Continuum\anaconda3\envs\ssd\python.exe
 
 ## Installation (for non-schiphol users)
 
