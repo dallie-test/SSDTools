@@ -36,7 +36,7 @@ class Meteo(object):
         return self.data.groupby(['DR', 'SC'])['STN'].count()
 
     @classmethod
-    def from_knmi(cls, start, end):
+    def from_knmi(cls, start, end, proxy=None):
         """
         Uses the hourly records from KNMI.
         See http://projects.knmi.nl/klimatologie/uurgegevens/selectie.cgi
@@ -53,11 +53,11 @@ class Meteo(object):
         :return: meteorological data.
         :rtype: Meteo
         """
-
+		
         # Get the start and end of the requested period
         start = pd.to_datetime(start)
         end = pd.to_datetime(end)
-
+        
         # Make the call to the KNMI API
         r = requests.post('http://projects.knmi.nl/klimatologie/uurgegevens/getdata_uur.cgi',
                           data={
@@ -65,7 +65,7 @@ class Meteo(object):
                               'end': end.strftime('%Y%m%d%H'),
                               'vars': 'DD:FF',
                               'stns': '240'
-                          })
+                          }, proxies=proxy)
 
         # Check the status code of the response
         if not r.status_code == 200:

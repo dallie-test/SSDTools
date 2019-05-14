@@ -41,7 +41,7 @@ Now install SSDTools. Open a git bash, and type the following command.Make sure 
 
 ```git bash
 conda activate ssd
-pip install git+https://github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
+pip install git+https://git@github.com/Schiphol-Hub/SSDTools.git@master#egg=SSDTools
 
 ```
 When prompted for a password, use the personal acces token. Now reinstall the spyder kernels:
