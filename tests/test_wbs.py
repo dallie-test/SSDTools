@@ -244,10 +244,10 @@ def test_gwc():
                                    gwc_description_verification.loc['SV 40 dB(A) Lnight', gwc_statistics.index],
                                    check_names=False)
 
-    pd.testing.assert_series_equal(gwc['w58den'], gwc_verification['w58den'], check_names=False)
-    pd.testing.assert_series_equal(gwc['eh48den'], gwc_verification['egh48den'], check_names=False)  # error
-    pd.testing.assert_series_equal(gwc['w48n'], gwc_verification['w48n'], check_names=False)
-    pd.testing.assert_series_equal(gwc['sv40n'], gwc_verification['sv40n'], check_names=False)  # error
+    pd.testing.assert_series_equal(gwc['w58den'].sort_index(), gwc_verification['w58den'], check_names=False)
+    pd.testing.assert_series_equal(gwc['eh48den'].sort_index(), gwc_verification['egh48den'], check_names=False)  # error
+    pd.testing.assert_series_equal(gwc['w48n'].sort_index(), gwc_verification['w48n'], check_names=False)
+    pd.testing.assert_series_equal(gwc['sv40n'].sort_index(), gwc_verification['sv40n'], check_names=False)  # error
 
 
 def abs_path(rel_path):
