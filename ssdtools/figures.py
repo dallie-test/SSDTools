@@ -466,7 +466,7 @@ def plot_season_traffic(distribution, column_colors=None):
     return fig, ax
 
 
-def plot_aircraft_types(traffic_aggregate, bar_color=None):
+def plot_aircraft_types(traffic_aggregate, ax=None, **kwargs):
     # Extract the weight class
     weight_class = pd.concat([traffic_aggregate.data['total'],
                               traffic_aggregate.data['d_ac_cat'].str.get(0).astype(int)], axis=1)
@@ -495,29 +495,33 @@ def plot_aircraft_types(traffic_aggregate, bar_color=None):
     fleet = fleet / fleet.sum() * 100
     fleet = fleet.fillna(0)
 
-    # Create a figure
-    fig, ax = plt.subplots(figsize=(12, 4))
+    if ax is None:
+        # Create a figure
+        fig, ax = plt.subplots(figsize=(12, 4))
 
     # Add horizontal grid lines
     ax.grid(axis='y')
 
     # Create the bar plot
-    ax.bar(range(fleet.shape[0]), fleet, align='center', color=bar_color, width=0.5)
+    ax.bar(range(fleet.shape[0]), fleet, **kwargs)
 
     # Set the x-ticks
-    plt.xticks(range(fleet.shape[0]), fleet.index.tolist())
+    ax.set_xticks(range(fleet.shape[0]), fleet.index.tolist())
 
     # Format the y-ticks
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d %%'))
 
     # Set the x-label
-    plt.xlabel('Maximum startgewicht in tonnen')
+    ax.set_xlabel('Maximum startgewicht in tonnen')
 
     # Get rid of box around graph
     for spine in plt.gca().spines.values():
         spine.set_visible(False)
 
-    return fig, ax
+    try:
+        return fig, ax
+    except NameError:
+        return None, ax
 
 
 class BracketPlot(object):
