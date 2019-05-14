@@ -136,27 +136,27 @@ def test_grid_relative_den_norm_performance():
     # Validate the grid data
     # ------------------------------------------------------------------------
 
-    np.testing.assert_array_equal(dat_den_500k_dat.reshape(den_data.shape), den_data)
-    np.testing.assert_array_equal(dat_den_500k_mm.reshape(den_meteotoeslag.data.shape), den_meteotoeslag.data)
-    np.testing.assert_array_equal(dat_den_500k_dhi.reshape(den_statistics['dhi'].data.shape),
-                                  den_statistics['dhi'].data)
-    np.testing.assert_array_equal(dat_den_500k_dlo.reshape(den_statistics['dlo'].data.shape),
-                                  den_statistics['dlo'].data)
-    np.testing.assert_array_equal(dat_den_500k_mean.reshape(den_statistics['mean'].data.shape),
-                                  den_statistics['mean'].data)
-    np.testing.assert_array_equal(dat_den_500k_std.reshape(den_statistics['std'].data.shape),
-                                  den_statistics['std'].data)
+    np.testing.assert_almost_equal(dat_den_500k_dat.reshape(den_data.shape), den_data)
+    np.testing.assert_almost_equal(dat_den_500k_mm.reshape(den_meteotoeslag.data.shape), den_meteotoeslag.data)
+    np.testing.assert_almost_equal(dat_den_500k_dhi.reshape(den_statistics['dhi'].data.shape),
+                                   den_statistics['dhi'].data)
+    np.testing.assert_almost_equal(dat_den_500k_dlo.reshape(den_statistics['dlo'].data.shape),
+                                   den_statistics['dlo'].data)
+    np.testing.assert_almost_equal(dat_den_500k_mean.reshape(den_statistics['mean'].data.shape),
+                                   den_statistics['mean'].data)
+    np.testing.assert_almost_equal(dat_den_500k_std.reshape(den_statistics['std'].data.shape),
+                                   den_statistics['std'].data)
 
-    np.testing.assert_array_equal(dat_night_500k_dat.reshape(night_data.shape), night_data)
-    np.testing.assert_array_equal(dat_night_500k_mm.reshape(night_meteotoeslag.data.shape), night_meteotoeslag.data)
-    np.testing.assert_array_equal(dat_night_500k_dhi.reshape(night_statistics['dhi'].data.shape),
-                                  night_statistics['dhi'].data)
-    np.testing.assert_array_equal(dat_night_500k_dlo.reshape(night_statistics['dlo'].data.shape),
-                                  night_statistics['dlo'].data)
-    np.testing.assert_array_equal(dat_night_500k_mean.reshape(night_statistics['mean'].data.shape),
-                                  night_statistics['mean'].data)
-    np.testing.assert_array_equal(dat_night_500k_std.reshape(night_statistics['std'].data.shape),
-                                  night_statistics['std'].data)
+    np.testing.assert_almost_equal(dat_night_500k_dat.reshape(night_data.shape), night_data)
+    np.testing.assert_almost_equal(dat_night_500k_mm.reshape(night_meteotoeslag.data.shape), night_meteotoeslag.data)
+    np.testing.assert_almost_equal(dat_night_500k_dhi.reshape(night_statistics['dhi'].data.shape),
+                                   night_statistics['dhi'].data)
+    np.testing.assert_almost_equal(dat_night_500k_dlo.reshape(night_statistics['dlo'].data.shape),
+                                   night_statistics['dlo'].data)
+    np.testing.assert_almost_equal(dat_night_500k_mean.reshape(night_statistics['mean'].data.shape),
+                                   night_statistics['mean'].data)
+    np.testing.assert_almost_equal(dat_night_500k_std.reshape(night_statistics['std'].data.shape),
+                                   night_statistics['std'].data)
 
     # ------------------------------------------------------------------------
     # Read the WBS file
@@ -194,17 +194,17 @@ def test_grid_relative_den_norm_performance():
     # ------------------------------------------------------------------------
     # Validate the interpolated grid data
     # ------------------------------------------------------------------------
-    np.testing.assert_array_equal(interp_den.get_coeffs(), interp_den_coeffs)
-    np.testing.assert_array_equal(interp_den.get_knots()[0], interp_den_knots_0)
-    np.testing.assert_array_equal(interp_den.get_knots()[1], interp_den_knots_1)
-    np.testing.assert_array_equal(interp_den.get_residual(), interp_den_residual[0])
-    np.testing.assert_array_equal(wbs.data['Lden'].values, wbs_den)
+    np.testing.assert_almost_equal(interp_den.get_coeffs(), interp_den_coeffs)
+    np.testing.assert_almost_equal(interp_den.get_knots()[0], interp_den_knots_0)
+    np.testing.assert_almost_equal(interp_den.get_knots()[1], interp_den_knots_1)
+    np.testing.assert_almost_equal(interp_den.get_residual(), interp_den_residual[0])
+    np.testing.assert_almost_equal(wbs.data['Lden'].values, wbs_den)
 
-    np.testing.assert_array_equal(interp_night.get_coeffs(), interp_night_coeffs)
-    np.testing.assert_array_equal(interp_night.get_knots()[0], interp_night_knots_0)
-    np.testing.assert_array_equal(interp_night.get_knots()[1], interp_night_knots_1)
-    np.testing.assert_array_equal(interp_night.get_residual(), interp_night_residual[0])
-    np.testing.assert_array_equal(wbs.data['Lnight'].values, wbs_night)
+    np.testing.assert_almost_equal(interp_night.get_coeffs(), interp_night_coeffs)
+    np.testing.assert_almost_equal(interp_night.get_knots()[0], interp_night_knots_0)
+    np.testing.assert_almost_equal(interp_night.get_knots()[1], interp_night_knots_1)
+    np.testing.assert_almost_equal(interp_night.get_residual(), interp_night_residual[0])
+    np.testing.assert_almost_equal(wbs.data['Lnight'].values, wbs_night)
 
     # ------------------------------------------------------------------------
     # Get the optimal scaling factor that fits within the GWC
