@@ -8,6 +8,7 @@ import pandas as pd
 import shapefile
 import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
+from shapely.geometry import Polygon
 
 # Set the gelijkwaardigheidscriteria
 gwc = {'doc29_2005': [13600, 166500, 14600, 45000],
@@ -454,6 +455,46 @@ class Grid(object):
 
         # Return itself, the scaled grid
         return self
+
+    def get_area_from_contour(self, level):
+        """
+        Calculate the area in a contout with specified level.
+
+        :level: The level of the contour in dB'.
+        :rtype: area in km2
+        
+        TO DO - first check on how to deald with islands an lakes seems to work OK. more verification is needed.
+        """
+       
+       # Extract the x and y coordinates
+       x = self.shape.get_x_coordinates()
+       y = self.shape.get_y_coordinates()
+
+       # Create a contour using matplotlib without opening a figure
+       figsize = (21 / 2.54, 21 / 2.54)
+       fig = plt.figure(figsize=figsize)
+       ax = plt.Axes(fig, [0., 0., 1., 1.])
+       plt.close(fig)
+       ax.contourf(x, y, self.data, levels=[level, 100], colors='blue')
+       cs = ax.contour(x, y, self.data, levels=[level], colors='green', linewidths=2)
+
+       ##organizing paths and computing individual areas
+       paths = cs.collections[0].get_paths()
+       
+       # loop over paths and find area
+       area_of_individual_polygons = []
+       for p in paths:
+              sign = -1 ##<-- assures that area of first(outer) polygon will be summed
+              if p.should_simplify:
+                     sign = 1  ##<-- assures that inner polygon will be summed
+        
+              verts = p.vertices
+              area_of_individual_polygons.append(sign*Polygon(verts).area)
+
+       ##computing total area and convert to km2      
+       total_area = np.sum(area_of_individual_polygons)/1000000
+       
+       return total_area
 
 
 def relative_den_norm_performance(scale, norm, wbs, den_grid, night_grid=None, scale_de=None, scale_n=None,
