@@ -469,7 +469,7 @@ def plot_season_traffic(distribution, column_colors=None):
 def plot_aircraft_types(traffic_aggregate, ax=None, **kwargs):
     # Extract the weight class
     weight_class = pd.concat([traffic_aggregate.data['total'],
-                              traffic_aggregate.data['d_ac_cat'].str.get(0).astype(int)], axis=1)
+                              traffic_aggregate.data['d_ac_cat'].str.get(0).fillna(0).astype(int)], axis=1)
     weight_class.columns = ('total', 'weight_class')
 
     # Set the MTOW definitions
