@@ -466,10 +466,13 @@ class TrafficAggregate(object):
         return distribution
     
     def get_denem_distribution(self, separate_by=None):
-        
+  
         # redefine d_den column based on scheduled times
-        t = pd.to_datetime(self.data['d_schedule'])
-        self.data.loc[t.dt.hour == 6,'d_den'] = 'EM'
+        try:
+            t = pd.to_datetime(self.data['d_schedule'],format='%H:%M')
+            self.data.loc[t.dt.hour == 6,'d_den'] = 'EM'
+        except:
+            self.data.loc[self.data['d_schedule'] == 6,'d_den'] = 'EM'
         
         if separate_by is None:
             return self.data.groupby(['d_den'])['total'].sum()
