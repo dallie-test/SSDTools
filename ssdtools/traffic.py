@@ -464,6 +464,23 @@ class TrafficAggregate(object):
         distribution = distribution.set_index(['d_den']).pivot(columns=separate_by).xs('total', axis=1, level=0)
 
         return distribution
+    
+    def get_denem_distribution(self, separate_by=None):
+        
+        # redefine d_den column based on scheduled times
+        t = pd.to_datetime(self.data['d_schedule'])
+        self.data.loc[t.dt.hour == 6,'d_den'] = 'EM'
+        
+        if separate_by is None:
+            return self.data.groupby(['d_den'])['total'].sum()
+
+        # Get the distribution
+        distribution = self.data.groupby([separate_by, 'd_den'])['total'].sum().reset_index(drop=False)
+
+        # Reshape the distribution
+        distribution = distribution.set_index(['d_den']).pivot(columns=separate_by).xs('total', axis=1, level=0)
+
+        return distribution
 
     def get_n_runway_preference_usage(self, rc_preferences):
 
