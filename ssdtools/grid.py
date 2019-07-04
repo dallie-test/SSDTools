@@ -288,7 +288,7 @@ class Grid(object):
         # Calculate the grid with meteorological surcharge and the included years
         meteotoeslag, meteo_years = self.meteotoeslag_from_years(meteotoeslag_years(method, self.unit))
 
-        return Grid(data=meteotoeslag, unit=self.unit, years=meteo_years, shape=self.shape)
+        return Grid(data=meteotoeslag, unit=self.unit, years=meteo_years, shape=self.shape, info=self.info[0])
 
     def meteotoeslag_from_years(self, years):
         """
