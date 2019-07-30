@@ -753,6 +753,13 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
     # margins
     fig.subplots_adjust(bottom=0.18)
     fig.subplots_adjust(wspace=0)
+   
+    # Set the colors for each column. These are the current house-colours 
+    colors_HS = {
+            'a': '#141251',
+            'b': '#1B60DB',
+            'c': '#9491AA',
+            'd': '#027E9B'}
 
     # Legend
     ax0 = fig.add_axes([0.8, 0.9, 0.05, 0.1])
@@ -775,12 +782,12 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
             else:
                 ref = ''
             ax0.bar(dx[i], height=0.6, bottom=bottom,
-                    width=w,
-                    **branding.baangebruik[style][ref + 'bar'],
+                    width=w,color=colors_HS['b'], #
+                    #**branding.baangebruik[style][ref + 'bar'],
                     zorder=4)
             ax0.bar(dxm[i], height=0.05, bottom=yi,
-                    width=mw,
-                    **branding.baangebruik[style][ref + 'marker'],
+                    width=mw,color=colors_HS['a'], #
+                    #**branding.baangebruik[style][ref + 'marker'],
                     zorder=6)
             ax0.text(xt, yt, labels[i],
                      transform=ax0.transAxes,
@@ -827,36 +834,33 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
                 ref = ''
 
             ax.bar(x + dx[i], height=bar_height, bottom=trf2['min'],
-                   width=w,
-                   **branding.baangebruik[style][ref + 'bar'],
+                   width=w,color=colors_HS['c'],
                    zorder=4)
 
             # gemiddelde
             ax.bar(x + dxm[i], height=marker_height, bottom=trf2['mean'] - marker_height / 2,
-                   width=mw,
-                   **branding.baangebruik[style][ref + 'marker'],
+                   width=mw,color=colors_HS['d'],
                    zorder=4)
-
-            # achtergrondkleur
-            ax.set_facecolor(fc)
 
             # border
             plt.setp(ax.spines.values(), **branding.baangebruik[style]['spines'])
 
-            # scheidingslijntje tussen subplots
-            ax.spines[spine].set_color('white')
+            # Removing all borders except for lower line in the plots
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.spines["left"].set_visible(False)
 
-            # tweak scheidingslijntje tussen subplots
-            for y in [0, 1]:
-                frame = lines.Line2D([0, 1], [y, y],
-                                     transform=ax1.transAxes,
-                                     **branding.baangebruik[style]['spines'],
-                                     zorder=10)
-                frame.set_clip_on(False)
-                ax.add_line(frame)
+            # Adding gridlines
+            ax.grid(which='major', axis='y', linewidth=0.5, color='grey')
+    
 
-                # gridlines
-            ax.grid(which='major', axis='y', linewidth=0.5, color='white')
+            # Tweaking line between subplots
+            frame = lines.Line2D([0, 1], [0, 0],
+                     transform=ax.transAxes,
+                     **branding.baangebruik[style]['spines'],
+                     zorder=10)
+            frame.set_clip_on(False)
+            ax.add_line(frame)
 
             # geen tickmarks
             plt.setp([ax.get_xticklines(), ax.get_yticklines()], color='none')
@@ -883,6 +887,14 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
             ax.set_ylim(ylim)
             ax.yaxis.set_major_locator(MultipleLocator(base=dy))
             ax.yaxis.set_major_formatter(FuncFormatter(NumberFormatter))
+            
+            # Adding a vertical line in the middle of the plots
+            frame2 = lines.Line2D([1, 1], [0, 1],
+                                 transform=ax1.transAxes,
+                                 **branding.baangebruik[style]['spines'],
+                                 zorder=10)
+            frame2.set_clip_on(False)
+            ax.add_line(frame2)
 
     return fig, (ax1, ax2)
 
