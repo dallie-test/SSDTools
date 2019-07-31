@@ -1,0 +1,137 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 31 15:40:18 2019
+
+@author: xx
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 30 15:00:30 2019
+
+@author: Nicolas
+
+Example code for use of the emmissiemodel code
+"""
+
+import pandas as pd
+#from ssdtools.traffic import Traffic
+
+
+from ssdtools.fraffic import*
+
+# This code can be used to make predictions of the LTO emissions for a given dataset
+# or to find the real LTO emissions for a given CASPER traffic excerpt
+
+#CASE 1: DAISY traffic list
+
+
+# read traffic
+
+DAISYtraffic    = pd.read_excel('input/traffic/20180803-1130-traffic-Empirisch seizoen (owned by GP2019).xls')
+ac_cat          = pd.read_excel('input/traffic/20180803-0953-aircraftcategories.xls')
+
+# TIS traffic
+TIStraffic      = pd.read_excel('input/TIStraffic/CH806-206_20180802_160942.xls')
+ac_cat          = pd.read_excel('input/traffic/20180803-0953-aircraftcategories.xls')
+
+# SCMdatabase
+TIM             = pd.read_excel('input/database/timtimes-20180802-154523.xls')
+ET              = pd.read_excel('input/database/enginetypes-20180802-154659.xls')          
+AT              = pd.read_excel('input/database/aircrafttypes-20180802-154635.xls')
+
+# nieuwe motortypen zonder empirische data
+new_engine      = pd.read_excel('input/new_engine_types.xlsx')
+
+# Settings
+f_3ipv4         = 0.8   # taxien met minder motoren   
+f_2ipv3         = 1.0   # taxien met minder motoren  
+f_APU400hz      = 0.541 # Gebruik van 400hz EN APU
+f_APU           = 0.209 # Gebruik van alleen APU
+settings        = [f_3ipv4,f_2ipv3,f_APU400hz,f_APU]
+
+accat=ac_cat
+tis=TIStraffic
+tim=TIM
+et=ET
+at=AT
+
+
+
+daisy=TrafficAggregate(DAISYtraffic, aggregate_type='daisy.aircraft')
+    
+#%% run emissiemodel
+traffic_out,output= daisy.emissieModel(ET,
+                                       TIM,
+                                       AT,
+                                       ac_cat,
+                                       TIStraffic,
+                                       new_engine,
+                                       settings
+                                       )
+
+
+
+
+
+#CASE 2: Emissions from real CASPER data
+
+
+# Create aircraft accumulation from daisy file
+casper_traffic      = 'test_NIC/Vluchten Export 2018-11-01 00_00_00 - 2019-04-01 00_00_00_2019-04-29 16_22_47.csv'
+
+# Read Casper traffic and change date to better format
+casper=pd.read_csv(casper_traffic, sep=',')
+
+    
+    
+traffic=Traffic(data=casper,date_column='C_actual', class_column='C_Klasse', id_column='C_id')
+ac=traffic.get_aircraft_for_emissiemodel()
+
+
+
+
+#%% input
+
+# read traffic
+DAISYtraffic2   = ac
+ac_cat          = pd.read_excel('input/traffic/20180803-0953-aircraftcategories.xls')
+
+# TIS traffic
+TIStraffic      = pd.read_excel('input/TIStraffic/CH806-206_20180802_160942.xls')
+ac_cat          = pd.read_excel('input/traffic/20180803-0953-aircraftcategories.xls')
+
+# SCMdatabase
+TIM             = pd.read_excel('input/database/timtimes-20180802-154523.xls')
+ET              = pd.read_excel('input/database/enginetypes-20180802-154659.xls')          
+AT              = pd.read_excel('input/database/aircrafttypes-20180802-154635.xls')
+
+# nieuwe motortypen zonder empirische data
+new_engine      = pd.read_excel('input/new_engine_types.xlsx')
+
+# Settings
+f_3ipv4         = 0.8   # taxien met minder motoren   
+f_2ipv3         = 1.0   # taxien met minder motoren  
+f_APU400hz      = 0.541 # Gebruik van 400hz EN APU
+f_APU           = 0.209 # Gebruik van alleen APU
+settings        = [f_3ipv4,f_2ipv3,f_APU400hz,f_APU]
+
+accat=ac_cat
+tis=TIStraffic
+tim=TIM
+et=ET
+at=AT
+
+
+
+daisy=TrafficAggregate(DAISYtraffic2, aggregate_type='daisy.aircraft')
+    
+#%% run emissiemodel
+traffic_out2,output2= daisy.emissieModel(ET,
+                                       TIM,
+                                       AT,
+                                       ac_cat,
+                                       TIStraffic,
+                                       new_engine,
+                                       settings
+                                       )
