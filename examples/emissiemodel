@@ -78,7 +78,7 @@ traffic_out,output= daisy.emissieModel(ET,
 
 
 # Create aircraft accumulation from daisy file
-casper_traffic      = 'test_NIC/Vluchten Export 2018-11-01 00_00_00 - 2019-04-01 00_00_00_2019-04-29 16_22_47.csv'
+casper_traffic      = 'Vluchten Export 2018-11-01 00_00_00 - 2019-04-01 00_00_00_2019-04-29 16_22_47.csv'
 
 # Read Casper traffic and change date to better format
 casper=pd.read_csv(casper_traffic, sep=',')
