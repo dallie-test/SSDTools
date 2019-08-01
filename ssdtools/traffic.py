@@ -713,11 +713,11 @@ class TrafficAggregate(object):
         # Add CO2 as pollutant
         modes = ['approach','idle','takeoff','climbout']
         for mode in modes:
-            ET['co2_'+mode] = ET['fuel_'+mode]*3.15
+            ET['co2_'+mode] = 3150
             
         modes = ['noload','power','airco','jetstart']
         for mode in modes:
-            ACtypes['co2_'+mode] = ACtypes['fuel_'+mode]*3.15
+            ACtypes['co2_'+mode] = 3150
        
         #%% Add info from engine types
         
@@ -804,7 +804,7 @@ class TrafficAggregate(object):
             DAISYtraffic[stof+'_lto'] = DAISYtraffic['LTO']*DAISYtraffic[stof+'_lto']*DAISYtraffic['engines']
             
             # sommeer over alle vluchten
-            output.loc[stof,'LTO'] = round(sum(DAISYtraffic[stof+'_lto'])/100000 ,3)      
+            output.loc[stof,'LTO'] = round(sum(DAISYtraffic[stof+'_lto'])/1000000 ,3)      
         
             #%% APU
         
@@ -813,7 +813,7 @@ class TrafficAggregate(object):
                                            0.5*DAISYtraffic[stof+'_airco']*DAISYtraffic['fuel_airco']+
                                            DAISYtraffic[stof+'_jetstart']*DAISYtraffic['fuel_jetstart'])
             # sommeer over alle vluchten
-            output.loc[stof,'APU400hz'] = round(f_APU400hz*sum(DAISYtraffic['LTO']*DAISYtraffic[stof+'_APU400hz'])/100000,3)
+            output.loc[stof,'APU400hz'] = round(f_APU400hz*sum(DAISYtraffic['LTO']*DAISYtraffic[stof+'_APU400hz'])/1000000,3)
             
             # APU
             DAISYtraffic[stof+'_APU']        = (DAISYtraffic[stof+'_noload']*DAISYtraffic['fuel_noload']+
@@ -821,13 +821,13 @@ class TrafficAggregate(object):
                                            0.5*DAISYtraffic[stof+'_airco']*DAISYtraffic['fuel_airco']+ 
                                            DAISYtraffic[stof+'_jetstart']*DAISYtraffic['fuel_jetstart'])
             # sommeer over alle vluchten
-            output.loc[stof,'APU'] = round(f_APU*sum(DAISYtraffic['LTO']*DAISYtraffic[stof+'_APU'])/100000,3)
+            output.loc[stof,'APU'] = round(f_APU*sum(DAISYtraffic['LTO']*DAISYtraffic[stof+'_APU'])/1000000,3)
         
             #%% total
         
             output.loc[stof,'Totaal']           = output.loc[stof,'LTO']+output.loc[stof,'APU400hz']+output.loc[stof,'APU']
 
-            output.loc[stof,'Totaal relatief']  = round(output.loc[stof,'Totaal']*100000/sum(DAISYtraffic['LTO']*DAISYtraffic['mtow']*2),3)  
+            output.loc[stof,'Totaal relatief']  = round(output.loc[stof,'Totaal']*1000000/sum(DAISYtraffic['LTO']*DAISYtraffic['mtow']*2),3)  
     
         # add total fuel
         output  =   output.append((output.loc['co2',:]/3.15).rename('fuel'))
