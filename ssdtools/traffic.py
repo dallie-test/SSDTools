@@ -80,6 +80,19 @@ class Traffic(object):
         return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.mean')
 
     @classmethod
+    def read_daisy_emissions_file(cls, path):
+        """
+        A method to read daisy mean files for emissions.
+
+        :param str path: path to the file.
+        :return: daisy mean aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.emissions')
+
+
+    @classmethod
     def read_daisy_weekday_file(cls, path):
         """
         A method to read daisy weekday files.
@@ -631,7 +644,7 @@ class TrafficAggregate(object):
         
         
         # Define the supported types
-        supported_types = ['daisy.aircraft', 'casper']
+        supported_types = ['daisy.emissions', 'casper']
 
         # Check if a different type is provided
         if self.type not in supported_types:
