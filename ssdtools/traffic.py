@@ -844,6 +844,7 @@ class TrafficAggregate(object):
         output  =   output.append((output.loc['co2',:]/3.15).rename('fuel'))
         
         return DAISYtraffic,output
+    
     def get_HG(self,HGdbase,ac_cat):
 
         # merge
@@ -876,11 +877,20 @@ class TrafficAggregate(object):
         t.loc[ids_E,'dBlin'] = t.loc[ids_E,'dBlin']*np.sqrt(10)
         t.loc[ids_N,'dBlin'] = t.loc[ids_N,'dBlin']*10
         
+        #nieuwe meteomarge op de HG
+        t = t.groupby(['d_myear']).sum()
+        
+        # get exceptional years
+        exceptional_years =[1981, 1984, 1993, 1994, 1996, 2000, 2002, 2010] 
+        years = np.setdiff1d(np.arange(1971, 2011), exceptional_years)
+        t =  np.amax(t.loc[years,:])
+
         # Computing HG per meteoyear
         HGlin=t['dBlin'].sum()
         HG=10*math.log10(HGlin) 
         
         return HG
+    
 class Bracket(object):
 
     def __init__(self, data):
