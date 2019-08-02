@@ -3,7 +3,7 @@ import datetime
 import xlrd
 import numpy as np
 import pandas as pd
-
+import math
 
 class Traffic(object):
     def __init__(self, data=None, date_column=None, class_column=None, id_column=None, den_column='DEN',
@@ -651,7 +651,7 @@ class TrafficAggregate(object):
     
         return df
     
-    def emissieModel(self,ET,TIM,ACtypes,ac_cat,TIStraffic,new_engine,settings):
+    def get_emissies(self,ET,TIM,ACtypes,ac_cat,TIStraffic,new_engine,settings):
         """
         Compute the emissionsoutput based on a daisy aggregate traffic
 
@@ -844,7 +844,43 @@ class TrafficAggregate(object):
         output  =   output.append((output.loc['co2',:]/3.15).rename('fuel'))
         
         return DAISYtraffic,output
+    def get_HG(self,HGdbase,ac_cat):
+
+        # merge
+        t    = self.data.merge(ac_cat,left_on='d_type',
+                                             right_on='iata_aircraft',
+                                             how='left')
+        
+        # drop columns
+        t    = t.loc[:,['d_proc','icao_aircraft','d_den','d_myear','total']]
     
+        #% add HGdbase
+        t  = t.merge(HGdbase, 
+                                 left_on=['d_proc','icao_aircraft'], 
+                                 right_on=['profileType','aircraftType'],
+                                 how='left')
+        
+        # warning for missing clusters
+        # check for nans
+        if t['aircraftType'].isnull().values.any():
+            # unique missing clusters
+            clusters = t.loc[t['aircraftType'].isnull(),['icao_aircraft','d_proc']]
+            clusters_unique = clusters.drop_duplicates()
+            print('WARNING: missing clusters in HG table:')
+            print(clusters_unique.values)
+            
+        #% straffactoren
+        ids_E = (t['d_den']=='E') 
+        ids_N = (t['d_den']=='N') 
+        
+        t.loc[ids_E,'dBlin'] = t.loc[ids_E,'dBlin']*np.sqrt(10)
+        t.loc[ids_N,'dBlin'] = t.loc[ids_N,'dBlin']*10
+        
+        # Computing HG per meteoyear
+        HGlin=t['dBlin'].sum()
+        HG=10*math.log10(HGlin) 
+        
+        return HG
 class Bracket(object):
 
     def __init__(self, data):
