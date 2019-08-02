@@ -90,7 +90,18 @@ class Traffic(object):
         """
 
         return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.emissions')
+    
+    @classmethod
+    def read_daisy_HG_file(cls, path):
+        """
+        A method to read daisy mean files for HG computation.
 
+        :param str path: path to the file.
+        :return: daisy mean aggregate of traffic.
+        :rtype: TrafficAggregate
+        """
+
+        return TrafficAggregate(data=pd.read_csv(path, sep='\t', index_col=None), aggregate_type='daisy.HG')
 
     @classmethod
     def read_daisy_weekday_file(cls, path):
