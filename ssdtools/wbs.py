@@ -179,6 +179,53 @@ class WBS(object):
                 'eh48den': eh48den,
                 'sv40n': sv40n
             })
+        
+    def get_MHG(self,lden_grid,lnight_grid,HG,method,GA_scale=1.025):
+        # Find scale factor for MHG
+        i_max =6
+        d = 3
+        volume_high = 650000
+        volume_low = 450000
+        verkeer = 496000
+        
+        if method == 'hybride':
+            # doc.29 gelijkwaardigheidscriteria
+            gwc = [13600,166500,14600,45000]  
+        elif method == 'empirisch': 
+            # NRM gelijkwaardigheidscriteria
+            gwc = [12200,180000,11100,49500] 
+        
+        i = 0
+        while i<i_max:
+            # initiate
+            check = True
+            step = int((volume_high-volume_low)/d) 
+            volume = volume_low
+        
+            while check == True:
+        #        print(volume)
+                scale = volume/verkeer
+                lden = lden_grid.meteotoeslag_grid_from_method(method).scale(GA_scale*scale)
+                
+                lnight = lnight_grid.meteotoeslag_grid_from_method(method).scale(scale)
+                
+                # Calculate the GWC
+                score = self.gwc(lden, lnight)
+                
+                # reformat for check
+                check = (gwc[0]>score['w58den']) & (gwc[1]>score['eh48den']) & (gwc[2]>score['w48n']) & (gwc[3]>score['sv40n'])
+                volume = volume + step
+             
+            # set new begin values
+            volume_high = volume-step
+            volume_low = volume-step-step
+            scale = volume_low/verkeer
+            print('Schaalfactor = '+str(round(scale,3)))
+            i+=1
+        
+        MHG = 10*np.log10(10**(HG/10)*scale)
+        
+        return MHG, scale
 
 
 def annoyance(noise_levels, de='doc29', max_noise_level=None):
