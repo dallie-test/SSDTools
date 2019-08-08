@@ -60,7 +60,7 @@ C:\Users\dalmeijer_w\AppData\Local\Continuum\anaconda3\envs\ssd\python.exe
 If you want to use this package in your own project, you can import this package by running the following command or include it in the `requirements.txt` or `environment.yml` of your project.
 
 ```bash
-# Execute the the following command in your terminal to install the latest version of GPtools. 
+# Execute the the following command in your terminal to install the latest version of SSDtools. 
 
 # If you work with an ssh key, then use:
 pip install git+ssh://git@github.com/Schiphol-Hub/SSDTools@master#egg=SSDTools
