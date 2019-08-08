@@ -238,7 +238,7 @@ class GridPlot(object):
 
         # Extract the x and y coordinates
         x = shape.get_x_coordinates()
-        y = shape.get_y_coordinates()f
+        y = shape.get_y_coordinates()
 
         # If the grid is a multigrid, all noise levels should be plotted.
         if isinstance(self.grid.data, list):
