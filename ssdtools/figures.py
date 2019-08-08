@@ -219,7 +219,7 @@ class GridPlot(object):
         ax2.spines['bottom'].set_linewidth(0.5)
         ax2.tick_params(axis='x', labelsize=6, colors=color, length=4, direction='in', width=0.5)
 
-    def add_contours(self, level, primary_color=None, secondary_color=None):
+    def add_contours(self, level, primary_color=None, secondary_color=None,label='create label',other_label='create other label'):
         """
         Add a contour of the grid at the specified noise level. When a multigrid is provided, the bandwidth of the contour
         will be shown.
@@ -235,7 +235,7 @@ class GridPlot(object):
 
         # Refine the grid
         shape = self.grid.shape.copy().refine(20)
-
+        
         # Extract the x and y coordinates
         x = shape.get_x_coordinates()
         y = shape.get_y_coordinates()
@@ -265,9 +265,32 @@ class GridPlot(object):
         # The input is a single grid, so only a single contour should be plotted
         else:
             grid = self.grid.copy().resize(shape)
-            cs = self.ax.contour(x, y, grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
-
-        return cs
+            cs1 = self.ax.contour(x, 
+                                 y, 
+                                 grid.data, 
+                                 levels=[level], 
+                                 colors=primary_color, 
+                                 linewidths=[1, 1])
+            
+        if self.other is not None:
+            shape_other = self.other.shape.copy().refine(20)
+                    
+            # Extract the x and y coordinates
+            x = shape_other.get_x_coordinates()
+            y = shape_other.get_y_coordinates()
+            grid = self.other.copy().resize(shape_other)
+            cs2 = self.ax.contour(x, 
+                                 y, 
+                                 grid.data, 
+                                 levels=[level], 
+                                 colors=secondary_color, 
+                                 linewidths=[1, 1])
+    
+            h1,_ = cs1.legend_elements()
+            h2,_ = cs2.legend_elements()
+            self.ax.legend([h1[0], h2[0]], [label,other_label],loc='upper left')
+            
+        return
 
     def add_individual_contours(self, level, primary_color=None, secondary_color=None):
         """
