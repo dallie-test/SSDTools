@@ -298,3 +298,17 @@ def sleep_disturbance(noise_levels, de='doc29', max_noise_level=None):
         return 1 - 1 / (1 + np.exp(-6.2952 + 0.0960 * noise_levels))
 
     raise ValueError('The provided dose-effect relationship {} is not know. Please use ges2002 or doc29.'.format(de))
+
+def round2number(x,n):
+    # define the round function
+    def custom_round(x,n):
+        r = round(x / n) * n
+        return r
+    
+    # check if dataframe, or one number
+    if isinstance(x,pd.Series) or isinstance(x,pd.DataFrame):
+        out = x.apply(lambda x: custom_round(x, n))
+    else:
+        out = custom_round(x,n)
+        
+    return out
