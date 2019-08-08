@@ -671,10 +671,11 @@ class TrafficAggregate(object):
             raise TypeError('This method is only supported for traffic aggregates of type {}, but {} is given'.format(
                 supported_types_string, self.type))
         
-        f_3ipv4     = settings[0]
-        f_2ipv3     = settings[1]
-        f_APU400hz  = settings[2]
-        f_APU       = settings[3]
+        f_1ipv2     = settings[0]
+        f_3ipv4     = settings[1]
+        f_2ipv3     = settings[2]
+        f_APU400hz  = settings[3]
+        f_APU       = settings[4]
 
         DAISYtraffic = self.data
             
@@ -786,8 +787,8 @@ class TrafficAggregate(object):
                                 how='left')
         
         # TIM correction
-        no = [3,4]
-        correction = [f_2ipv3,f_3ipv4]
+        no = [2,3,4]
+        correction = [f_1ipv2,f_2ipv3,f_3ipv4]
         for n,c in zip(no,correction):
             ids = (DAISYtraffic['engines']==n)
             DAISYtraffic.loc[ids,'idle'] = DAISYtraffic.loc[ids,'idle']-c*(DAISYtraffic.loc[ids,'idle']/2-3*60)*1/n
