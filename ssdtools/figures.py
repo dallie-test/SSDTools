@@ -238,7 +238,7 @@ class GridPlot(object):
 
         # Extract the x and y coordinates
         x = shape.get_x_coordinates()
-        y = shape.get_y_coordinates()
+        y = shape.get_y_coordinates()f
 
         # If the grid is a multigrid, all noise levels should be plotted.
         if isinstance(self.grid.data, list):
@@ -351,7 +351,7 @@ class GridPlot(object):
         return self.contour_plot
 
     def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
-                               alpha=1.0, **kwargs):
+                               alpha=1.0, method='energetic', **kwargs):
         """
         Compare two grids by creating a heatmap.
 
@@ -369,8 +369,20 @@ class GridPlot(object):
         # Align the shape of the other grid to the original grid
         diff_grid = other_grid.copy().resize(self.grid.shape)
 
+        #compute scaling (energetically scale)
+        if self.grid.unit == 'Lden':
+            threshold = 48
+        elif self.grid.unit == 'Lnight': 
+            threshold = 40                
+            
+        scale                               = np.ones(diff_grid.data.shape)
+        scale[diff_grid.data<threshold]     = 10**((diff_grid.data[diff_grid.data<threshold]-threshold)/10)
+        
         # Subtract the original grid from the other grid
-        diff_grid.data -= self.grid.data
+        diff_grid.data -= self.grid.data   
+        
+        if method =='energetic':
+            diff_grid.data *= scale
 
         # Refine the grid
         diff_grid.refine(20)
