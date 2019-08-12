@@ -421,10 +421,94 @@ class Traffic(object):
 
 
 class TrafficAggregate(object):
-    def __init__(self, data, aggregate_type=None):
+    def __init__(self, data, aggregate_type=None,class_column='d_proc',procedure_column='procedure', altitude_column='altitude',
+                 weight_column='weight',sector_column='sectoriaf'):
+        
         self.data = data
         self.type = aggregate_type
+        self.class_column = class_column
+        self.procedure_column = procedure_column
+        self.altitude_column = altitude_column
+        self.weight_column = weight_column
+        self.sector_column = sector_column
+        
+    def add_procedure(self):
+        """
+        Add the procedure to the traffic, based on the four-digit traffic class.
+        """
 
+        # Add a procedure, altitude and weight column
+        self.data[self.procedure_column] = None
+        self.data[self.altitude_column] = None
+        self.data[self.weight_column] = None
+
+        # Set procedure to other (takeoff)
+        other = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 100)
+        self.data.at[other, self.procedure_column] = 'NADP1'
+
+        # Set procedure to NADP1 (takeoff)
+        nadp1 = (self.data[self.class_column] >= 500) & (self.data[self.class_column] < 600)
+        self.data.at[nadp1, self.procedure_column] = 'NADP1'
+
+        # Set procedure to NADP2 (takeoff)
+        nadp2 = (self.data[self.class_column] >= 600) & (self.data[self.class_column] < 900)
+        self.data.at[nadp2, self.procedure_column] = 'NADP2'
+
+        # Set procedure to normal (landing)
+        normal = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 1100)
+        self.data.at[normal, self.procedure_column] = 'normal'
+
+        # Set procedure to reduced flaps (landing)
+        reduced_flaps = (self.data[self.class_column] >= 1200) & (self.data[self.class_column] < 1300)
+        self.data.at[reduced_flaps, self.procedure_column] = 'reduced_flaps'
+
+        # Set weight to heavy (takeoff)
+        heavy = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                (self.data[self.class_column].mod(10) == 0)
+        self.data.at[heavy, self.weight_column] = 'heavy'
+
+        # Set weight to medium (takeoff)
+        medium = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                 (self.data[self.class_column].mod(10) >= 1) & (self.data[self.class_column].mod(10) <= 2)
+        self.data.at[medium, self.weight_column] = 'medium'
+
+        # Set weight to light (takeoff)
+        light = (self.data[self.class_column] >= 0) & (self.data[self.class_column] < 1000) & \
+                (self.data[self.class_column].mod(10) == 3)
+        self.data.at[light, self.weight_column] = 'light'
+
+        # Set altitude to 2000ft (landing)
+        ft2000 = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+                 (self.data[self.class_column].mod(10) == 0)
+        self.data.at[ft2000, self.altitude_column] = '2000ft'
+
+        # Set altitude to 3000ft (landing)
+        ft3000 = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+                 (self.data[self.class_column].mod(10) == 1)
+        self.data.at[ft3000, self.altitude_column] = '3000ft'
+
+        # Set altitude to CDA (landing)
+        cda = (self.data[self.class_column] >= 1000) & (self.data[self.class_column] < 2000) & \
+              (self.data[self.class_column].mod(10) == 9)
+        self.data.at[cda, self.altitude_column] = 'CDA'
+        
+        
+    def add_sector(self,routesector):
+        
+        self.data[self.sector_column] = None
+        # MERGE
+        self.data = self.data.merge(routesector, 
+                      left_on='d_route',
+                      right_on='route',
+                      how='left')
+
+        # rename 
+        self.data[self.sector_column] = self.data['sector']
+        self.data.drop(['sector','route'], axis=1)
+        
+        # check for empty sectors
+        
+        
     def get_runway_usage(self, period):
         """
         Aggregate the runway usage for the given period of the day.
@@ -520,6 +604,38 @@ class TrafficAggregate(object):
         distribution = distribution.set_index(['d_den']).pivot(columns=separate_by).xs('total', axis=1, level=0)
 
         return distribution
+    
+    def get_procedure_distribution(self):
+        """
+        Get the traffic count for all altitude classes of arrivals and procedure classes of departures.
+
+        :return: the distribution of the traffic for takeoff/landing with altitude on the index for arrivals and
+        procedure on the index for departures.
+        :rtype: pd.DataFrame, pd.DataFrame
+        """
+
+        # Get the arrivals
+        arrivals = self.data[self.data['d_lt'] == 'L'].groupby(self.altitude_column)['total'].sum()
+
+        # Get the departures
+        departures = self.data[self.data['d_lt'] == 'T'].groupby(self.procedure_column)['total'].sum()
+
+        return arrivals, departures
+    
+    
+    def get_sector_distribution(self):
+        """
+        Get the traffic count for all altitude classes of arrivals and procedure classes of departures.
+
+        :return: the distribution of the traffic for takeoff/landing with altitude on the index for arrivals and
+        procedure on the index for departures.
+        :rtype: pd.DataFrame, pd.DataFrame
+        """
+
+        # Get the arrivals
+        sector = self.data.groupby(self.sector_column)['total'].sum()
+
+        return sector
 
     def get_n_runway_preference_usage(self, rc_preferences):
 
