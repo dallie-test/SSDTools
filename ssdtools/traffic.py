@@ -619,8 +619,11 @@ class TrafficAggregate(object):
 
         # Get the departures
         departures = self.data[self.data['d_lt'] == 'T'].groupby(self.procedure_column)['total'].sum()
+        
+        # Get the reduced flaps
+        reduced_flaps = self.data[self.data['d_lt'] == 'L'].groupby(self.procedure_column)['total'].sum()
 
-        return arrivals, departures
+        return arrivals, departures, reduced_flaps
     
     
     def get_sector_distribution(self):
