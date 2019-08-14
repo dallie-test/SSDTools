@@ -464,6 +464,7 @@ def plot_season_traffic(distribution, column_colors=None):
     # Create a subplot for each season
     fig, ax = plt.subplots(len(seasons))
     plt.subplots_adjust(left=.25, hspace=0.0)
+    fig.set_size_inches(34 / 2.54, 8 / 10.54)
 
     # Add the data to each subplot
     for i, season in enumerate(seasons):
