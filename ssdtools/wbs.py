@@ -180,20 +180,25 @@ class WBS(object):
                 'sv40n': sv40n
             })
         
-    def get_MHG(self,lden_grid,lnight_grid,HG,method,GA_scale=1.025):
-        # Find scale factor for MHG
+    def get_inpasbaarvolume(self,lden_grid,lnight_grid,gwc):
+        """
+        Find scaling factor for inpasbaar volume, relative to a set of limitic criteria
+
+        :param grid object lden_grid: grid object Lden grid, does not support multigrids
+        :return: scaling factor
+        :rtype: float
+        """
+        
+        # check if multigrid
+        if isinstance(lden_grid.data, list):
+            raise ValueError('get_inpasbaarvolume does not support multigrids')
+            
+        # Find scale factor for inpasbaar volume
         i_max =6
         d = 3
-        volume_high = 650000
+        volume_high = 700000
         volume_low = 450000
         verkeer = 496000
-        
-        if method == 'hybride':
-            # doc.29 gelijkwaardigheidscriteria
-            gwc = [13600,166500,14600,45000]  
-        elif method == 'empirisch': 
-            # NRM gelijkwaardigheidscriteria
-            gwc = [12200,180000,11100,49500] 
         
         i = 0
         while i<i_max:
@@ -203,29 +208,30 @@ class WBS(object):
             volume = volume_low
         
             while check == True:
-        #        print(volume)
+                # compute new scaling factor
                 scale = volume/verkeer
-                lden = lden_grid.meteotoeslag_grid_from_method(method).scale(GA_scale*scale)
-                
-                lnight = lnight_grid.meteotoeslag_grid_from_method(method).scale(scale)
+
+                # scale grids, use copy to make sure that scaling is not done on already scaled grids
+                lden = lden_grid.copy().scale(scale)
+                lnight = lnight_grid.copy().scale(scale)
                 
                 # Calculate the GWC
-                score = self.gwc(lden, lnight)
-                
-                # reformat for check
+                score = self.gwc(lden,lnight)
+
+                # check
                 check = (gwc[0]>score['w58den']) & (gwc[1]>score['eh48den']) & (gwc[2]>score['w48n']) & (gwc[3]>score['sv40n'])
+                
+                # increase volume
                 volume = volume + step
-             
+
             # set new begin values
             volume_high = volume-step
             volume_low = volume-step-step
             scale = volume_low/verkeer
+            
             print('Schaalfactor = '+str(round(scale,3)))
             i+=1
-        
-        MHG = 10*np.log10(10**(HG/10)*scale)
-        
-        return MHG, scale
+        return scale
 
 
 def annoyance(noise_levels, de='doc29', max_noise_level=None):
