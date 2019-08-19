@@ -1051,39 +1051,55 @@ class TrafficAggregate(object):
         
         return DAISYtraffic,output
     
-    def get_HG(self,HGdbase,ac_cat):
-
-        # merge
-        t    = self.data.merge(ac_cat,left_on='d_type',
-                                             right_on='iata_aircraft',
-                                             how='left')
+     def get_HG(self,HGdbase,ac_cat=None):
         
-        # drop columns
-        t    = t.loc[:,['d_proc','icao_aircraft','d_den','d_myear','total']]
-    
+        
+        try: 
+            # merge with ac_cat table
+            t    = self.data.merge(ac_cat,left_on='d_type',
+                                                 right_on='icao_aircraft',
+                                                 how='left')
+            # drop columns
+            t    = self.loc[:,['d_proc','d_type','d_schedule','d_myear','total']]
+        except: 
+
+            t    = self.data
+            
         #% add HGdbase
         t  = t.merge(HGdbase, 
-                                 left_on=['d_proc','icao_aircraft'], 
-                                 right_on=['profileType','aircraftType'],
-                                 how='left')
+                        left_on=['d_proc','d_ac_cat'], 
+                        right_on=['profileType','aircraftType'],
+                        how='left')
         
         # warning for missing clusters
         # check for nans
         if t['aircraftType'].isnull().values.any():
             # unique missing clusters
-            clusters = t.loc[t['aircraftType'].isnull(),['icao_aircraft','d_proc']]
-            clusters_unique = clusters.drop_duplicates()
-            print('WARNING: missing clusters in HG table:')
-            print(clusters_unique.values)
+            clusters = t.loc[t['aircraftType'].isnull(),['d_ac_cat','d_proc']]
             
+            # compute correctie factor:
+            totaal = t['total'].sum()
+            print(totaal)
+            totaal_cluster = t.loc[t['aircraftType'].isnull(),'total'].sum()
+            print(totaal_cluster)
+            cf = totaal/(totaal-totaal_cluster)
+            print(cf)
+            # get rid of missing clusters
+            clusters_unique = clusters.drop_duplicates()
+            print('WARNING: '+str(totaal_cluster) +' flights with missing clusters in HG database:')
+            print(clusters_unique.values)
+
         #% straffactoren
-        ids_E = (t['d_den']=='E') 
-        ids_N = (t['d_den']=='N') 
+        ids_E = (t['d_schedule']>18) & (t['d_schedule']<23) 
+        ids_N = (t['d_schedule']>22) | (t['d_schedule']<7) 
         
         t.loc[ids_E,'dBlin'] = t.loc[ids_E,'dBlin']*np.sqrt(10)
         t.loc[ids_N,'dBlin'] = t.loc[ids_N,'dBlin']*10
         
-        #nieuwe meteomarge op de HG
+        # now multiply with the total number of movements.
+        t['dBlin_totaal']= t['dBlin']*t['total']
+        
+        # nieuwe meteomarge op de HG
         t = t.groupby(['d_myear']).sum()
         
         # get exceptional years
@@ -1092,8 +1108,8 @@ class TrafficAggregate(object):
         t =  np.amax(t.loc[years,:])
 
         # Computing HG per meteoyear
-        HGlin=t['dBlin'].sum()
-        HG=10*math.log10(HGlin) 
+        HGlin=t['dBlin_totaal']*cf
+        HG=10*math.log10(HGlin)
         
         return HG
     
