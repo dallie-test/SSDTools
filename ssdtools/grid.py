@@ -495,6 +495,50 @@ class Grid(object):
         total_area = np.sum(area_of_individual_polygons)/1000000
        
         return total_area
+   
+    def add(self,grid2):
+        
+        if self.unit!=grid2.unit:
+            raise ValueError("Grids do not have the same unit!")
+         
+        if self.shape!=grid2.shape:
+            #raise ValueError("Grids do not have the same size")
+            print("Grids do not have the same size. The new grid has been resized.")
+            
+            grid2=grid2.resize(self.shape)
+        
+        data_1=10**(self.data/10)
+        data_2=10**(grid2.data/10)
+        
+        data_out=data_1 + data_2
+        
+        data=10*np.log10(data_out)
+        self.data = data
+        
+        return self
+    
+    def subtract(self,grid2):  
+        
+        if self.unit!=grid2.unit:
+            raise ValueError("Grids do not have the same unit!")
+         
+        if self.shape!=grid2.shape:
+            #raise ValueError("Grids do not have the same size")
+            print("Grids do not have the same size. The new grid has been resized.")
+            
+            grid2=grid2.resize(self.shape)
+            
+        data_1=10**(self.data/10)
+        data_2=10**(grid2.data/10)
+        
+        data_out=data_1 - data_2
+        
+        data_out=np.where(data_out<=0, 1, data_out) 
+        
+        data=10*np.log10(data_out)
+        
+        self.data = data
+        return self
 
 
 def relative_den_norm_performance(scale, norm, wbs, den_grid, night_grid=None, scale_de=None, scale_n=None,
