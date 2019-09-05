@@ -261,6 +261,15 @@ class GridPlot(object):
             cs = self.ax.contour(x, y, mean_grid.data, levels=[level], colors=primary_color, linewidths=[1, 1])
             cs_hi = self.ax.contour(x, y, dhi_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
             cs_lo = self.ax.contour(x, y, dlo_grid.data, levels=[level], colors=secondary_color, linewidths=[0.5, 0.5])
+            
+            legend_elements = [Line2D([0], [0], color=default['kleuren']['schemergroen']),
+                               Line2D([0], [0], color=default['kleuren']['schipholblauw'])]
+
+            self.ax.legend(legend_elements, ['58 Lden', '48 Lden'], loc='upper left',fontsize=12)
+            
+
+            
+            
 
         # The input is a single grid, so only a single contour should be plotted
         else:
@@ -288,9 +297,12 @@ class GridPlot(object):
     
             h1,_ = cs1.legend_elements()
             h2,_ = cs2.legend_elements()
-            self.ax.legend([h1[0], h2[0]], [label,other_label],loc='upper left')
+            self.ax.legend([h1[0], h2[0]], [label,other_label],loc='upper left',fontsize=12)
             
-        return
+
+
+        return 
+
 
     def add_individual_contours(self, level, primary_color=None, secondary_color=None):
         """
@@ -373,8 +385,8 @@ class GridPlot(object):
 
         return self.contour_plot
 
-    def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
-                               alpha=1.0, method='energetic', **kwargs):
+     def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
+                               alpha=1.0, method='energetic',positive_scale=False, **kwargs):
         """
         Compare two grids by creating a heatmap.
 
@@ -396,7 +408,9 @@ class GridPlot(object):
         if self.grid.unit == 'Lden':
             threshold = 48
         elif self.grid.unit == 'Lnight': 
-            threshold = 40                
+            threshold = 40      
+        elif self.grid.unit == 'LAmax': 
+            threshold = 75  
             
         scale                               = np.ones(diff_grid.data.shape)
         scale[diff_grid.data<threshold]     = 10**((diff_grid.data[diff_grid.data<threshold]-threshold)/10)
@@ -417,20 +431,23 @@ class GridPlot(object):
         # Add the transparency to the colormap
         if soften_colormap:
             colormap = soften_colormap_center(colormap, alpha=alpha)
+            
+        if soften_colormap and positive_scale:
+            colormap = soften_colormap_edge(colormap, transition_width=1,alpha=alpha)
 
         # Plot the contour area
         self.contour_plot = self.ax.contourf(*np.meshgrid(x, y), diff_grid.data, levels=colormap.N, cmap=colormap,
                                              **kwargs)
 
         return self.contour_plot
-
-    def add_colorbar(self, contour_plot=None):
+    
+    def add_colorbar(self, contour_plot=None,cax_position=None):
 
         # Use the contour plot of this object if no contour plot is provided
         contour_plot = self.contour_plot if contour_plot is None else contour_plot
 
         # Create new axis for the colorbar in the top-right corner. The sequence is left, bottom, width and height.
-        cax = self.fig.add_axes([0.8, 0.6, 0.05, 0.3])
+        cax = self.fig.add_axes([0.8, 0.6, 0.05, 0.3]) if cax_position is None else self.fig.add_axes(cax_position)
 
         # Add the colorbar
         return colorbar.ColorbarBase(cax, cmap=contour_plot.get_cmap(), norm=colors.Normalize(*contour_plot.get_clim()))
@@ -530,6 +547,7 @@ def plot_aircraft_types(traffic_aggregate, ax=None, **kwargs):
     fleet = fleet.reindex(mtow_def['MTOW'].unique())
     fleet = fleet / fleet.sum() * 100
     fleet = fleet.fillna(0)
+    print (fleet)
 
     if ax is None:
         # Create a figure
@@ -542,7 +560,7 @@ def plot_aircraft_types(traffic_aggregate, ax=None, **kwargs):
     ax.bar(range(fleet.shape[0]), fleet, **kwargs)
 
     # Set the x-ticks
-    ax.set_xticks(range(fleet.shape[0]), fleet.index.tolist())
+    plt.xticks(range(fleet.shape[0]), fleet.index.tolist())
 
     # Format the y-ticks
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d %%'))
@@ -553,12 +571,12 @@ def plot_aircraft_types(traffic_aggregate, ax=None, **kwargs):
     # Get rid of box around graph
     for spine in plt.gca().spines.values():
         spine.set_visible(False)
+    
 
     try:
         return fig, ax
     except NameError:
         return None, ax
-
 
 class BracketPlot(object):
     def __init__(self, slond_colors=None, figsize=None, capacity_color='#cdbbce', takeoff_color='#4a8ab7',
@@ -998,6 +1016,86 @@ def plot_prediction(history, prediction, column_name='data', prediction_errorbar
     # Add a legend
     plt.legend(ncol=2, bbox_to_anchor=(0.9, 1.15))
 
+    return fig, ax
+
+def plot_prediction2(history, prediction, column_name='data', prediction_errorbar_kwargs=None,
+                    prediction_fill_between_kwargs=None, history_plot_kwargs=None,doc29_factor=None):
+    """
+
+    :param pd.DataFrame history: the historic dataset to visualise, should contain the specified column_name as the data
+    and a 'year' column.
+    :param pd.DataFrame prediction: the predicted values, should contain the specified column_name as the data and a
+    'year' column.
+    :param int|str column_name: the column name of the data to visualise, defaults to 'data'.
+    :param dict history_plot_kwargs: argument arguments to overwrite the settings used for visualising the historic data.
+    :param dict prediction_errorbar_kwargs: arguments to overwrite the settings used for visualising the errorbars of
+    the prediction.
+    :param dict prediction_fill_between_kwargs: arguments to overwrite the settings used for visualising the filled area
+    of the prediction.
+    :return: a Matplotlib figure and axes.
+    """
+    # Apply the custom history plot style if provided
+    history_style = {'marker': 'o', 'markeredgewidth': 2, 'fillstyle': 'none', 'label': 'history',
+                     'color': '#141251'}
+    if history_plot_kwargs is not None:
+        history_style.update(history_plot_kwargs)
+
+    # Apply the custom prediction errobar style if provided
+    prediction_style = {'marker': '_', 'capsize': 4, 'ecolor': '#9491AA', 'markeredgewidth': 4,
+                        'markeredgecolor': '#9491AA', 'fillstyle': 'none', 'color': '#1B60DB', 'label': 'prediction'}
+    if prediction_errorbar_kwargs is not None:
+        prediction_style.update(prediction_errorbar_kwargs)
+
+    # Apply the custom prediction fill_between style if provided
+    prediction_fill_between_style = {'color': '#027E9B', 'alpha': 0.3}
+    if prediction_fill_between_kwargs is not None:
+        prediction_fill_between_style.update(prediction_fill_between_kwargs)
+
+
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # Plot the history
+    plt.plot(history['years'], history[column_name], **history_style)
+
+    # Describe the prediction for each year
+    statistics = prediction.groupby('years')[column_name].describe()
+
+    # Plot the prediction
+    plt.errorbar(history['years'].tail(1).tolist() + statistics.index.tolist(),
+                 history[column_name].tail(1).tolist() + statistics['mean'].tolist(),
+                 yerr=[[0] + (statistics['mean'] - statistics['min']).tolist(),
+                       [0] + (statistics['max'] - statistics['mean']).tolist()], **prediction_style)
+
+    # Color the background of the prediction
+    plt.fill_between(history['years'].tail(1).tolist() + statistics.index.tolist(),
+                     history[column_name].tail(1).tolist() + statistics['min'].tolist(),
+                     history[column_name].tail(1).tolist() + statistics['max'].tolist(),
+                     **prediction_fill_between_style)
+
+    # Set the xticks
+    ax.set_xticks(np.arange(history['years'].min(), prediction['years'].max() + 1, 1))
+
+    # Add horizontal grid lines
+    ax.grid(axis='y')
+    ax.set_ylim(bottom=0)
+    # Add a legend
+    plt.legend(ncol=2, bbox_to_anchor=(0.9, 1.15))
+    
+    if doc29_factor:
+        ax.set_ylabel('NRM', color='k')  
+    
+    
+        scale_factor=doc29_factor
+        
+        ax2 = ax.twinx()  # instantiate a second axes that shares the same x-axis
+        
+        ax2.plot(history['years'],scale_factor*history[column_name], alpha=0)
+        
+        ax2.set_ylabel('Doc. 29')  # we already handled the x-label with ax1
+#        ax2.tick_params(axis='y', labelcolor='k')
+        ax2.set_ylim(bottom=0)
+    
     return fig, ax
 
 
