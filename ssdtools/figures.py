@@ -481,7 +481,7 @@ def plot_season_traffic(distribution, column_colors=None):
     # Create a subplot for each season
     fig, ax = plt.subplots(len(seasons))
     plt.subplots_adjust(left=.25, hspace=0.0)
-    fig.set_size_inches(34 / 2.54, 8 / 10.54)
+    fig.set_size_inches(30 / 2.54, 10 / 2.54)
 
     # Add the data to each subplot
     for i, season in enumerate(seasons):
@@ -746,7 +746,6 @@ class BracketPlot(object):
     def show(self):
         return self.fig.show()
 
-
 def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, ylim=(0, 110000), dy=10000, reftraffic=1,
                       style='MER'):
     """
@@ -773,6 +772,9 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
     # Check if multiple traffics are provided
     if not isinstance(traffic, list):
         traffic = [traffic]
+
+    matplotlib.rcParams['font.size'] = 12 ##############################
+
 
     # Get the X-positions of the bars
     x = np.arange(n)
@@ -837,16 +839,17 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
                 ref = ''
             ax0.bar(dx[i], height=0.6, bottom=bottom,
                     width=w,color=colors_HS['b'], #
-                    #**branding.baangebruik[style][ref + 'bar'],
+                    **branding.baangebruik[style][ref + 'bar'],##########
                     zorder=4)
             ax0.bar(dxm[i], height=0.05, bottom=yi,
                     width=mw,color=colors_HS['a'], #
-                    #**branding.baangebruik[style][ref + 'marker'],
+                    **branding.baangebruik[style][ref + 'marker'],##############
                     zorder=6)
             ax0.text(xt, yt, labels[i],
                      transform=ax0.transAxes,
                      horizontalalignment=alignment,
-                     **branding.baangebruik[style]['legendtext'])
+                     #**branding.baangebruik[style]['legendtext']
+                     )
 
     # Process the provided traffics
     for i, trf_file in enumerate(traffic):
@@ -920,14 +923,17 @@ def plot_runway_usage(traffic, labels, den=('D', 'E', 'N'), n=7, runways=None, y
             plt.setp([ax.get_xticklines(), ax.get_yticklines()], color='none')
 
             # label size and color
-            ax.tick_params(axis='both', **branding.baangebruik[style]['axislabel'])
+            ax.tick_params(axis='both'
+                           #, **branding.baangebruik[style]['axislabel']
+                           )
 
             # X-as
             ax.set_xticks(x)
             ax.set_xticklabels(trf2['d_runway'])
             ax.text(0.5, -0.18, xlabel,
                     transform=ax.transAxes,
-                    **branding.baangebruik[style]['grouptext'])
+                    **branding.baangebruik[style]['grouptext']
+                    )
 
             # X-as lijntjes
             ax.set_xlim(-0.5, n - 0.5)
