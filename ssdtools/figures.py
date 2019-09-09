@@ -1063,21 +1063,22 @@ def plot_prediction2(history, prediction, column_name='data', prediction_errorba
 
     # Plot the history
     plt.plot(history['years'], history[column_name], **history_style)
-
+    
     # Describe the prediction for each year
-    statistics = prediction.groupby('years')[column_name].describe()
+    statistics = prediction[column_name]/doc29_factor
 
     # Plot the prediction
-    plt.errorbar(history['years'].tail(1).tolist() + statistics.index.tolist(),
-                 history[column_name].tail(1).tolist() + statistics['mean'].tolist(),
-                 yerr=[[0] + (statistics['mean'] - statistics['min']).tolist(),
-                       [0] + (statistics['max'] - statistics['mean']).tolist()], **prediction_style)
-
+    plt.errorbar(history['years'].tail(1).tolist() + [prediction['years'].max()],
+                 history[column_name].tail(1).tolist() + [statistics[1]],
+                 yerr=[[0] + [(statistics[1]- statistics[0])],
+                       [0] + [(statistics[2] - statistics[1])]], **prediction_style)
+    
     # Color the background of the prediction
-    plt.fill_between(history['years'].tail(1).tolist() + statistics.index.tolist(),
-                     history[column_name].tail(1).tolist() + statistics['min'].tolist(),
-                     history[column_name].tail(1).tolist() + statistics['max'].tolist(),
+    plt.fill_between(history['years'].tail(1).tolist() + [prediction['years'].max()],
+                     history[column_name].tail(1).tolist() + [statistics[0]],
+                     history[column_name].tail(1).tolist() + [statistics[2]],
                      **prediction_fill_between_style)
+
 
     # Set the xticks
     ax.set_xticks(np.arange(history['years'].min(), prediction['years'].max() + 1, 1))
