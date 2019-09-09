@@ -385,7 +385,7 @@ class GridPlot(object):
 
         return self.contour_plot
 
-     def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
+    def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
                                alpha=1.0, method='energetic',positive_scale=False, **kwargs):
         """
         Compare two grids by creating a heatmap.
