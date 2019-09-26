@@ -95,7 +95,7 @@ default = {
         'schemerblauw': '#25D7F4',
         'avondlila': '#D285D6',
         'wolkengrijs_1': '#9491AA',
-        'wolekengrijs_2': '#BFBDCC'
+        'wolkengrijs_2': '#BFBDCC'
     },
     'fontname': {
         'grafiek': 'Arial',
