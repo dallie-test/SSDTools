@@ -157,7 +157,7 @@ class GridPlot(object):
             self.place_names = pd.read_csv(place_names, comment='#')
 
         for index, row in self.place_names.iterrows():
-            self.ax.annotate(row['name'], xy=(row['x'], row['y']), size=4, color=color, horizontalalignment='center',
+            self.ax.annotate(row['name'], xy=(row['x'], row['y']), size=6, color=color, horizontalalignment='center',
                              verticalalignment='center')
 
     def add_terrain(self, terrain):
@@ -219,7 +219,7 @@ class GridPlot(object):
         ax2.spines['bottom'].set_linewidth(0.5)
         ax2.tick_params(axis='x', labelsize=6, colors=color, length=4, direction='in', width=0.5)
 
-    def add_contours(self, level, primary_color=None, secondary_color=None,label='create label',other_label='create other label'):
+    def add_contours(self, level, primary_color=None, secondary_color=None,label='create label',other_label='create other label',refine_factor=20):
         """
         Add a contour of the grid at the specified noise level. When a multigrid is provided, the bandwidth of the contour
         will be shown.
@@ -234,7 +234,7 @@ class GridPlot(object):
         self.select()
 
         # Refine the grid
-        shape = self.grid.shape.copy().refine(20)
+        shape = self.grid.shape.copy().refine(refine_factor)
         
         # Extract the x and y coordinates
         x = shape.get_x_coordinates()
@@ -282,7 +282,7 @@ class GridPlot(object):
                                  linewidths=[1, 1])
             
         if self.other is not None:
-            shape_other = self.other.shape.copy().refine(20)
+            shape_other = self.other.shape.copy().refine(refine_factor)
                     
             # Extract the x and y coordinates
             x = shape_other.get_x_coordinates()
@@ -295,16 +295,31 @@ class GridPlot(object):
                                  colors=secondary_color, 
                                  linewidths=[1, 1])
     
-            h1,_ = cs1.legend_elements()
-            h2,_ = cs2.legend_elements()
-            self.ax.legend([h1[0], h2[0]], [label,other_label],loc='upper left',fontsize=12)
-            
+#            h1,_ = cs1.legend_elements()
+#            h2,_ = cs2.legend_elements()
+#            self.ax.legend([h1[0], h2[0]], [label,other_label],loc='upper left',fontsize=12)
+        legend_elements = [
+                           Line2D([0], [0], color=default['kleuren']['schemerblauw']),
+                           Line2D([0], [0], color=default['kleuren']['schemergroen']),
+                           Line2D([0], [0], color=default['kleuren']['middagblauw']),
+                           Line2D([0], [0], color=default['kleuren']['schipholblauw']),
+                           Line2D([0], [0], color=default['kleuren']['middaglichtblauw']),
+                           Line2D([0], [0], color=default['kleuren']['wolkengrijs_1'])
+                           ]
+
+        self.ax.legend(legend_elements, ['1-4 vluchten', 
+                                         '5-9 vluchten', 
+                                         '10-49 vluchten', 
+                                         '50-99 vluchten', 
+                                         '100-199 vluchten',
+                                         '200+ vluchten'],
+                loc='upper left',fontsize=12,title='Aantal vluchten boven 60dB(A)')
 
 
         return 
 
 
-    def add_individual_contours(self, level, primary_color=None, secondary_color=None):
+    def add_individual_contours(self, level, primary_color=None, secondary_color=None, refine_factor=20):
         """
         Add a contour of the grid at the specified noise level. When a multigrid is provided, all contours of the
         individual grids will be shown.
@@ -319,7 +334,7 @@ class GridPlot(object):
         self.select()
 
         # Refine the grid
-        grid = self.grid.copy().refine(20)
+        grid = self.grid.copy().refine(refine_factor)
 
         # Extract the x and y coordinates
         x = grid.shape.get_x_coordinates()
@@ -352,7 +367,7 @@ class GridPlot(object):
 
         return cs
 
-    def add_heatmap(self, colormap=matplotlib.cm.get_cmap('jet'), soften_colormap=True, alpha=0.4, refine=1, **kwargs):
+    def add_heatmap(self, colormap=matplotlib.cm.get_cmap('jet'), soften_colormap=True, alpha=0.4, refine=1, refine_factor=20, **kwargs):
         """
         Show a grid by creating a heatmap.
 
@@ -369,7 +384,7 @@ class GridPlot(object):
         self.select()
 
         # Refine the grid
-        grid = self.grid.copy().refine(20)
+        grid = self.grid.copy().refine(refine_factor)
 
         # Extract the x and y coordinates
         x = grid.shape.get_x_coordinates()
@@ -386,7 +401,7 @@ class GridPlot(object):
         return self.contour_plot
 
     def add_comparison_heatmap(self, other_grid, colormap=matplotlib.cm.get_cmap('RdYlGn'), soften_colormap=True,
-                               alpha=1.0, method='energetic',positive_scale=False, **kwargs):
+                               alpha=1.0, method='energetic',positive_scale=False, refine_factor=20, **kwargs):
         """
         Compare two grids by creating a heatmap.
 
@@ -411,6 +426,8 @@ class GridPlot(object):
             threshold = 40      
         elif self.grid.unit == 'LAmax': 
             threshold = 75  
+        elif self.grid.unit == 'NAxx':
+            threshold =0
             
         scale                               = np.ones(diff_grid.data.shape)
         scale[diff_grid.data<threshold]     = 10**((diff_grid.data[diff_grid.data<threshold]-threshold)/10)
@@ -422,7 +439,7 @@ class GridPlot(object):
             diff_grid.data *= scale
 
         # Refine the grid
-        diff_grid.refine(20)
+        diff_grid.refine(refine_factor)
 
         # Extract the x and y coordinates
         x = diff_grid.shape.get_x_coordinates()
