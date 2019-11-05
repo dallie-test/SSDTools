@@ -29,6 +29,8 @@ dependencies:
   - Pillow=6.0.*
   - pip=19.1.*
   - python-docx=0.8.*
+  - imread=0.*
+  - spyder=3.*
 
 ```
 Create environment using the following command in a conda command prompt.
