@@ -6,7 +6,7 @@ from ssdtools import branding
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import FormatStrFormatter, MultipleLocator, FuncFormatter, FixedLocator
-from scipy.misc import imread
+from imageio import imread
 from matplotlib import colors, colorbar, lines
 from descartes import PolygonPatch
 from geopandas import GeoDataFrame
