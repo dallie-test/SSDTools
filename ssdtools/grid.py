@@ -498,26 +498,49 @@ class Grid(object):
        
         return total_area
    
-    def add(self,grid2):
-        
-        if self.unit!=grid2.unit:
-            raise ValueError("Grids do not have the same unit!")
-         
-        if self.shape!=grid2.shape:
-            #raise ValueError("Grids do not have the same size")
-            print("Grids do not have the same size. The new grid has been resized.")
+    def add(self,grid2=None):
+        """
+        add grids by tranforming to hindersommmen.
+        N.B. now support multigrids, by adding them into a single grid
+
+        :grid2 = grid to add to self, only for single grids
+
+        """
+        if isinstance(self.data, list):
+            # init grid_out:
+            grid_out = Grid(data=self.data[0] ,info=self.info[0],unit=self.unit)
+
+            # now loop over grids and add
+            for d in self.data:
+
+                data_1=10**(grid_out.data/10)
+                data_2=10**(d/10)
+                
+                data_out=data_1 + data_2
+                
+                data=10*np.log10(data_out)
+                grid_out.data = data
+            return grid_out
             
-            grid2=grid2.resize(self.shape)
+        else:
+            if self.unit!=grid2.unit:
+                raise ValueError("Grids do not have the same unit!")
+             
+            if self.shape!=grid2.shape:
+                #raise ValueError("Grids do not have the same size")
+                print("Grids do not have the same size. The new grid has been resized.")
+                
+                grid2=grid2.resize(self.shape)
+            
+            data_1=10**(self.data/10)
+            data_2=10**(grid2.data/10)
+            
+            data_out=data_1 + data_2
+            
+            data=10*np.log10(data_out)
+            self.data = data
         
-        data_1=10**(self.data/10)
-        data_2=10**(grid2.data/10)
-        
-        data_out=data_1 + data_2
-        
-        data=10*np.log10(data_out)
-        self.data = data
-        
-        return self
+            return self
     
     def subtract(self,grid2):  
         
