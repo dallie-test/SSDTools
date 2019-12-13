@@ -115,7 +115,7 @@ class Grid(object):
         return cls(data=data, info=info, unit=unit)
 
     @classmethod
-    def read_enviras(cls, path, pattern='*.dat', year_extractor=extract_year_from_file_name):
+    def read_enviras(cls, path, pattern='*.dat', year_extractor=extract_year_from_file_name,unequal_grids=None):
         """
         Create a Grid object from multiple envira files.
 
@@ -150,7 +150,7 @@ class Grid(object):
         unit = cls_info[0]['eenheid']
 
         # Add the data to a Grid object
-        return cls(data=cls_data, info=cls_info, unit=unit, years=cls_years)
+        return cls(data=cls_data, info=cls_info, unit=unit, years=cls_years, unequal_grids=unequal_grids)
 
     def validate(self, exclude=None):
         """
