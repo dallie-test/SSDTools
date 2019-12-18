@@ -1,5 +1,6 @@
 # SSDtools
 
+DIT IS EEN TESTWIJZIGING
 A Python toolbox that contains common objects and functions used for reporting on the environmental impact of air traffic movements on airports surrounding. It's consist of two main functionalities:
 - Datafiles containing air traffic schedules can be loaded and analysis can be performed.
 - Noise grids can be loaded and Lden and Lnight levels at individual locations can be computed. Used for official reporting about noise impact at Schiphol airport. 
